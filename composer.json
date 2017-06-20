@@ -1,0 +1,11 @@
+{
+	"name" : "eelly/framework",
+	"description" : "php framework",
+	"type" : "library",
+	"license" : "MIT",
+	"authors" : [{
+			"name" : "hehui",
+			"email" : "runphp@qq.com"
+		}
+	]
+}
