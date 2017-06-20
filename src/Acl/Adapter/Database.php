@@ -1,0 +1,719 @@
+<?php
+
+declare(strict_types=1);
+/*
+ * PHP version 7.1
+ *
+ * @copyright Copyright (c) 2012-2017 EELLY Inc. (https://www.eelly.com)
+ * @link      https://api.eelly.com
+ * @license   衣联网版权所有
+ */
+
+namespace Eelly\Acl\Adapter;
+
+use Phalcon\Acl;
+use Phalcon\Acl\Adapter;
+use Phalcon\Acl\Role;
+use Phalcon\Acl\RoleInterface;
+use Phalcon\Db;
+
+class Database extends Adapter
+{
+    public $db;
+
+    /**
+     * acl表.
+     *
+     * @var array
+     */
+    protected $tables = [
+        'client' => 'oauth_client',
+        'module' => 'oauth_module',
+        'moduleService' => 'oauth_module_service',
+        'permission' => 'oauth_permission',
+        'permissionRequest' => 'oauth_permission_request',
+        'permissionReturn' => 'oauth_permission_return',
+        'role' => 'oauth_role',
+        'roleClient' => 'oauth_role_client',
+        'rolePermission' => 'oauth_role_permission',
+    ];
+
+    /**
+     * Default action for no arguments is allow.
+     *
+     * @var int
+     */
+    protected $noArgumentsDefaultAction = Acl::ALLOW;
+
+    /**
+     * Sets the default access level (Phalcon\Acl::ALLOW or Phalcon\Acl::DENY)
+     * for no arguments provided in isAllowed action if there exists func for accessKey.
+     *
+     * @param int $defaultAccess
+     */
+    public function setNoArgumentsDefaultAction($defaultAccess): void
+    {
+        $this->noArgumentsDefaultAction = (int) $defaultAccess;
+    }
+
+    /**
+     * Returns the default ACL access level for no arguments provided in
+     * isAllowed action if there exists func for accessKey.
+     *
+     * @return int
+     */
+    public function getNoArgumentsDefaultAction(): int
+    {
+        return $this->noArgumentsDefaultAction;
+    }
+
+    /**
+     * Adds a role to the ACL list. Second parameter lets to inherit access data from other existing role
+     * $this->addRole(1, [1,2,3]);.
+     *
+     * @param \Phalcon\Acl\Role|string $role
+     * @param mixed                    $accessInherits
+     *
+     * @return bool|number
+     */
+    public function addRole($role, $accessInherits = null, string $defaultPermission = '')
+    {
+        is_string($role) && $role = new Role($role, ucwords($role).' Role');
+
+        if (!$role instanceof RoleInterface) {
+            throw new Exception('Role must be either an string or implement RoleInterface');
+        }
+
+        $roleId = null;
+        if (!$this->checkExists($this->tables['role'], ['role_name' => $role->getName()])) {
+            $roleId = $this->commonInsert($this->tables['role'], ['role_name' => $role->getName(), 'created_time' => time(), 'default_permission' => $defaultPermission]);
+        }
+
+        if (!empty($accessInherits) && is_array($accessInherits)) {
+            !isset($roleId) && $roleId = $this->getRoleId($role->getName());
+            $data = [];
+            foreach ($accessInherits as $permId) {
+                if (!$this->checkExists($this->tables['rolePermission'], ['role_id' => $roleId, 'permission_id' => $permId])) {
+                    $data[] = [
+                        'role_id' => $roleId,
+                        'permission_id' => $permId,
+                        'created_time' => time(),
+                    ];
+                }
+            }
+
+            return $this->commonBatchInsert($this->tables['rolePermission'], $data);
+        } elseif (isset($roleId)) {
+            return $roleId;
+        }
+
+        return true;
+    }
+
+    /**
+     * 添加模块.
+     *
+     * @param string $moduleName
+     *
+     * @return bool|number
+     */
+    public function addModule(string $moduleName)
+    {
+        if (empty($moduleName)) {
+            return false;
+        }
+
+        if (!$this->checkExists($this->tables['module'], ['module_name' => $moduleName])) {
+            return $this->commonInsert($this->tables['module'], [
+                'module_name' => $moduleName,
+                'status' => 1,
+                'created_time' => time(),
+            ]);
+        }
+
+        return true;
+    }
+
+    /**
+     * 添加模块客户端.
+     *
+     * @param string $moduleName
+     *
+     * @return bool|number
+     */
+    public function addModuleClient(string $moduleName, int $roleId = 0)
+    {
+        if (empty($moduleName)) {
+            return false;
+        }
+
+        $clientKey = $moduleName.'module';
+
+        $clientId = null;
+        if (!$this->checkExists($this->tables['client'], ['client_key' => $clientKey])) {
+            $clientId = $this->commonInsert($this->tables['client'], [
+                'client_key' => $clientKey,
+                'client_secret' => password_hash($moduleName.'abc123', PASSWORD_BCRYPT),
+                'is_encrypt' => 1,
+                'org_name' => 'eellyapi',
+                'app_name' => $moduleName,
+                'auth_type' => 4,
+                'created_time' => time(),
+            ]);
+        }
+
+        if (!empty($roleId)) {
+            !isset($clientId) && $clientId = $this->getClientId($clientKey);
+            if (!$this->checkExists($this->tables['roleClient'], ['client_id' => $clientId, 'role_id' => $roleId])) {
+                return $this->commonInsert($this->tables['roleClient'], [
+                    'client_id' => $clientId,
+                    'role_id' => $roleId,
+                    'created_time' => time(),
+                ]);
+            }
+        } elseif (isset($clientId)) {
+            return $clientId;
+        }
+
+        return true;
+    }
+
+    /**
+     * 添加模块服务
+     *
+     * @param string $serviceName
+     * @param string $moduleName
+     *
+     * @return bool|bool|number
+     */
+    public function addModuleService(string $serviceName, string $moduleName)
+    {
+        if (empty($serviceName) || empty($moduleName) || empty($moduleId = $this->getModuleId($moduleName))) {
+            return false;
+        }
+
+        if (!$this->checkExists($this->tables['moduleService'], ['service_name' => $serviceName, 'module_id' => $moduleId])) {
+            return $this->commonInsert($this->tables['moduleService'], [
+                'service_name' => $serviceName,
+                'module_id' => $moduleId,
+                'created_time' => time(),
+            ]);
+        }
+
+        return true;
+    }
+
+    /**
+     * 添加接口.
+     *
+     * @param string $permName
+     * @param string $hashName
+     * @param string $serviceName
+     *
+     * @return bool|bool|number
+     */
+    public function addPermission(string $permName, string $hashName, string $serviceName)
+    {
+        if (empty($hashName) || empty($serviceName) || empty($serviceId = $this->getServiceId($serviceName))) {
+            return false;
+        }
+
+        if (!$this->checkExists($this->tables['permission'], ['hash_name' => $hashName])) {
+            return $this->commonInsert($this->tables['permission'], [
+                'service_id' => $serviceId,
+                'hash_name' => $hashName,
+                'perm_name' => $permName,
+                'created_time' => time(),
+            ]);
+        }
+
+        return true;
+    }
+
+    /**
+     * 添加接口请求参数.
+     *
+     * @param array  $data
+     * @param string $hashName
+     *
+     * @return bool
+     */
+    public function addPermissionRequest(array $data, string $hashName)
+    {
+        if (empty($data) || empty($hashName) || empty($permId = $this->getPermId($hashName))) {
+            return false;
+        }
+
+        if ($this->checkExists($this->tables['permissionRequest'], ['permission_id' => $permId])) {
+            $this->commonDelete($this->tables['permissionRequest'], ['permission_id' => $permId]);
+        }
+
+        foreach ($data as &$val) {
+            $val['permission_id'] = $permId;
+        }
+
+        return $this->commonBatchInsert($this->tables['permissionRequest'], $data);
+    }
+
+    /**
+     * 添加接口返回值
+     *
+     * @param string $dtoName
+     * @param string $example
+     * @param int    $permId
+     *
+     * @return bool|number
+     */
+    public function addPermissionReturn(array $data, string $hashName)
+    {
+        if (empty($data) && empty($hashName) || empty($permId = $this->getPermId($hashName))) {
+            return false;
+        }
+
+        $dtoName = $data['dto_name'];
+        $example = $data['return_example'];
+        if (!$this->checkExists($this->tables['permissionReturn'], ['permission_id' => $permId])) {
+            return $this->commonInsert($this->tables['permissionReturn'], [
+                'permission_id' => $permId,
+                'dto_name' => $dtoName,
+                'return_example' => $example,
+                'created_time' => time(),
+            ]);
+        }
+    }
+
+    public function addRoleClient(string $roleName, string $clientKey)
+    {
+        if (empty($roleName) || empty($clientKey) || empty($roleId = $this->getRoleId($roleName)) || empty($clientId = $this->getClientId($clientKey))) {
+            return false;
+        }
+
+        if (!$this->checkExists($this->tables['roleClient'], ['client_id' => $clientId, 'role_id' => $roleId])) {
+            return $this->commonInsert($this->tables['roleClient'], [
+                'client_id' => $clientId,
+                'role_id' => $roleId,
+                'created_time' => time(),
+            ]);
+        }
+
+        return true;
+    }
+
+    /**
+     * Adds a resource to the ACL list.
+     *
+     * Access names can be a particular action, by example
+     * search, update, delete, etc or a list of them
+     *
+     * @param mixed $resourceObject
+     * @param mixed $accessList
+     *
+     * @return bool
+     */
+    public function addResource($resourceObject, $accessList)
+    {
+    }
+
+    /**
+     * Adds access to resources.
+     *
+     * @param string $resourceName
+     * @param mixed  $accessList
+     */
+    public function addResourceAccess($resourceName, $accessList): void
+    {
+    }
+
+    /**
+     * Removes an access from a resource.
+     *
+     * @param string $resourceName
+     * @param mixed  $accessList
+     */
+    public function dropResourceAccess($resourceName, $accessList): void
+    {
+    }
+
+    /**
+     * Allow access to a role on a resource.
+     *
+     * @param string $roleName
+     * @param string $resourceName
+     * @param mixed  $access
+     * @param mixed  $func
+     */
+    public function allow($roleName, $resourceName, $access, $func = null)
+    {
+        if (empty($roleName) || empty($resourceName) || empty($access)) {
+            return false;
+        }
+
+        if (!$this->isAllowed($roleName, $resourceName, $access)) {
+            $roleId = $this->getRoleId($roleName);
+            $permId = $this->getPermId($resourceName.'\\'.$access);
+
+            return $this->commonInsert($this->tables['rolePermission'], [
+                'role_id' => $roleId,
+                'permission_id' => $permId,
+                'created_time' => time(),
+            ]);
+        }
+
+        return true;
+    }
+
+    /**
+     * Deny access to a role on a resource.
+     *
+     * @param string $roleName
+     * @param string $resourceName
+     * @param mixed  $access
+     * @param mixed  $func
+     */
+    public function deny($roleName, $resourceName, $access, $func = null)
+    {
+        if (empty($roleName) || empty($resourceName) || empty($access)) {
+            return false;
+        }
+
+        if ($this->isAllowed($roleName, $resourceName, $access)) {
+            $roleId = $this->getRoleId($roleName);
+            $permId = $this->getPermId($resourceName.'/'.$access);
+
+            return $this->commonDelete($this->tables['rolePermission'], [
+                'role_id' => $roleId,
+                'permission_id' => $permId,
+            ]);
+        }
+
+        return true;
+    }
+
+    /**
+     * Check whether a role is allowed to access an action from a resource.
+     *
+     * @param mixed $roleName
+     * @param mixed $resourceName
+     * @param mixed $access
+     * @param array $parameters
+     *
+     * @return bool
+     */
+    public function isAllowed($roleName, $resourceName, $access, array $parameters = null)
+    {
+        if (empty($roleName) || empty($resourceName) || empty($access)) {
+            return false;
+        }
+
+        $roleId = $this->getRoleId($roleName);
+        $permId = $this->getPermId($resourceName.'/'.$access);
+
+        return $this->checkExists($this->tables['rolePermission'], ['role_id' => $roleId, 'permission_id' => $permId]);
+    }
+
+    /**
+     * Do a role inherit from another existing role.
+     *
+     * @param string $roleName
+     * @param mixed  $roleToInherit
+     *
+     * @return bool
+     */
+    public function addInherit($roleName, $roleToInherit)
+    {
+    }
+
+    /**
+     * Check whether role exist in the roles list.
+     *
+     * @param string $roleName
+     *
+     * @return bool
+     */
+    public function isRole($roleName)
+    {
+        return $this->checkExists($this->tables['role'], ['role_name' => $roleName]);
+    }
+
+    /**
+     * Check whether resource exist in the resources list.
+     *
+     * @param string $resourceName
+     *
+     * @return bool
+     */
+    public function isResource($resourceName)
+    {
+    }
+
+    public function isClient(string $clientKey): bool
+    {
+        return $this->checkExists($this->tables['client'], ['client_key' => $clientKey]);
+    }
+
+    public function isModule(string $moduleName): bool
+    {
+        return $this->checkExists($this->tables['module'], ['module_name' => $moduleName]);
+    }
+
+    public function isService(string $serviceName): bool
+    {
+        return $this->checkExists($this->tables['moduleService'], ['service_name' => $serviceName]);
+    }
+
+    public function isPermission(string $hashName): bool
+    {
+        return $this->checkExists($this->tables['permission'], ['hash_name' => $hashName]);
+    }
+
+    /**
+     * Returns the role which the list is checking if it's allowed to certain resource/access.
+     *
+     * @return string
+     */
+    public function getActiveRole()
+    {
+    }
+
+    /**
+     * Returns the resource which the list is checking if some role can access it.
+     *
+     * @return string
+     */
+    public function getActiveResource()
+    {
+    }
+
+    /**
+     * Returns the access which the list is checking if some role can access it.
+     *
+     * @return string
+     */
+    public function getActiveAccess()
+    {
+    }
+
+    /**
+     * Return an array with every role registered in the list.
+     *
+     * @return RoleInterface[]
+     */
+    public function getRoles()
+    {
+    }
+
+    /**
+     * Return an array with every resource registered in the list.
+     *
+     * @return ResourceInterface[]
+     */
+    public function getResources()
+    {
+    }
+
+    public function getClientKeyByModuleName(string $moduleName): string
+    {
+        return $moduleName.'module';
+    }
+
+    /**
+     * 验证是否存在.
+     *
+     * @param string $tableName
+     * @param array  $condition
+     *
+     * @return bool
+     */
+    private function checkExists(string $tableName, array $condition): bool
+    {
+        $conditionArr = null;
+        $conditionStr = '';
+        if (!empty($condition)) {
+            $conditionStr = ' WHERE ';
+            foreach ($condition as $key => $val) {
+                $conditionStr .= $key.'= :'.$key.' AND ';
+                $conditionArr[':'.$key] = $val;
+            }
+        }
+        $conditionStr = rtrim($conditionStr, ' AND ');
+        $sth = $this->db->prepare("SELECT COUNT(*) AS count FROM {$tableName}{$conditionStr}");
+        $sth->execute($conditionArr);
+        $exists = $sth->fetch(Db::FETCH_ASSOC);
+
+        return 0 == $exists['count'] ? false : true;
+    }
+
+    /**
+     * 通用的插入.
+     *
+     * @param string $tableName
+     * @param array  $data
+     *
+     * @return bool|int
+     */
+    private function commonInsert(string $tableName, array $data)
+    {
+        if (empty($data)) {
+            return false;
+        }
+
+        $fields = implode(',', array_keys($data));
+        $values = implode("','", array_map('addslashes', array_values($data)));
+        $sql = "INSERT INTO {$tableName}(".$fields.") VALUES('".$values."')";
+
+        return $this->db->execute($sql) ? $this->db->lastInsertId() : false;
+    }
+
+    /**
+     * 通用的批量插入.
+     *
+     * @param string $tableName
+     * @param array  $data
+     *
+     * @return bool
+     */
+    private function commonBatchInsert(string $tableName, array $data)
+    {
+        if (empty($data)) {
+            return false;
+        }
+
+        $fields = implode(',', array_keys($data[0]));
+        $values = ' VALUES';
+        foreach ($data as $val) {
+            $values .= "('".implode("','", array_map('addslashes', array_values($val)))."'),";
+        }
+        $values = rtrim($values, ',');
+        $sql = "INSERT INTO {$tableName}(".$fields."){$values}";
+
+        return $this->db->execute($sql) ? $this->db->lastInsertId() : false;
+    }
+
+    /**
+     * 通用的删除.
+     *
+     * @param string $tableName
+     * @param array  $condition
+     *
+     * @return bool|unknown
+     */
+    private function commonDelete(string $tableName, array $condition)
+    {
+        if (empty($tableName) || empty($condition)) {
+            return false;
+        }
+
+        $conditionArr = null;
+        $conditionStr = '';
+
+        $conditionStr = ' WHERE ';
+        foreach ($condition as $key => $val) {
+            $conditionStr .= $key.' = :'.$key.' AND ';
+            $conditionArr[':'.$key] = $val;
+        }
+        $conditionStr = rtrim($conditionStr, ' AND ');
+        $sth = $this->db->prepare("DELETE FROM {$tableName}{$conditionStr}");
+
+        return $sth->execute($conditionArr);
+    }
+
+    /**
+     * 获取角色id.
+     *
+     * @param string $roleName
+     *
+     * @return bool|bool|unknown
+     */
+    private function getRoleId(string $roleName)
+    {
+        if (empty($roleName) || !$this->isRole($roleName)) {
+            return false;
+        }
+
+        $sth = $this->db->prepare("SELECT role_id FROM {$this->tables['role']} WHERE role_name = :role_name LIMIT 1");
+        $sth->execute([':role_name' => $roleName]);
+        $result = $sth->fetch(Db::FETCH_ASSOC);
+
+        return $result['role_id'] ?? false;
+    }
+
+    /**
+     * 获取客户端id.
+     *
+     * @param string $clientKey
+     *
+     * @return bool|bool|unknown
+     */
+    private function getClientId(string $clientKey)
+    {
+        if (empty($clientKey) || !$this->isClient($clientKey)) {
+            return false;
+        }
+
+        $sth = $this->db->prepare("SELECT client_id FROM {$this->tables['client']} WHERE client_key = :client_key LIMIT 1");
+        $sth->execute([':client_key' => $clientKey]);
+        $result = $sth->fetch(Db::FETCH_ASSOC);
+
+        return $result['client_id'] ?? false;
+    }
+
+    /**
+     * 获取权限id.
+     *
+     * @param string $hashName
+     *
+     * @return bool|bool|unknown
+     */
+    private function getPermId(string $hashName)
+    {
+        if (empty($hashName) || !$this->isPermission($hashName)) {
+            return false;
+        }
+
+        $sth = $this->db->prepare("SELECT permission_id FROM {$this->tables['permission']} WHERE hash_name = :hash_name LIMIT 1");
+        $sth->execute([':hash_name' => $hashName]);
+        $result = $sth->fetch(Db::FETCH_ASSOC);
+
+        return $result['permission_id'] ?? false;
+    }
+
+    /**
+     * 获取模块id.
+     *
+     * @param string $moduleName
+     *
+     * @return bool|bool|unknown
+     */
+    private function getModuleId(string $moduleName)
+    {
+        if (empty($moduleName) || !$this->isModule($moduleName)) {
+            return false;
+        }
+
+        $sth = $this->db->prepare("SELECT module_id FROM {$this->tables['module']} WHERE module_name = :module_name LIMIT 1");
+        $sth->execute([':module_name' => $moduleName]);
+        $result = $sth->fetch(Db::FETCH_ASSOC);
+
+        return $result['module_id'] ?? false;
+    }
+
+    /**
+     * 获取服务id.
+     *
+     * @param string $serviceName
+     *
+     * @return bool|bool|unknown
+     */
+    private function getServiceId(string $serviceName)
+    {
+        if (empty($serviceName) || !$this->isService($serviceName)) {
+            return false;
+        }
+
+        $sth = $this->db->prepare("SELECT service_id FROM {$this->tables['moduleService']} WHERE service_name = :service_name LIMIT 1");
+        $sth->execute([':service_name' => $serviceName]);
+        $result = $sth->fetch(Db::FETCH_ASSOC);
+
+        return $result['service_id'] ?? false;
+    }
+}
