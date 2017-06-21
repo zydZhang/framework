@@ -1,7 +1,11 @@
 {
 	"name": "eelly/framework",
 	"description": "eelly php framework",
-	"keywords": ["api", "phalcon", "modules"],
+	"keywords": [
+		"api",
+		"phalcon",
+		"modules"
+	],
 	"type": "library",
 	"license": "MPL2.0",
 	"authors": [
@@ -27,12 +31,17 @@
 		"symfony/var-dumper": "3.3.2"
 	},
 	"autoload": {
-        "psr-4": {
-            "Eelly\\":"src"
-        },
-        "files": [
-            "Resources/functions/image.php",
-            "Resources/functions/other.php"
-        ]
-    }
+		"psr-4": {
+			"Eelly\\":"src"
+		},
+		"files": [
+			"Resources/functions/image.php",
+			"Resources/functions/other.php"
+		]
+	},
+	"autoload-dev": {
+		"files": [
+			"Resources/functions/debug.php"
+		]
+	}
 }
