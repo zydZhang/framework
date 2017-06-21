@@ -17,14 +17,17 @@
 	"require": {
 		"php": "^7.1.3",
 		"ext-phalcon": "^3.1.2",
+		"guzzlehttp/guzzle": "6.2.3",
+		"league/oauth2-client": "2.2.1",
+		"league/oauth2-server": "5.1.3",
 		"mongodb/mongodb": "1.1.2",
+		"monolog/monolog": "1.22.1",
 		"predis/predis": "1.1.1",
 		"php-amqplib/php-amqplib": "2.6.3",
-		"guzzlehttp/guzzle": "6.2.3",
-		"monolog/monolog": "1.22.1"
+		"swiftmailer/swiftmailer": "6.0.1"
 	},
 	"require-dev": {
-		"friendsofphp/php-cs-fixer": "2.4.x-dev",
+		"friendsofphp/php-cs-fixer": "2.3.2",
 		"jetbrains/phpstorm-stubs": "dev-master",
 		"phpunit/phpunit": "6.2.1",
 		"phalcon/devtools": "3.1.2",
@@ -36,11 +39,7 @@
 		},
 		"files": [
 			"Resources/functions/image.php",
-			"Resources/functions/other.php"
-		]
-	},
-	"autoload-dev": {
-		"files": [
+			"Resources/functions/other.php",
 			"Resources/functions/debug.php"
 		]
 	}
