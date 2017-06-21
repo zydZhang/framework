@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 /*
- * PHP version 7.1
+ * This file is part of eelly package.
  *
- * @copyright Copyright (c) 2012-2017 EELLY Inc. (https://www.eelly.com)
- * @link      https://api.eelly.com
- * @license   衣联网版权所有
+ * (c) eelly.com
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Eelly\Acl\Adapter;
@@ -20,6 +21,8 @@ use Phalcon\Db;
 class Database extends Adapter
 {
     public $db;
+
+    public $cache;
 
     /**
      * acl表.
@@ -412,6 +415,122 @@ class Database extends Adapter
     }
 
     /**
+     * 客户端权限校验.
+     *
+     * example:
+     * $this->eellyAcl->isAllow('clientKey', 'user/index/cacheTime')
+     *
+     * @param string $clientKey
+     * @param string $scope
+     *
+     * @return bool
+     */
+    public function isAllow(string $clientKey, string $scope): bool
+    {
+        if (empty($clientKey) || empty($scope) || empty($scopeList = explode('/', $scope)) || 3 != count($scopeList)) {
+            return false;
+        }
+
+        $userAccess = [];
+        $cacheKey = 'clientPermissionInfo:'.$clientKey;
+        $this->cache instanceof \Phalcon\Cache\BackendInterface && $userAccess = $this->cache->get($cacheKey);
+        if (empty($userAccess)) {
+            $userAccess = $this->getPermissionByClientKey($clientKey);
+            $this->cache instanceof \Phalcon\Cache\BackendInterface && $this->cache->save($cacheKey, $userAccess, 3600);
+        }
+        // 1、默认 (*/*/*)拥有所有权限 2、(user/*/*)拥有user模块所有权限 3、(user/index/*) 拥有user模块index下的所有权限
+        if (isset($userAccess['default_permission']) && !empty($userAccess['default_permission'])) {
+            foreach ($userAccess['default_permission'] as $default) {
+                $defaultPermission = explode('/', $default);
+                if (empty($defaultPermission) || 3 !== count($defaultPermission)) {
+                    continue;
+                }
+
+                if ('*' === $defaultPermission[0]) {
+                    // 拥有所有权限
+                    return true;
+                } elseif ($scopeList[0] === $defaultPermission[0] && '*' === $defaultPermission[1]) {
+                    // 拥有模块下所有权限
+                    return true;
+                } elseif ($scopeList[0] === $defaultPermission[0] && $scopeList[1] === $defaultPermission[1] && '*' === $defaultPermission[2]) {
+                    // 拥有模块下具体某个类的所有权限
+                    return true;
+                }
+            }
+        }
+
+        return isset($userAccess['permission_list']) && in_array($scope, $userAccess['permission_list'], true) ? true : false;
+    }
+
+    /**
+     * 获取客户端拥有的权限.
+     *
+     * @param string $clientKey
+     *
+     * @return array
+     */
+    public function getPermissionByClientKey(string $clientKey): array
+    {
+        $userAccess = [];
+        $roles = $this->getClientRole($clientKey);
+        if (!empty($roles) && is_array($roles)) {
+            $defaultPermission = $this->getRoleDefaultPermission($roles);
+            $condition = implode("','", array_map('addslashes', $roles));
+            $sth = $this->db->query("SELECT DISTINCT p.hash_name FROM {$this->tables['permission']} p INNER JOIN {$this->tables['rolePermission']} rp ON p.permission_id = rp.permission_id WHERE rp.role_id IN ('{$condition}')");
+            $result = $sth->fetchAll(Db::FETCH_ASSOC);
+            $permissionList = array_column($result, 'hash_name');
+            $userAccess = [
+                'default_permission' => $defaultPermission,
+                'permission_list' => $permissionList,
+            ];
+        }
+
+        return $userAccess;
+    }
+
+    /**
+     * 获取角色的默认权限.
+     *
+     * @param array $roles
+     *
+     * @return array
+     */
+    public function getRoleDefaultPermission(array $roles): array
+    {
+        $defaultPermission = [];
+        if (!empty($roles)) {
+            $condition = implode("','", array_map('addslashes', $roles));
+            $sth = $this->db->query("SELECT DISTINCT r.default_permission FROM {$this->tables['role']} r WHERE r.role_id IN ('{$condition}')");
+            $result = $sth->fetchAll(Db::FETCH_ASSOC);
+            $defaultPermission = array_column($result, 'default_permission');
+        }
+
+        return $defaultPermission;
+    }
+
+    /**
+     * 获取客户端的角色.
+     *
+     * @param string $clientKey
+     *
+     * @return array
+     */
+    public function getClientRole(string $clientKey): array
+    {
+        $roles = [];
+        if ($this->isClient($clientKey)) {
+            $clientId = $this->getClientId($clientKey);
+            $sth = $this->db->prepare("SELECT r.role_id FROM {$this->tables['role']} r INNER JOIN {$this->tables['roleClient']} rc ON r.role_id = rc.role_id
+WHERE client_id = :client_id");
+            $sth->execute([':client_id' => $clientId]);
+            $result = $sth->fetchAll(Db::FETCH_ASSOC);
+            $roles = array_column($result, 'role_id');
+        }
+
+        return $roles;
+    }
+
+    /**
      * Do a role inherit from another existing role.
      *
      * @param string $roleName
@@ -467,27 +586,27 @@ class Database extends Adapter
     }
 
     /**
-     * Returns the role which the list is checking if it's allowed to certain resource/access.
+     * Role which the list is checking if it's allowed to certain resource/access.
      *
-     * @return string
+     * @return mixed
      */
     public function getActiveRole()
     {
     }
 
     /**
-     * Returns the resource which the list is checking if some role can access it.
+     * Resource which the list is checking if some role can access it.
      *
-     * @return string
+     * @return mixed
      */
     public function getActiveResource()
     {
     }
 
     /**
-     * Returns the access which the list is checking if some role can access it.
+     * Active access which the list is checking if some role can access it.
      *
-     * @return string
+     * @return mixed
      */
     public function getActiveAccess()
     {
