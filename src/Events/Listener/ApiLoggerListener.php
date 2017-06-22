@@ -56,13 +56,6 @@ class ApiLoggerListener extends AbstractListener
     private $extrasData;
 
     /**
-     * 白名单.
-     *
-     * @var bool
-     */
-    private $isWhite = false;
-
-    /**
      * @param Event       $event
      * @param Application $application
      * @param Dispatcher  $dispatcher
@@ -71,15 +64,6 @@ class ApiLoggerListener extends AbstractListener
     {
         $request = $this->request;
         $controllerClass = $dispatcher->getControllerClass();
-        if (in_array($controllerClass, [
-            'Oauth\Logic\AuthorizationserverLogic',
-            'Oauth\Logic\ResourceserverLogic',
-            'Logger\Logic\ApiloggerLogic',
-        ])) {
-            $this->isWhite = true;
-
-            return;
-        }
         $this->traceId = $request->getHeader('traceId');
         if (empty($this->traceId)) {
             $this->traceId = (new ObjectID())->__toString();
@@ -117,9 +101,6 @@ class ApiLoggerListener extends AbstractListener
      */
     public function beforeSendResponse(Event $event, Application $application, Response $response): void
     {
-        if (true === $this->isWhite) {
-            return;
-        }
         $this->responseData['responseTime'] = microtime(true);
         $this->responseData['statusCode'] = $response->getStatusCode();
         $this->responseData['content'] = $response->getContent();

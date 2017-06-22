@@ -12,13 +12,11 @@ declare(strict_types=1);
 
 namespace Eelly\Mvc;
 
-use Eelly\Events\Listener\AclListener;
-use Eelly\Events\Listener\ApiLoggerListener;
-use Eelly\Events\Listener\CacheAnnotationListener;
 use Eelly\SDK\EellyClient;
 use Phalcon\Config;
 use Phalcon\Db\Adapter\Pdo;
 use Phalcon\Db\Adapter\Pdo\Mysql;
+use Phalcon\DiInterface as Di;
 use Phalcon\Mvc\ModuleDefinitionInterface;
 
 /**
@@ -36,104 +34,101 @@ abstract class AbstractModule implements ModuleDefinitionInterface
     /**
      * Registers an autoloader related to the module.
      *
-     * @param \Phalcon\DiInterface $dependencyInjector
+     * @param Di $di
      */
-    public function registerAutoloaders(\Phalcon\DiInterface $dependencyInjector = null): void
+    public function registerAutoloaders(Di $di = null): void
     {
         /**
          * @var \Phalcon\Loader $loader
          */
-        $loader = $dependencyInjector->getLoader();
+        $loader = $di->getLoader();
         $loader->registerNamespaces([
             static::NAMESPACE => static::NAMESPACE_DIR,
         ]);
         $loader->register();
 
-        $this->registerUserAutoloaders($dependencyInjector);
+        $this->registerUserAutoloaders($di);
     }
 
     /**
      * Registers a user autoloader related to the module.
      *
-     * @param \Phalcon\DiInterface $dependencyInjector
+     * @param Di $di
      */
-    abstract public function registerUserAutoloaders(\Phalcon\DiInterface $dependencyInjector = null): void;
+    abstract public function registerUserAutoloaders(Di $di): void;
 
     /**
-     * @param \Phalcon\DiInterface $dependencyInjector
+     * @param Di $di
      */
-    public function registerConfig(\Phalcon\DiInterface $dependencyInjector = null): void
+    public function registerConfig(Di $di): void
     {
         $moduleName = $this->moduleName;
-        $dependencyInjector->setShared('moduleConfig', require 'var/config/'.ServiceApplication::$env.'/'.$moduleName.'.php');
+        $di->setShared('moduleConfig', require 'var/config/'.ServiceApplication::$env.'/'.$moduleName.'.php');
     }
 
     /**
      * Registers services related to the module.
      *
-     * @param \Phalcon\DiInterface $dependencyInjector
+     * @param Di $di
      */
-    public function registerServices(\Phalcon\DiInterface $dependencyInjector): void
+    public function registerServices(Di $di): void
     {
-        $this->registerConfig($dependencyInjector);
+        $this->registerConfig($di);
         // cache service
-        $dependencyInjector->setShared('cache', function () {
+        $di->setShared('cache', function () {
             $config = $this->getModuleConfig()->cache->toArray();
             $frontend = $this->get($config['frontend'], [$config['options'][$config['frontend']]]);
 
             return $this->get($config['backend'], [$frontend, $config['options'][$config['backend']]]);
         });
         // annotations service
-        $dependencyInjector->setShared('annotations', function () {
+        $di->setShared('annotations', function () {
             $config = $this->getModuleConfig()->annotations->toArray();
 
             return $this->get($config['adapter'], [$config['options'][$config['adapter']]]);
         });
         // eelly client service
-        $dependencyInjector->setShared('eellyClient', function () {
+        $di->setShared('eellyClient', function () {
             $options = $this->getModuleConfig()->oauth2Client->eelly->toArray();
+            $eellyClient = EellyClient::init($options);
+            $eellyClient->getProvider()->setAccessTokenCache($this->getCache());
 
-            return EellyClient::init($options);
+            return $eellyClient;
         });
         // register user services
-        $this->registerUserServices($dependencyInjector);
+        $this->registerUserServices($di);
         // attach events
-        /**
-         * @var \Phalcon\Events\Manager $eventsManager
-         */
-        $eventsManager = $dependencyInjector->getEventsManager();
-        $eventsManager->enablePriorities(true);
-        $eventsManager->attach('application', $dependencyInjector->get(ApiLoggerListener::class), 100);
-        $eventsManager->attach('db:afterConnect', function (Pdo $connection): void {
-            $connection->execute('SELECT trace_?', [EellyClient::$traceId]);
-        });
-        $eventsManager->attach('dispatch', $dependencyInjector->get(AclListener::class), 100);
-        $eventsManager->attach('dispatch', $dependencyInjector->get(CacheAnnotationListener::class), 50);
+        $this->attachUserEvents($di);
     }
 
     /**
      * Registers user services related to the module.
      *
-     * @param \Phalcon\DiInterface $dependencyInjector
+     * @param Di $di
      */
-    abstract public function registerUserServices(\Phalcon\DiInterface $dependencyInjector): void;
+    abstract public function registerUserServices(Di $di): void;
+
+    /**
+     * @param Di $di
+     */
+    abstract public function attachUserEvents(Di $di): void;
 
     /**
      * Register db service.
      *
-     * @param \Phalcon\DiInterface $dependencyInjector
+     * @param Di $di
      */
-    protected function registerDbService(\Phalcon\DiInterface $dependencyInjector)
+    protected function registerDbService(Di $di)
     {
         // mysql master connection service
-        $dependencyInjector->setShared('dbMaster', function () {
+        $di->setShared('dbMaster', function () {
             $config = $this->getModuleConfig()->mysql->master;
 
             return new Mysql($config->toArray());
         });
 
         // mysql slave connection service
-        $dependencyInjector->setShared('dbSlave', function () {
+        $di->setShared('dbSlave', function () {
             $config = $this->getModuleConfig()->mysql->slave->toArray();
             shuffle($config);
 
@@ -141,10 +136,18 @@ abstract class AbstractModule implements ModuleDefinitionInterface
         });
 
         // register modelsMetadata service
-        $dependencyInjector->setShared('modelsMetadata', function () {
+        $di->setShared('modelsMetadata', function () {
             $config = $this->getModuleConfig()->mysql->metaData->toArray();
 
             return $this->get($config['adapter'], [$config['options'][$config['adapter']]]);
+        });
+        /**
+         * @var \Phalcon\Events\Manager $eventsManager
+         */
+        $eventsManager = $di->getEventsManager();
+
+        $eventsManager->attach('db:afterConnect', function (Pdo $connection): void {
+            $connection->execute('SELECT trace_?', [EellyClient::$traceId]);
         });
     }
 }

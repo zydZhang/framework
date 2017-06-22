@@ -25,13 +25,6 @@ class AclListener extends AbstractListener
     public function beforeExecuteRoute(Event $event, Dispatcher $dispatcher)
     {
         $controllerName = $dispatcher->getControllerClass();
-        // 白名单
-        if (in_array($controllerName, [
-            'Oauth\Logic\AuthorizationserverLogic',
-            'Oauth\Logic\ResourceserverLogic',
-        ])) {
-            return;
-        }
         /**
          * @var \Phalcon\Http\Request $request
          */
