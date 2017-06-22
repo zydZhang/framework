@@ -52,6 +52,9 @@ class AclListener extends AbstractListener
             $response = $this->getDI()->getResponse();
             $response->setStatusCode(401);
             $response->setJsonContent($e->getResponseBody());
+            if ($event->isCancelable()) {
+                $event->stop();
+            }
 
             return false;
         }

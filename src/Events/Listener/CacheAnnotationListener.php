@@ -71,6 +71,9 @@ class CacheAnnotationListener extends AbstractListener
             if ($this->hited) {
                 $returnValue = $this->cache->get($this->keyName);
                 $dispatcher->setReturnedValue($returnValue);
+                if ($event->isCancelable()) {
+                    $event->stop();
+                }
 
                 return false;
             }
