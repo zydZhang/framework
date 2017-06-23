@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Eelly\Mvc;
 
+use Eelly\Queue\Adapter\AMQPFactory;
 use Eelly\SDK\EellyClient;
 use Phalcon\Config;
 use Phalcon\Db\Adapter\Pdo;
@@ -148,6 +149,20 @@ abstract class AbstractModule implements ModuleDefinitionInterface
 
         $eventsManager->attach('db:afterConnect', function (Pdo $connection): void {
             $connection->execute('SELECT trace_?', [EellyClient::$traceId]);
+        });
+    }
+
+    /**
+     * Register amqp service.
+     *
+     * @param Di $di
+     */
+    protected function registerAMQPService(Di $di)
+    {
+        $di->setShared('amqpFactory', function () {
+            $connectionOptions = $this->getModuleConfig()->amqp->toArray();
+
+            return new AMQPFactory($connectionOptions, 'default', 'default');
         });
     }
 }
