@@ -52,8 +52,23 @@ class AMQPFactory extends Injectable implements QueueFactoryInterface
     private $connectionOptions;
 
     /**
-     * @param string $defaultProducer
-     * @param string $defaultConsumer
+     *
+     * $connectionOptions 示例
+     * ```
+     * [
+     *     'default' => [.
+     *         'host' => '172.18.107.245',
+     *         'port' => '5672',
+     *         'user' => 'guest',
+     *         'password' => 'guest',
+     *         'vhost' => '/',
+     *      ],
+     * ];
+     * ```
+     *
+     * @param array  $connectionOptions 连接信息
+     * @param string $defaultProducer   默认生产者
+     * @param string $defaultConsumer   默认消费者
      */
     public function __construct(array $connectionOptions, string $defaultProducer, string $defaultConsumer)
     {
