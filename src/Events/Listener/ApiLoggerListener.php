@@ -63,7 +63,7 @@ class ApiLoggerListener extends AbstractListener
     public function beforeHandleRequest(Event $event, Application $application, Dispatcher $dispatcher): void
     {
         $request = $this->request;
-        $controllerClass = $dispatcher->getControllerClass();
+        // 添加跟踪id
         $this->traceId = $request->getHeader('traceId');
         if (empty($this->traceId)) {
             $this->traceId = (new ObjectID())->__toString();
@@ -74,12 +74,8 @@ class ApiLoggerListener extends AbstractListener
                 $this->traceId = (new ObjectID())->__toString();
             }
         }
-        // 添加跟踪id
-        /**
-         * @var \Eelly\SDK\EellyClient $eellyClient
-         */
-        $eellyClient = $this->getDI()->getEellyClient();
-        $eellyClient->setTraceId($this->traceId);
+        $this->eellyClient->setTraceId($this->traceId);
+
         $this->requestData = [];
         $this->requestData['requestTime'] = $this->config->requestTime;
         $this->requestData['clientAddress'] = $request->getClientAddress(true);
@@ -89,7 +85,7 @@ class ApiLoggerListener extends AbstractListener
         $this->requestData['method'] = $request->getMethod();
         $this->requestData['post'] = $request->getPost();
         $this->requestData['moduleName'] = $dispatcher->getModuleName();
-        $this->requestData['controllerClass'] = $controllerClass;
+        $this->requestData['controllerClass'] = $dispatcher->getControllerClass();
         $this->requestData['actionName'] = $dispatcher->getActionName();
         $this->requestData['paramss'] = $this->router->getParams();
     }

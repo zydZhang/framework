@@ -52,6 +52,7 @@ class AMQPFactory extends Injectable implements QueueFactoryInterface
     private $connectionOptions;
 
     /**
+     * constuct.
      *
      * $connectionOptions 示例
      * ```

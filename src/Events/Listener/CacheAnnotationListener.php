@@ -18,8 +18,6 @@ use Phalcon\Mvc\Dispatcher;
 /**
  * cache annotation listener.
  *
- * @property \Phalcon\Cache\Backend $cache
- *
  * @author hehui<hehui@eelly.net>
  */
 class CacheAnnotationListener extends AbstractListener
@@ -27,7 +25,7 @@ class CacheAnnotationListener extends AbstractListener
     /**
      * 注解名称.
      */
-    private const ANNOTATIONS_CACHE = 'Cache';
+    private const ANNOTATIONS_NAME = 'Cache';
 
     /**
      * 默认缓存时间.
@@ -65,7 +63,7 @@ class CacheAnnotationListener extends AbstractListener
             $dispatcher->getActiveMethod()
         );
         $this->annotationsColletion = $annotations;
-        if ($annotations->has(self::ANNOTATIONS_CACHE)) {
+        if ($annotations->has(self::ANNOTATIONS_NAME)) {
             $this->keyName = $this->keyName($dispatcher->getControllerClass(), $dispatcher->getActiveMethod(), $dispatcher->getParams());
             $this->hited = $this->cache->exists($this->keyName);
             if ($this->hited) {
@@ -86,8 +84,8 @@ class CacheAnnotationListener extends AbstractListener
      */
     public function afterDispatchLoop(Event $event, Dispatcher $dispatcher): void
     {
-        if (false === $this->hited && is_object($this->annotationsColletion) && $this->annotationsColletion->has(self::ANNOTATIONS_CACHE)) {
-            $annotation = $this->annotationsColletion->get(self::ANNOTATIONS_CACHE);
+        if (false === $this->hited && is_object($this->annotationsColletion) && $this->annotationsColletion->has(self::ANNOTATIONS_NAME)) {
+            $annotation = $this->annotationsColletion->get(self::ANNOTATIONS_NAME);
             $lifetime = $annotation->getNamedParameter('lifetime') ?? self::DEFAULT_LIFETIME;
             $lifetime = self::DEFAULT_LIFETIME < $lifetime ? $lifetime : self::DEFAULT_LIFETIME;
             $returnValue = $dispatcher->getReturnedValue();

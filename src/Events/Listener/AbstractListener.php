@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Eelly\Events\Listener;
 
-use Phalcon\Di\Injectable;
+use Eelly\Di\Injectable;
 
 abstract class AbstractListener extends Injectable
 {
