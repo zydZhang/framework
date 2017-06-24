@@ -47,7 +47,10 @@ class ServiceApplication extends Application
         date_default_timezone_set($config->defaultTimezone);
     }
 
-    public function run(): void
+    /**
+     * initial.
+     */
+    public function init()
     {
         $errorHandler = $this->_dependencyInjector->getShared(ErrorHandler::class);
         $errorHandler->register();
@@ -56,13 +59,31 @@ class ServiceApplication extends Application
 
         $config = $this->_dependencyInjector->getConfig();
         $this->registerModules($config->modules->toArray());
+    }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @see \Phalcon\Mvc\Application::handle()
+     */
+    public function handle($uri = null)
+    {
         try {
-            $response = $this->handle();
+            $response = parent::handle($uri);
         } catch (ClientException $e) {
             $response = $e->getResponse();
         }
-        $response->send();
+
+        return $response;
+    }
+
+    /**
+     * run.
+     */
+    public function run()
+    {
+        $this->init();
+        $this->handle()->send();
     }
 
     private function initEventsManager(): void
