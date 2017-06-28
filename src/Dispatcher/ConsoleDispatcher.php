@@ -1,6 +1,4 @@
 <?php
-
-declare(strict_types=1);
 /*
  * This file is part of eelly package.
  *
@@ -10,13 +8,17 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Mvc;
+namespace Eelly\Dispatcher;
 
-use Phalcon\Mvc\Dispatcher as MvcDispatcher;
+use Phalcon\Cli\Dispatcher;
 
 /**
  * @author hehui<hehui@eelly.net>
  */
-class Dispatcher extends MvcDispatcher
+class ConsoleDispatcher extends Dispatcher
 {
+    public function afterServiceResolve(): void
+    {
+        $this->setTaskSuffix('Command');
+    }
 }

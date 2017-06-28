@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Eelly\Mvc;
 
+use Eelly\Application\AbstractApplication;
 use Eelly\Di\Injectable;
 use Eelly\SDK\EellyClient;
 use Phalcon\Config;
@@ -62,7 +63,7 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
     public function registerConfig(Di $di): void
     {
         $moduleName = $this->moduleName;
-        $di->setShared('moduleConfig', require 'var/config/'.ServiceApplication::$env.'/'.$moduleName.'.php');
+        $di->setShared('moduleConfig', require 'var/config/'.AbstractApplication::$env.'/'.$moduleName.'.php');
     }
 
     /**
@@ -111,4 +112,18 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
      * @param Di $di
      */
     abstract public function attachUserEvents(Di $di): void;
+
+    /**
+     * 注入模块支持的命令.
+     *
+     * @param \Eelly\Console\Application $app
+     */
+    public function registerCommands(\Eelly\Console\Application $app): void
+    {
+        $loader = $this->loader;
+        $loader->registerNamespaces([
+            static::NAMESPACE.'\\Command' => static::NAMESPACE_DIR.'/Command',
+        ]);
+        $loader->register();
+    }
 }

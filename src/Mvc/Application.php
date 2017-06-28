@@ -16,31 +16,4 @@ use Phalcon\Mvc\Application as MvcApplication;
 
 class Application extends MvcApplication
 {
-    /**
-     * prod 线上.
-     *
-     * @var string
-     */
-    public const ENV_PRODUCTION = 'prod';
-
-    /**
-     * local 待上线
-     *
-     * @var string
-     */
-    public const ENV_STAGING = 'local';
-
-    /**
-     * test 测试.
-     *
-     * @var string
-     */
-    public const ENV_TEST = 'test';
-
-    /**
-     * dev本地.
-     *
-     * @var string
-     */
-    public const ENV_DEVELOPMENT = 'dev';
 }

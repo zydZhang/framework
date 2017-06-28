@@ -15,17 +15,9 @@ use Phalcon\Db\Adapter\Pdo\Mysql as Connection;
 use Phalcon\Di\Injectable as DiInjectable;
 
 /**
- * @property \Phalcon\Cache\Backend $cache
- * @property \Phalcon\Config $config 系统配置
- * @property \Eelly\SDK\EellyClient $eellyClient
- * @property \Eelly\FastDFS\Client $fastdfs fastdfs
- * @property \Phalcon\Config $moduleConfig 模块配置
- * @property \Psr\Log\LoggerInterface $logger 日志对象
- * @property \Eelly\Queue\Adapter\AMQPFactory|\Eelly\Queue\QueueFactoryInterface $queueFactory
- *
  * @author hehui<hehui@eelly.net>
  */
-abstract class Injectable extends DiInjectable
+abstract class Injectable extends DiInjectable implements InjectionAwareInterface
 {
     /**
      * Register db service.
