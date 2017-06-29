@@ -26,13 +26,13 @@ class AclListener extends AbstractListener
     {
         $controllerName = $dispatcher->getControllerClass();
         /**
-         * @var \Phalcon\Http\Request $request
+         * @var \Phalcon\Http\Request
          */
         $request = $this->getDI()->getRequest();
         $header = $this->request->getHeader('authorization');
         $token = trim(preg_replace('/^(?:\s+)?Bearer\s/', '', $header));
         /**
-         * @var \Eelly\OAuth2\Client\Provider\EellyProvider $provider
+         * @var \Eelly\OAuth2\Client\Provider\EellyProvider
          */
         $provider = $this->getDI()->getEellyClient()->getProvider();
         $psr7Request = $provider->getAuthenticatedRequest(EellyProvider::METHOD_POST, $provider->getBaseAuthorizationUrl(), $token);
@@ -40,7 +40,7 @@ class AclListener extends AbstractListener
             $provider->getParsedResponse($psr7Request);
         } catch (IdentityProviderException $e) {
             /**
-             * @var \Phalcon\Http\Response $response
+             * @var \Phalcon\Http\Response
              */
             $response = $this->getDI()->getResponse();
             $response->setStatusCode(401);

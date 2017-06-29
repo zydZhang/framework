@@ -84,7 +84,7 @@ class Command extends SymfonyCommand implements InjectionAwareInterface, EventsA
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         /**
-         * @var \Eelly\Mvc\AbstractModule $moduleObject
+         * @var \Eelly\Mvc\AbstractModule
          */
         $moduleObject = $this->di->getShared(substr(static::class, 0, strpos(static::class, '\\', 1)).'\\Module');
         /*

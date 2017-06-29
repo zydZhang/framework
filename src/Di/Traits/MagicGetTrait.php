@@ -25,7 +25,5 @@ trait MagicGetTrait
             return $this->di;
         }
         trigger_error('Access to undefined property '.$propertyName);
-
-        return null;
     }
 }
