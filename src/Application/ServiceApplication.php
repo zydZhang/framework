@@ -73,7 +73,7 @@ class ServiceApplication extends Injectable
     private function initEventsManager(): void
     {
         /**
-         * @var \Phalcon\Events\Manager $eventsManager
+         * @var \Phalcon\Events\Manager
          */
         $eventsManager = $this->di->getEventsManager();
         $eventsManager->attach('di:afterServiceResolve', function (\Phalcon\Events\Event $event, \Phalcon\Di $di, array $service): void {
@@ -87,7 +87,7 @@ class ServiceApplication extends Injectable
         $eventsManager->attach('dispatch:afterDispatchLoop', function (\Phalcon\Events\Event $event, \Phalcon\Mvc\Dispatcher $dispatcher): void {
             $returnedValue = $dispatcher->getReturnedValue();
             /**
-             * @var \Phalcon\Http\Response $response
+             * @var \Phalcon\Http\Response
              */
             $response = $this->getDI()->getResponse();
             if (is_object($returnedValue)) {

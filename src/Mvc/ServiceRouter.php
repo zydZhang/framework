@@ -26,16 +26,16 @@ class ServiceRouter extends Router
     public function beforeCheckRoutes(\Phalcon\Events\Event $event, Router $router): void
     {
         /**
-         * @var \Eelly\Mvc\ServiceApplication $application
+         * @var \Eelly\Mvc\ServiceApplication
          */
         $application = $this->getDi()->getApplication();
         foreach ($application->getModules()as $moduleName => $value) {
             $namespace = str_replace('Module', 'Logic', $value['className']);
             $router->addPost('/'.$moduleName.'/:controller/:action', [
-                'namespace' => $namespace,
-                'module' => $moduleName,
+                'namespace'  => $namespace,
+                'module'     => $moduleName,
                 'controller' => 1,
-                'action' => 2,
+                'action'     => 2,
             ])->setName($moduleName);
         }
     }
@@ -43,7 +43,7 @@ class ServiceRouter extends Router
     public function afterCheckRoutes(\Phalcon\Events\Event $event, Router $router): void
     {
         /**
-         * @var \Eelly\Http\ServiceRequest $request
+         * @var \Eelly\Http\ServiceRequest
          */
         $request = $this->getDI()->getRequest();
         $router->setParams($request->getRouteParams());

@@ -30,7 +30,7 @@ class Servicelogger extends Logger implements InjectionAwareInterface
         $di = $this->getDI();
         $config = $di->getConfig();
         /**
-         * @var \Phalcon\Dispatcher $dispatcher
+         * @var \Phalcon\Dispatcher
          */
         $dispatcher = $di->getDispatcher();
         $this->appendName($dispatcher->getModuleName());
