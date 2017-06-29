@@ -104,7 +104,7 @@ class RequestException extends \RuntimeException
 
     public function __construct(
         $code,
-        $message = null,
+        $message,
         RequestInterface $request,
         ResponseInterface $response,
         \Exception $previous = null,

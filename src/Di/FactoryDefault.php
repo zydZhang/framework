@@ -22,7 +22,7 @@ abstract class FactoryDefault extends \Phalcon\Di
 
         $this->_services = [
             'eventsManager' => new Service('eventsManager', \Phalcon\Events\Manager::class, true),
-            'loader' => new Service('loader', \Phalcon\Loader::class, true),
+            'loader'        => new Service('loader', \Phalcon\Loader::class, true),
         ];
     }
 }

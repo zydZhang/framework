@@ -107,7 +107,7 @@ class AMQPFactory extends Injectable implements QueueFactoryInterface
 
         if (!isset($this->producers[$name])) {
             /**
-             * @var \Thumper\ConnectionRegistry $connectionRegistry
+             * @var \Thumper\ConnectionRegistry
              */
             $connectionRegistry = $this->getDI()->get(ConnectionRegistry::class);
 
@@ -133,7 +133,7 @@ class AMQPFactory extends Injectable implements QueueFactoryInterface
 
         if (!isset($this->consumers[$name])) {
             /**
-             * @var \Thumper\ConnectionRegistry $connectionRegistry
+             * @var \Thumper\ConnectionRegistry
              */
             $connectionRegistry = $this->getDI()->get(ConnectionRegistry::class);
 

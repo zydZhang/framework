@@ -39,7 +39,7 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
     public function registerAutoloaders(Di $di = null): void
     {
         /**
-         * @var \Phalcon\Loader $loader
+         * @var \Phalcon\Loader
          */
         $loader = $di->getLoader();
         $loader->registerNamespaces([

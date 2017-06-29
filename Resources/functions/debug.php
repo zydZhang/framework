@@ -18,7 +18,9 @@ if (!function_exists('dd')) {
      */
     function dd(): void
     {
-        array_map(function ($x): void { dump($x); }, func_get_args());
+        array_map(function ($x): void {
+            dump($x);
+        }, func_get_args());
         die;
     }
 }

@@ -44,11 +44,11 @@ class AsyncAnnotationListener extends AbstractListener
         if ($annotations->has(self::ANNOTATIONS_NAME)) {
             $annotation = $annotations->get(self::ANNOTATIONS_NAME);
             $msgBody = [
-                'class' => $dispatcher->getControllerClass(),
-                'method' => $dispatcher->getActiveMethod(),
-                'params' => $dispatcher->getParams(),
+                'class'   => $dispatcher->getControllerClass(),
+                'method'  => $dispatcher->getActiveMethod(),
+                'params'  => $dispatcher->getParams(),
                 'traceId' => EellyClient::$traceId,
-                'time' => microtime(true),
+                'time'    => microtime(true),
             ];
             $producer = $this->queueFactory->createProducer();
             $producer->setExchangeOptions(['name' => '_PHEX_'.$dispatcher->getModuleName(), 'type' => 'direct']);

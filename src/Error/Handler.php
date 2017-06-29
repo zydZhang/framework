@@ -120,10 +120,10 @@ class Handler extends Injectable
             $errorLevelMap = $this->defaultErrorLevelMap();
             $level = $errorLevelMap[$code] ?? LogLevel::CRITICAL;
             $this->getLogger()->log($level, self::codeToString($code).': '.$message, [
-                'code' => $code,
+                'code'    => $code,
                 'message' => $message,
-                'file' => $file,
-                'line' => $line,
+                'file'    => $file,
+                'line'    => $line,
             ]);
         }
     }
@@ -133,11 +133,11 @@ class Handler extends Injectable
         $errorLevelMap = $this->defaultErrorLevelMap();
         $level = $errorLevelMap[$e->getCode()] ?? LogLevel::ERROR;
         $this->getLogger()->log($level, 'Uncaught Exception: '.$e->getMessage(), [
-            'code' => $e->getCode(),
-            'message' => $e->getMessage(),
-            'class' => get_class($e),
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
+            'code'          => $e->getCode(),
+            'message'       => $e->getMessage(),
+            'class'         => get_class($e),
+            'file'          => $e->getFile(),
+            'line'          => $e->getLine(),
             'traceAsString' => $e->getTraceAsString(),
         ]);
 
@@ -170,21 +170,21 @@ class Handler extends Injectable
     protected function defaultErrorLevelMap()
     {
         return [
-            E_ERROR => LogLevel::CRITICAL,
-            E_WARNING => LogLevel::WARNING,
-            E_PARSE => LogLevel::ALERT,
-            E_NOTICE => LogLevel::NOTICE,
-            E_CORE_ERROR => LogLevel::CRITICAL,
-            E_CORE_WARNING => LogLevel::WARNING,
-            E_COMPILE_ERROR => LogLevel::ALERT,
-            E_COMPILE_WARNING => LogLevel::WARNING,
-            E_USER_ERROR => LogLevel::ERROR,
-            E_USER_WARNING => LogLevel::WARNING,
-            E_USER_NOTICE => LogLevel::NOTICE,
-            E_STRICT => LogLevel::NOTICE,
+            E_ERROR             => LogLevel::CRITICAL,
+            E_WARNING           => LogLevel::WARNING,
+            E_PARSE             => LogLevel::ALERT,
+            E_NOTICE            => LogLevel::NOTICE,
+            E_CORE_ERROR        => LogLevel::CRITICAL,
+            E_CORE_WARNING      => LogLevel::WARNING,
+            E_COMPILE_ERROR     => LogLevel::ALERT,
+            E_COMPILE_WARNING   => LogLevel::WARNING,
+            E_USER_ERROR        => LogLevel::ERROR,
+            E_USER_WARNING      => LogLevel::WARNING,
+            E_USER_NOTICE       => LogLevel::NOTICE,
+            E_STRICT            => LogLevel::NOTICE,
             E_RECOVERABLE_ERROR => LogLevel::ERROR,
-            E_DEPRECATED => LogLevel::NOTICE,
-            E_USER_DEPRECATED => LogLevel::NOTICE,
+            E_DEPRECATED        => LogLevel::NOTICE,
+            E_USER_DEPRECATED   => LogLevel::NOTICE,
         ];
     }
 

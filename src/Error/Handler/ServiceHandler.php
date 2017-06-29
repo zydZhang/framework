@@ -58,7 +58,7 @@ class ServiceHandler extends AbstractProcessingHandler implements InjectionAware
                 break;
         }
         /**
-         * @var \Phalcon\Http\Response $response
+         * @var \Phalcon\Http\Response
          */
         $response = $this->getDI()->getResponse();
         $response->setStatusCode($record['level'], $record['level_name']);
