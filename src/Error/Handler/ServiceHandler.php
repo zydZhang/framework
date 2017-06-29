@@ -12,8 +12,7 @@ declare(strict_types=1);
 
 namespace Eelly\Error\Handler;
 
-use Eelly\Mvc\Application;
-use Eelly\Mvc\ServiceApplication;
+use Eelly\Application\ApplicationConst;
 use Monolog\Handler\AbstractProcessingHandler;
 use Phalcon\Di\InjectionAwareInterface;
 
@@ -52,9 +51,9 @@ class ServiceHandler extends AbstractProcessingHandler implements InjectionAware
     protected function write(array $record): void
     {
         $content['error'] = $record['message'];
-        switch (ServiceApplication::$env) {
-            case Application::ENV_TEST:
-            case Application::ENV_DEVELOPMENT:
+        switch (ApplicationConst::$env) {
+            case ApplicationConst::ENV_TEST:
+            case ApplicationConst::ENV_DEVELOPMENT:
                 $content['context'] = $record['context'];
                 break;
         }

@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Eelly\Http;
 
-use Eelly\Mvc\ServiceApplication;
+use Eelly\Application\ApplicationConst;
 
 /**
  * @author hehui<hehui@eelly.net>
@@ -22,6 +22,6 @@ class ServiceResponse extends Response
     public function afterServiceResolve(): void
     {
         $this->setContentType('application/json');
-        $this->setHeader('Server', ServiceApplication::VERSION);
+        $this->setHeader('Server', ApplicationConst::APP_NAME.'/'.ApplicationConst::APP_VERSION);
     }
 }

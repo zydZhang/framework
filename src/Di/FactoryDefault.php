@@ -14,7 +14,7 @@ namespace Eelly\Di;
 
 use Phalcon\Di\Service;
 
-class FactoryDefault extends \Phalcon\Di\FactoryDefault
+abstract class FactoryDefault extends \Phalcon\Di
 {
     public function __construct()
     {

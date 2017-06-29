@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Eelly\Logger;
 
-use Eelly\Mvc\ServiceApplication;
+use Eelly\Application\ApplicationConst;
 use Monolog\Logger;
 use Phalcon\Di\InjectionAwareInterface;
 
@@ -22,7 +22,7 @@ class Servicelogger extends Logger implements InjectionAwareInterface
 
     public function __construct()
     {
-        parent::__construct(ServiceApplication::$env);
+        parent::__construct(ApplicationConst::$env);
     }
 
     public function afterServiceResolve(): void

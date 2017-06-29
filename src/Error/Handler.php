@@ -12,9 +12,8 @@ declare(strict_types=1);
 
 namespace Eelly\Error;
 
+use Eelly\Application\ApplicationConst;
 use Eelly\Error\Handler\ServiceHandler;
-use Eelly\Mvc\Application;
-use Eelly\Mvc\ServiceApplication;
 use Monolog\Handler\AbstractHandler;
 use Monolog\Logger;
 use Phalcon\Di\Injectable;
@@ -59,14 +58,14 @@ class Handler extends Injectable
     {
         // dev本地，local 待上线，prod 线上，test 测试
         ini_set('display_errors', '0');
-        switch (ServiceApplication::$env) {
-            case Application::ENV_PRODUCTION:
-            case Application::ENV_STAGING:
+        switch (ApplicationConst::$env) {
+            case ApplicationConst::ENV_PRODUCTION:
+            case ApplicationConst::ENV_STAGING:
             default:
                 error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
                 break;
-            case Application::ENV_TEST:
-            case Application::ENV_DEVELOPMENT:
+            case ApplicationConst::ENV_TEST:
+            case ApplicationConst::ENV_DEVELOPMENT:
                 error_reporting(E_ALL);
                 break;
         }
@@ -86,8 +85,11 @@ class Handler extends Injectable
         if (null === $this->logger) {
             $di = $this->getDI();
             $this->logger = $di->getLogger();
-            $serviceHandler = $di->getShared(ServiceHandler::class);
-            $this->logger->pushHandler($serviceHandler);
+            if (PHP_SAPI == 'cli') {
+            } else {
+                $serviceHandler = $di->getShared(ServiceHandler::class);
+                $this->logger->pushHandler($serviceHandler);
+            }
         }
 
         return $this->logger;
