@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Eelly\Application;
 
+use Eelly\Di\Injectable;
 use Eelly\Error\Handler as ErrorHandler;
 use Eelly\Exception\ClientException;
 use Eelly\Mvc\Application;
@@ -22,7 +23,7 @@ use Phalcon\Di;
  *
  * @author hehui<hehui@eelly.net>
  */
-class ServiceApplication extends AbstractApplication
+class ServiceApplication extends Injectable
 {
     /**
      * initial.
@@ -32,7 +33,7 @@ class ServiceApplication extends AbstractApplication
         $di = $this->getDI();
         $di->setShared('application', new Application($di));
         $config = $this->config;
-        self::$env = $config->env;
+        ApplicationConst::$env = $config->env;
         date_default_timezone_set($config->defaultTimezone);
 
         $errorHandler = $di->getShared(ErrorHandler::class);

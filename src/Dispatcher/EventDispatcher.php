@@ -10,15 +10,11 @@
 
 namespace Eelly\Dispatcher;
 
-use Phalcon\Cli\Dispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcher as SymfonyEventDispatcher;
 
 /**
  * @author hehui<hehui@eelly.net>
  */
-class ConsoleDispatcher extends Dispatcher
+class EventDispatcher extends SymfonyEventDispatcher
 {
-    public function afterServiceResolve(): void
-    {
-        $this->setTaskSuffix('Command');
-    }
 }

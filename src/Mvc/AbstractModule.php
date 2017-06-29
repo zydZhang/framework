@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Eelly\Mvc;
 
-use Eelly\Application\AbstractApplication;
+use Eelly\Application\ApplicationConst;
 use Eelly\Di\Injectable;
 use Eelly\SDK\EellyClient;
 use Phalcon\Config;
@@ -63,7 +63,7 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
     public function registerConfig(Di $di): void
     {
         $moduleName = $this->moduleName;
-        $di->setShared('moduleConfig', require 'var/config/'.AbstractApplication::$env.'/'.$moduleName.'.php');
+        $di->setShared('moduleConfig', require 'var/config/'.ApplicationConst::$env.'/'.$moduleName.'.php');
     }
 
     /**

@@ -11,7 +11,9 @@
 namespace Eelly\Application;
 
 use Eelly\Console\Application;
+use Eelly\Di\Injectable;
 use Eelly\Error\Handler as ErrorHandler;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * console application.
@@ -20,14 +22,19 @@ use Eelly\Error\Handler as ErrorHandler;
  *
  * @author hehui<hehui@eelly.net>
  */
-class ConsoleApplication extends AbstractApplication
+class ConsoleApplication extends Injectable
 {
     public function initial()
     {
         $di = $this->getDI();
-        $di->setShared('application', new Application(self::APP_NAME, self::APP_VERSION));
+        $di->setShared('application', function () {
+            $applications = new Application(ApplicationConst::APP_NAME, ApplicationConst::APP_VERSION);
+            $applications->setDispatcher($this->get('eventDispatcher'));
+
+            return $applications;
+        });
         $config = $di->getConfig();
-        self::$env = $config->env;
+        ApplicationConst::$env = $config->env;
         date_default_timezone_set($config->defaultTimezone);
 
         $errorHandler = $di->getShared(ErrorHandler::class);
@@ -66,5 +73,6 @@ class ConsoleApplication extends AbstractApplication
         });
 
         $this->di->setInternalEventsManager($eventsManager);
+        $eventDispatcher = new EventDispatcher();
     }
 }

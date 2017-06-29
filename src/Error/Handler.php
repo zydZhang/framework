@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Eelly\Error;
 
-use Eelly\Application\AbstractApplication;
+use Eelly\Application\ApplicationConst;
 use Eelly\Error\Handler\ServiceHandler;
 use Monolog\Handler\AbstractHandler;
 use Monolog\Logger;
@@ -58,14 +58,14 @@ class Handler extends Injectable
     {
         // dev本地，local 待上线，prod 线上，test 测试
         ini_set('display_errors', '0');
-        switch (AbstractApplication::$env) {
-            case AbstractApplication::ENV_PRODUCTION:
-            case AbstractApplication::ENV_STAGING:
+        switch (ApplicationConst::$env) {
+            case ApplicationConst::ENV_PRODUCTION:
+            case ApplicationConst::ENV_STAGING:
             default:
                 error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
                 break;
-            case AbstractApplication::ENV_TEST:
-            case AbstractApplication::ENV_DEVELOPMENT:
+            case ApplicationConst::ENV_TEST:
+            case ApplicationConst::ENV_DEVELOPMENT:
                 error_reporting(E_ALL);
                 break;
         }

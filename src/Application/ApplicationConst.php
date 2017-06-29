@@ -10,9 +10,10 @@
 
 namespace Eelly\Application;
 
-use Eelly\Di\Injectable;
-
-abstract class AbstractApplication extends Injectable
+/**
+ * @author hehui<hehui@eelly.net>
+ */
+final class ApplicationConst
 {
     /**
      * prod 线上.
