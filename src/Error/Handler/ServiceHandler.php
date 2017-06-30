@@ -61,7 +61,7 @@ class ServiceHandler extends AbstractProcessingHandler implements InjectionAware
          * @var \Phalcon\Http\Response
          */
         $response = $this->getDI()->getResponse();
-        $response->setStatusCode($record['level'], $record['level_name']);
+        $response->setStatusCode(500, $record['level_name']);
         $response->setJsonContent($content);
         $response->send();
     }
