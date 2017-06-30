@@ -126,6 +126,8 @@ class Handler extends Injectable
                 'line'    => $line,
             ]);
         }
+
+        exit(255);
     }
 
     public function handleException(\Throwable $e): void
