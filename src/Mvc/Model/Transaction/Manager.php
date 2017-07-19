@@ -10,13 +10,14 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Dispatcher;
+namespace Eelly\Mvc\Model\Transaction;
 
-use Symfony\Component\EventDispatcher\EventDispatcher as SymfonyEventDispatcher;
+use Phalcon\Mvc\Model\Transaction\Manager as TransactionManager;
 
 /**
  * @author hehui<hehui@eelly.net>
  */
-class EventDispatcher extends SymfonyEventDispatcher
+class Manager extends TransactionManager
 {
+    protected $_service = 'dbMaster';
 }
