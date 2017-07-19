@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of eelly package.
  *
@@ -45,15 +48,21 @@ final class ApplicationConst
 
     /**
      * app name.
+     *
+     * @var string
      */
     public const APP_NAME = 'EELLY';
 
     /**
      * app version.
+     *
+     * @var string
      */
     public const APP_VERSION = '1.0';
 
     /**
+     * app env.
+     *
      * @var string
      */
     public static $env = self::ENV_PRODUCTION;

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of eelly package.
  *
@@ -60,7 +63,7 @@ class ConsoleApplication extends Injectable
     private function initEventsManager(): void
     {
         /**
-         * @var \Phalcon\Events\Manager
+         * @var \Phalcon\Events\Manager $eventsManager
          */
         $eventsManager = $this->di->getEventsManager();
         $eventsManager->attach('di:afterServiceResolve', function (\Phalcon\Events\Event $event, \Phalcon\Di $di, array $service): void {

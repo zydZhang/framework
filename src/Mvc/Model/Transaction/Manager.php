@@ -11,13 +11,14 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Http;
+namespace Eelly\Mvc\Model\Transaction;
 
-use Phalcon\Http\Response as HttpResponse;
+use Phalcon\Mvc\Model\Transaction\Manager as TransactionManager;
 
 /**
  * @author hehui<hehui@eelly.net>
  */
-class Response extends HttpResponse
+class Manager extends TransactionManager
 {
+    protected $_service = 'dbMaster';
 }

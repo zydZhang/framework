@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /*
  * This file is part of eelly package.
  *
@@ -52,7 +53,7 @@ class Handler extends Injectable
     /**
      * Registers itself as error and exception handler.
      *
-     * @see https://github.com/php/php-src/blob/master/php.ini-production#L458
+     * @link https://github.com/php/php-src/blob/master/php.ini-production#L458
      */
     public function register(): self
     {
