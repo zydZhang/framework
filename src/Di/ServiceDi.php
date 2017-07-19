@@ -18,6 +18,7 @@ use Eelly\Http\ServiceResponse;
 use Eelly\Logger\ServiceLogger;
 use Eelly\Mvc\Collection\Manager as CollectionManager;
 use Eelly\Mvc\Model\Manager as ModelsManager;
+use Eelly\Mvc\Model\Transaction\Manager as TransactionManager;
 use Eelly\Mvc\ServiceRouter;
 use Monolog\Logger;
 use Phalcon\Di\Service;
@@ -37,5 +38,6 @@ class ServiceDi extends FactoryDefault
         $this->_services['request'] = new Service('request', ServiceRequest::class, true);
         $this->_services['response'] = new Service('response', ServiceResponse::class, true);
         $this->_services['router'] = new Service('router', ServiceRouter::class, true);
+        $this->_services['transactionManager'] = new Service('transactionManager', TransactionManager::class, true);
     }
 }
