@@ -66,7 +66,7 @@ class ServiceApplication extends Injectable
             if ($e instanceof EellyLogicException) {
                 $content['context'] = $e->getContext();
             }
-            $response->setJsonContent();
+            $response->setJsonContent($content);
         }
 
         return $response;
