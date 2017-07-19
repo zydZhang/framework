@@ -17,7 +17,6 @@ $finder = PhpCsFixer\Finder::create()
     ->in(__DIR__);
 
 $rules = [
-    '@Symfony'                                   => true,
     '@Symfony:risky'                             => true,
     '@PHP70Migration:risky'                      => true,
     'ordered_imports'                            => true,
@@ -26,6 +25,7 @@ $rules = [
     'ordered_class_elements'                     => true,
     'no_multiline_whitespace_before_semicolons'  => true,
     'binary_operator_spaces'                     => ['align_double_arrow' => true],
+    'declare_equal_normalize'                    => ['space' => 'none'],
     'phpdoc_order'                               => true,
     'phpdoc_no_alias_tag'                        => [],
     'phpdoc_var_without_name'                    => false,
