@@ -88,7 +88,7 @@ class ApiLoggerListener extends AbstractListener
         $this->requestData['moduleName'] = $dispatcher->getModuleName();
         $this->requestData['controllerClass'] = $dispatcher->getControllerClass();
         $this->requestData['actionName'] = $dispatcher->getActionName();
-        $this->requestData['paramss'] = $this->router->getParams();
+        $this->requestData['params'] = $this->router->getParams();
     }
 
     /**
