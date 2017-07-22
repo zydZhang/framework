@@ -57,8 +57,6 @@ class ServiceApplication extends Injectable
         $this->application->registerModules($this->config->modules->toArray());
         try {
             $response = $this->application->handle($uri);
-        } catch (ClientException $e) {
-            $response = $e->getResponse();
         } catch (\LogicException $e) {
             $response = $this->response;
             $response->setHeader('ReturnType', get_class($e));
@@ -67,6 +65,8 @@ class ServiceApplication extends Injectable
                 $content['context'] = $e->getContext();
             }
             $response->setJsonContent($content);
+        } catch (ClientException $e) {
+            $response = $e->getResponse();
         }
 
         return $response;
