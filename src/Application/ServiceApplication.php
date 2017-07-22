@@ -57,8 +57,6 @@ class ServiceApplication extends Injectable
         $this->application->registerModules($this->config->modules->toArray());
         try {
             $response = $this->application->handle($uri);
-        } catch (ClientException $e) {
-            $response = $e->getResponse();
         } catch (\LogicException $e) {
             $response = $this->response;
             $response->setHeader('ReturnType', get_class($e));
@@ -67,6 +65,8 @@ class ServiceApplication extends Injectable
                 $content['context'] = $e->getContext();
             }
             $response->setJsonContent($content);
+        } catch (ClientException $e) {
+            $response = $e->getResponse();
         }
 
         return $response;
@@ -96,21 +96,17 @@ class ServiceApplication extends Injectable
         });
         $eventsManager->attach('dispatch:afterDispatchLoop', function (\Phalcon\Events\Event $event, \Phalcon\Mvc\Dispatcher $dispatcher): void {
             $returnedValue = $dispatcher->getReturnedValue();
-            /**
-             * @var \Phalcon\Http\Response
-             */
-            $response = $this->getDI()->getResponse();
             if (is_object($returnedValue)) {
-                $response->setHeader('ReturnType', get_class($returnedValue));
+                $this->response->setHeader('ReturnType', get_class($returnedValue));
                 if ($returnedValue instanceof \JsonSerializable) {
-                    $response->setJsonContent($returnedValue);
+                    $this->response->setJsonContent($returnedValue);
                 }
             } elseif (is_array($returnedValue)) {
-                $response->setHeader('ReturnType', 'array');
-                $response->setJsonContent($returnedValue);
+                $this->response->setHeader('ReturnType', 'array');
+                $this->response->setJsonContent($returnedValue);
             } elseif (is_scalar($returnedValue)) {
-                $response->setHeader('ReturnType', gettype($returnedValue));
-                $response->setContent($returnedValue);
+                $this->response->setHeader('ReturnType', gettype($returnedValue));
+                $this->response->setContent($returnedValue);
             }
         });
         $this->application->setEventsManager($eventsManager);

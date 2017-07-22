@@ -24,5 +24,6 @@ class ServiceResponse extends Response
     {
         $this->setContentType('application/json');
         $this->setHeader('Server', ApplicationConst::APP_NAME.'/'.ApplicationConst::APP_VERSION);
+        $this->setStatusCode(200);
     }
 }
