@@ -44,9 +44,9 @@ class ServiceRouter extends Router
     public function afterCheckRoutes(\Phalcon\Events\Event $event, Router $router): void
     {
         /**
-         * @var \Eelly\Http\ServiceRequest
+         * @var \Eelly\Http\ServiceRequest $request
          */
-        $request = $this->getDI()->getRequest();
+        $request = $this->getDI()->getShared('request');
         $router->setParams($request->getRouteParams());
     }
 
