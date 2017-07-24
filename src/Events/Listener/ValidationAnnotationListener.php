@@ -42,7 +42,7 @@ class ValidationAnnotationListener extends AbstractListener
         $annotations = $this->annotations->getMethod(
             $dispatcher->getControllerClass(),
             $dispatcher->getActiveMethod()
-            );
+        );
         $this->annotationsColletion = $annotations;
         if ($annotations->has(self::ANNOTATIONS_NAME)) {
             $validation = new Validation();

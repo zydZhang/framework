@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Eelly\Dispatcher;
 
+use InvalidArgumentException;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;
 use Phalcon\Mvc\Dispatcher\Exception as DispatchException;
@@ -55,5 +56,36 @@ class ServiceDispatcher extends Dispatcher
 
             return false;
         }
+    }
+
+    /**
+     *
+     * {@inheritDoc}
+     * @see \Phalcon\Dispatcher::setParams()
+     */
+    public function setParams($routerParams)
+    {
+        $class = $this->getControllerClass();
+        $method = $this->getActionName();
+        $classMethod = new \ReflectionMethod($class, $method);
+        $parameters = $classMethod->getParameters();
+        $parametersNumber = $classMethod->getNumberOfParameters();
+        if (0 != $parametersNumber) {
+            foreach (range(0, $parametersNumber - 1) as $i) {
+                if (! isset($routerParams[$i]) && $parameters[$i]->isDefaultValueAvailable()) {
+                    $routerParams[$i] = $parameters[$i]->getDefaultValue();
+                }
+            }
+        }
+        ksort($routerParams);
+        $requiredParametersNumber = $classMethod->getNumberOfRequiredParameters();
+        $actualParametersNumber = count($routerParams);
+        if ($actualParametersNumber < $requiredParametersNumber) {
+            $this->response->setStatusCode(400);
+            throw new InvalidArgumentException(
+                sprintf('Too few arguments, %d passed and at least %d expected', $actualParametersNumber, $requiredParametersNumber)
+            );
+        }
+        parent::setParams($routerParams);
     }
 }
