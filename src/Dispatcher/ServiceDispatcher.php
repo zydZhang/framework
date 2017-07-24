@@ -39,7 +39,7 @@ class ServiceDispatcher extends Dispatcher
     public function beforeException(Event $event, Dispatcher $dispatcher, \Exception $exception)
     {
         $notFoundFuntion = function (): void {
-            $response = $this->getDI()->getResponse();
+            $response = $this->getDI()->getShared('response');
             $response->setJsonContent([
                 'error' => 'Not found',
             ]);
