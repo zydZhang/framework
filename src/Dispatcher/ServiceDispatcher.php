@@ -59,8 +59,8 @@ class ServiceDispatcher extends Dispatcher
     }
 
     /**
+     * {@inheritdoc}
      *
-     * {@inheritDoc}
      * @see \Phalcon\Dispatcher::setParams()
      */
     public function setParams($routeParams)
@@ -85,8 +85,8 @@ class ServiceDispatcher extends Dispatcher
     }
 
     /**
-     *
      * @param string $message
+     *
      * @throws InvalidArgumentException
      */
     private function throwInvalidArgumentException($message)
@@ -102,10 +102,10 @@ class ServiceDispatcher extends Dispatcher
      * @param array $routeParams
      * @param array $parameters
      */
-    private function filterRouteParams(array & $routeParams, array $parameters)
+    private function filterRouteParams(array &$routeParams, array $parameters)
     {
-        $functionOfThrowInvalidArgumentException = function($position, $expectedType, $actualType) {
-            $this->throwInvalidArgumentException( sprintf( 'Argument %d must be of the type %s, %s given', $position, $expectedType, $actualType));
+        $functionOfThrowInvalidArgumentException = function ($position, $expectedType, $actualType) {
+            $this->throwInvalidArgumentException(sprintf('Argument %d must be of the type %s, %s given', $position, $expectedType, $actualType));
         };
         /**
          * @var \ReflectionParameter $parameter
@@ -115,7 +115,7 @@ class ServiceDispatcher extends Dispatcher
             $expectedType = (string) $parameter->getType();
             $checkedParameter = false;
             // 构建缺失的参数
-            if (! isset($routeParams[$position])) {
+            if (!isset($routeParams[$position])) {
                 $paramName = $parameter->getName();
                 if (isset($routeParams[$paramName])) {
                     // 存在变量名参数
