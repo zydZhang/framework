@@ -133,6 +133,9 @@ class ServiceDispatcher extends Dispatcher
             if (isset($routeParams[$position])) {
                 if (!$checkedParameter) {
                     if (in_array($expectedType, ['bool', 'int', 'float', 'string', 'array'])) {
+                        if (is_array($routeParams[$position]) && 'array' != $expectedType) {
+                            $functionOfThrowInvalidArgumentException($position, $expectedType, 'array');
+                        }
                         settype($routeParams[$position], $expectedType);
                     } elseif (!is_a($routeParams[$position], $expectedType)) {
                         $functionOfThrowInvalidArgumentException($position, $expectedType, gettype($routeParams[$position]));
