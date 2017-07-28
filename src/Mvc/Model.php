@@ -15,6 +15,7 @@ namespace Eelly\Mvc;
 
 use Phalcon\Di;
 use Phalcon\Mvc\Model as MvcModel;
+use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 
 /**
  * @author hehui<hehui@eelly.net>
@@ -42,5 +43,79 @@ abstract class Model extends MvcModel
     public static function createBuilder()
     {
         return Di::getDefault()->getShared('modelsManager')->createBuilder()->from(static::class);
+    }
+
+    /**
+     * 返回分页数组.
+     *
+     * @param $data Model查找结果集|如 $data = OauthModuleService::find();
+     * @param int $limit 分页页数
+     * @param int $page 当前页数
+     * @return array
+     * @author liangxinyi<liangxinyi@eelly.net>
+     */
+    public  function pagination($data, int $limit = 10, int $page = 1): array
+    {
+        if(empty($data))
+        {
+            return array();
+        }
+        $paginator = new PaginatorModel(
+            [
+                'data'  => $data,
+                'limit' => $limit,
+                'page'  => $page,
+            ]
+        );
+        $page = $paginator->getPaginate();
+        foreach ($page->items as $key=>$item)
+        {
+            $return['items'][$key]=$item->toArray();
+        }
+        $return['page']=[
+            "first"=>$page->first,
+            "before"=>$page->before,
+            "current"=>$page->current,
+            "last"=>$page->last,
+            "next"=>$page->next,
+            "total_pages"=>$page->total_pages,
+            "total_items"=>$page->total_items,
+            "limit"=>$page->limit,
+        ];
+        return $return;
+    }
+
+    /**
+     * 原生sql语句返回分页数组
+     * @param string $sql sql语句
+     * @param int $limit 分页页数
+     * @param int $page 当前页数
+     * @return array
+     * @author liangxinyi<liangxinyi@eelly.net>
+     */
+    public  function paginationSql(string $sql, int $limit = 10, int $page = 1): array
+    {
+        $start = ($page-1)*$limit;
+        $count = count($this->getReadConnection()->fetchAll($sql));
+        $sql .= " limit $start,$limit ";
+        $data = $this->getReadConnection()->fetchAll($sql);
+        if(empty($data))
+        {
+            return array();
+        }
+
+        $total_pages = ceil($count/$limit);
+        $return['items'] = $data ;
+        $return['page']=[
+            "first"=>1,
+            "before"=>1,
+            "current"=>$page,
+            "last"=>$page>1?$page:1,
+            "next"=>$total_pages>$page?($page+1):$page,
+            "total_pages"=>ceil($count/$limit),
+            "total_items"=>$count,
+            "limit"=>$limit,
+        ];
+        return $return;
     }
 }
