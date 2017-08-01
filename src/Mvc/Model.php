@@ -118,4 +118,21 @@ abstract class Model extends MvcModel
         ];
         return $return;
     }
+
+    /**
+     * 获取字段.
+     *
+     * @param string $field
+     * @return string
+     * @requestExample(base)
+     * @returnExample([role_id,role_name,default_permission,created_time,update_time])
+     * @author liangxinyi<liangxinyi@eelly.net>
+     * @since 2017-7-27
+     */
+    public static function  getField(string $field='base'):string
+    {
+        return (get_called_class()::FIELD_SCOPE[$field]);
+    }
+
+
 }
