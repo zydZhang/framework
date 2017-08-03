@@ -59,8 +59,8 @@ class ServiceApplication extends Injectable
             $response = $this->application->handle($uri);
         } catch (\LogicException $e) {
             $response = $this->response;
-            $response->setHeader('ReturnType', get_class($e));
-            $content = ['error' => $e->getMessage()];
+            $response->setHeader('returnType', get_class($e));
+            $content = ['error' => $e->getMessage(), 'returnType' => get_class($e)];
             if ($e instanceof EellyLogicException) {
                 $content['context'] = $e->getContext();
             }
@@ -97,16 +97,16 @@ class ServiceApplication extends Injectable
         $eventsManager->attach('dispatch:afterDispatchLoop', function (\Phalcon\Events\Event $event, \Phalcon\Mvc\Dispatcher $dispatcher): void {
             $returnedValue = $dispatcher->getReturnedValue();
             if (is_object($returnedValue)) {
-                $this->response->setHeader('ReturnType', get_class($returnedValue));
+                $this->response->setHeader('returnType', get_class($returnedValue));
                 if ($returnedValue instanceof \JsonSerializable) {
-                    $this->response->setJsonContent($returnedValue);
+                    $this->response->setJsonContent(['data' => $returnedValue, 'returnType' => get_class($returnedValue)]);
                 }
             } elseif (is_array($returnedValue)) {
-                $this->response->setHeader('ReturnType', 'array');
-                $this->response->setJsonContent($returnedValue);
+                $this->response->setHeader('returnType', 'array');
+                $this->response->setJsonContent(['data' => $returnedValue, 'returnType' => 'array']);
             } elseif (is_scalar($returnedValue)) {
-                $this->response->setHeader('ReturnType', gettype($returnedValue));
-                $this->response->setContent($returnedValue);
+                $this->response->setHeader('returnType', gettype($returnedValue));
+                $this->response->setContent(['data' => $returnedValue, 'returnType' => gettype($returnedValue)]);
             }
         });
         $this->application->setEventsManager($eventsManager);
