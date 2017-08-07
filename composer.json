@@ -36,7 +36,8 @@
 		},
 		"files": [
 			"Resources/functions/image.php",
-			"Resources/functions/other.php"
+			"Resources/functions/other.php",
+			"Resources/functions/debug.php"
 		]
 	},
 	"autoload-dev": {
