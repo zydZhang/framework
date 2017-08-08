@@ -31,15 +31,15 @@ class Database extends Adapter
      * @var array
      */
     protected $tables = [
-        'client'            => 'oauth_client',
-        'module'            => 'oauth_module',
-        'moduleService'     => 'oauth_module_service',
-        'permission'        => 'oauth_permission',
-        'permissionRequest' => 'oauth_permission_request',
-        'permissionReturn'  => 'oauth_permission_return',
-        'role'              => 'oauth_role',
-        'roleClient'        => 'oauth_role_client',
-        'rolePermission'    => 'oauth_role_permission',
+        'client'                 => 'oauth_client',
+        'module'                 => 'oauth_module',
+        'moduleService'          => 'oauth_module_service',
+        'permission'             => 'oauth_permission',
+        'permissionRequest'      => 'oauth_permission_request',
+        'permissionReturn'       => 'oauth_permission_return',
+        'role'                   => 'oauth_role',
+        'roleClient'             => 'oauth_role_client',
+        'rolePermission'         => 'oauth_role_permission',
         'permissionParameter'    => 'oauth_permission_parameter',
     ];
 
@@ -231,12 +231,12 @@ class Database extends Adapter
         }
 
         return $this->commonInsert($this->tables['permission'], [
-            'service_id'   => $serviceId,
-            'hash_name'    => $hashName,
-            'perm_name'    => $data['methodName'],
+            'service_id'      => $serviceId,
+            'hash_name'       => $hashName,
+            'perm_name'       => $data['methodName'],
             'request_example' => $data['requestExample'],
-            'remark' => $data['methodDescribe'],
-            'created_time' => $data['created_time'],
+            'remark'          => $data['methodDescribe'],
+            'created_time'    => $data['created_time'],
         ]);
     }
 
