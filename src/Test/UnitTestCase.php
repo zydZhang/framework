@@ -1,4 +1,7 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of eelly package.
  *
@@ -16,9 +19,7 @@ use Phalcon\DiInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class UnitTestCase
- *
- * @package Eelly\Test
+ * Class UnitTestCase.
  */
 class UnitTestCase extends TestCase implements InjectionAwareInterface
 {
@@ -53,18 +54,23 @@ class UnitTestCase extends TestCase implements InjectionAwareInterface
      * Sets the Dependency Injector.
      *
      * @see    Injectable::setDI
-     * @param  DiInterface $di
+     *
+     * @param DiInterface $di
+     *
      * @return $this
      */
     public function setDI(DiInterface $di)
     {
         $this->di = $di;
+
         return $this;
     }
+
     /**
      * Returns the internal Dependency Injector.
      *
      * @see    Injectable::getDI
+     *
      * @return DiInterface
      */
     public function getDI()
@@ -72,6 +78,7 @@ class UnitTestCase extends TestCase implements InjectionAwareInterface
         if (!$this->di instanceof DiInterface) {
             return Di::getDefault();
         }
+
         return $this->di;
     }
 }

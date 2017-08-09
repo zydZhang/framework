@@ -213,7 +213,7 @@ class Database extends Adapter
      *
      * @param string $hashName
      * @param string $serviceName
-     * @param array $data
+     * @param array  $data
      *
      * @return bool
      */
