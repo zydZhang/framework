@@ -58,7 +58,7 @@ abstract class Model extends MvcModel
     {
         if(empty($data))
         {
-            return array();
+            return [];
         }
         $paginator = new PaginatorModel(
             [
@@ -70,17 +70,17 @@ abstract class Model extends MvcModel
         $page = $paginator->getPaginate();
         foreach ($page->items as $key=>$item)
         {
-            $return['items'][$key]=$item->toArray();
+            $return['items'][$key] = $item->toArray();
         }
-        $return['page']=[
-            "first"=>$page->first,
-            "before"=>$page->before,
-            "current"=>$page->current,
-            "last"=>$page->last,
-            "next"=>$page->next,
-            "total_pages"=>$page->total_pages,
-            "total_items"=>$page->total_items,
-            "limit"=>$page->limit,
+        $return['page'] = [
+            "first"      => $page->first,
+            "before"     => $page->before,
+            "current"    => $page->current,
+            "last"       => $page->last,
+            "next"       => $page->next,
+            "total_pages"=> $page->total_pages,
+            "total_items"=> $page->total_items,
+            "limit"      => $page->limit,
         ];
         return $return;
     }
@@ -95,27 +95,44 @@ abstract class Model extends MvcModel
      */
     public  function paginationSql(string $sql, int $limit = 10, int $page = 1): array
     {
-        $start = ($page-1)*$limit;
+        $start = ($page - 1) * $limit;
         $count = count($this->getReadConnection()->fetchAll($sql));
         $sql .= " limit $start,$limit ";
         $data = $this->getReadConnection()->fetchAll($sql);
         if(empty($data))
         {
-            return array();
+            return [];
         }
 
-        $total_pages = ceil($count/$limit);
+        $total_pages = ceil($count / $limit);
         $return['items'] = $data ;
-        $return['page']=[
-            "first"=>1,
-            "before"=>1,
-            "current"=>$page,
-            "last"=>$page>1?$page:1,
-            "next"=>$total_pages>$page?($page+1):$page,
-            "total_pages"=>ceil($count/$limit),
-            "total_items"=>$count,
-            "limit"=>$limit,
+        $return['page'] = [
+            "first"      => 1,
+            "before"     => 1,
+            "current"    => $page,
+            "last"       => $page > 1?$page:1,
+            "next"       => $total_pages > $page?($page + 1):$page,
+            "total_pages"=> ceil($count / $limit),
+            "total_items"=> $count,
+            "limit"      => $limit,
         ];
         return $return;
     }
+
+    /**
+     * 获取字段.
+     *
+     * @param string $field
+     * @return string
+     * @requestExample(base)
+     * @returnExample([role_id,role_name,default_permission,created_time,update_time])
+     * @author liangxinyi<liangxinyi@eelly.net>
+     * @since 2017-7-27
+     */
+    public static function  getField(string $field = 'base'):string
+    {
+        return (get_called_class()::FIELD_SCOPE[$field]);
+    }
+
+
 }
