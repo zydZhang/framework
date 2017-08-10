@@ -17,6 +17,9 @@ use Phalcon\Validation\Validator\Uniqueness;
 use Phalcon\Validation\Validator\Regex;
 use Eelly\SDK\Store\Exception\StoreException;
 use Eelly\Exception\LogicException;
+use Phalcon\Validation\Validator\Numericality;
+use Phalcon\Validation\Validator\InclusionIn;
+use Phalcon\Validation\Validator\Digit;
 
 /**
  * Store模块数据校验
@@ -35,6 +38,9 @@ class StoreValidation extends Validation
         'require' => PresenceOf::class,
         'unique' => Uniqueness::class,
         'regex' => Regex::class,
+        'numeric' => Numericality::class, // 数字校验规则 /^-?\d+\.?\d*$/
+        'digit' => Digit::class, // 数字校验规则 is_int(value) || ctype_digit(value)
+        'inclusion' => InclusionIn::class,
     ];
 
     /**
