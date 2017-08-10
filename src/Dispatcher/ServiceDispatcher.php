@@ -63,7 +63,7 @@ class ServiceDispatcher extends Dispatcher
      *
      * @see \Phalcon\Dispatcher::setParams()
      */
-    public function setParams($routeParams)
+    public function setParams($routeParams): void
     {
         $class = $this->getControllerClass();
         $method = $this->getActionName();
@@ -89,7 +89,7 @@ class ServiceDispatcher extends Dispatcher
      *
      * @throws InvalidArgumentException
      */
-    private function throwInvalidArgumentException($message)
+    private function throwInvalidArgumentException($message): void
     {
         $response = $this->getDI()->getShared('response');
         $response->setStatusCode(400);
@@ -102,9 +102,9 @@ class ServiceDispatcher extends Dispatcher
      * @param array $routeParams
      * @param array $parameters
      */
-    private function filterRouteParams(array &$routeParams, array $parameters)
+    private function filterRouteParams(array &$routeParams, array $parameters): void
     {
-        $functionOfThrowInvalidArgumentException = function ($position, $expectedType, $actualType) {
+        $functionOfThrowInvalidArgumentException = function ($position, $expectedType, $actualType): void {
             $this->throwInvalidArgumentException(sprintf('Argument %d must be of the type %s, %s given', $position, $expectedType, $actualType));
         };
         /**

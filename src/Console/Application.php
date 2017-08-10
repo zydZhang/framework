@@ -61,7 +61,7 @@ class Application extends ConsoleApplication implements InjectionAwareInterface,
      *
      * @see \Phalcon\Di\InjectionAwareInterface::setDI()
      */
-    public function setDI(DiInterface $di)
+    public function setDI(DiInterface $di): void
     {
         $this->di = $di;
     }
@@ -81,7 +81,7 @@ class Application extends ConsoleApplication implements InjectionAwareInterface,
      *
      * @see \Phalcon\Events\EventsAwareInterface::setEventsManager()
      */
-    public function setEventsManager(ManagerInterface $eventsManager)
+    public function setEventsManager(ManagerInterface $eventsManager): void
     {
         $this->eventsManager = $eventsManager;
     }

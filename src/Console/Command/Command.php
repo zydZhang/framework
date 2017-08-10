@@ -44,7 +44,7 @@ class Command extends SymfonyCommand implements InjectionAwareInterface, EventsA
      *
      * @see \Phalcon\Di\InjectionAwareInterface::setDI()
      */
-    public function setDI(DiInterface $di)
+    public function setDI(DiInterface $di): void
     {
         $this->di = $di;
     }
@@ -64,7 +64,7 @@ class Command extends SymfonyCommand implements InjectionAwareInterface, EventsA
      *
      * @see \Phalcon\Events\EventsAwareInterface::setEventsManager()
      */
-    public function setEventsManager(ManagerInterface $eventsManager)
+    public function setEventsManager(ManagerInterface $eventsManager): void
     {
         $this->eventsManager = $eventsManager;
     }
@@ -84,7 +84,7 @@ class Command extends SymfonyCommand implements InjectionAwareInterface, EventsA
      *
      * @see \Symfony\Component\Console\Command\Command::initialize()
      */
-    protected function initialize(InputInterface $input, OutputInterface $output)
+    protected function initialize(InputInterface $input, OutputInterface $output): void
     {
         /**
          * @var \Eelly\Mvc\AbstractModule
