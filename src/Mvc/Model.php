@@ -18,16 +18,7 @@ use Phalcon\Mvc\Model as MvcModel;
 use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 
 /**
- * @author hehui<hehui@eelly.net>
- *
- * @method findFirst  User::findFirst(["conditions" => "user_id >= 148086", "order" => "user_id asc "])  //返回单条记录
- * @method find       User::find(["conditions" => "user_name = ?1","bind" => [1 => 'molimoq'] ])
- * @method find       User::find(["conditions" => "user_id IN ({user_id:array})","bind" => ['user_id' => [148086, 175798889]] ])  //返回满足条件的多条记录
- * @method count      User::count("user_name = 'molimoq'")  //返回满足条件的个数
- * @method sum        User::sum(["column" => "created_time", "conditions" => "user_id = ?0", "bind" => [0 => 148086]])   //返回总和
- * @method average    User::average(["column" => "created_time", "conditions" => "user_id = ?0", "bind" => [0 => 148086]])  //返回平均值
- * @method maximum    User::maximum(["column" => "user_id", "conditions" => "user_id > ?0", "bind" => [0 => 148086]])  //返回最大值
- * @method minimum    User::minimum(["column" => "user_id", "conditions" => "user_id > ?0", "bind" => [0 => 148086]])  //返回最小值
+ * Class Model.
  */
 abstract class Model extends MvcModel
 {
@@ -35,6 +26,9 @@ abstract class Model extends MvcModel
     {
         $this->setWriteConnectionService('dbMaster');
         $this->setReadConnectionService('dbSlave');
+        $this->skipAttributes([
+            'update_time',
+        ]);
     }
 
     /**
