@@ -75,7 +75,7 @@ class ServiceApplication extends Injectable
     /**
      * run.
      */
-    public function run()
+    public function run(): void
     {
         $this->initial()->handle()->send();
     }

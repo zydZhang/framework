@@ -38,7 +38,7 @@ class ServiceRequest extends HttpRequest
         return $params;
     }
 
-    private function sortNestedArrayAssoc(&$arr): bool
+    private function sortNestedArrayAssoc($arr): bool
     {
         if (!is_array($arr)) {
             return false;
