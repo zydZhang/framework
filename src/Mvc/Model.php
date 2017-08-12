@@ -32,11 +32,17 @@ abstract class Model extends MvcModel
     }
 
     /**
+     * create builder.
+     *
+     * @param mixed $models
      * @return \Eelly\Mvc\Model\Query\Builder
      */
-    public static function createBuilder()
+    public static function createBuilder($models = null)
     {
-        return Di::getDefault()->getShared('modelsManager')->createBuilder()->from(static::class);
+        if (null === $models) {
+            $models = static::class;
+        }
+        return Di::getDefault()->getShared('modelsManager')->createBuilder()->from($models);
     }
 
     /**
