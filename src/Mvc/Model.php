@@ -35,6 +35,7 @@ abstract class Model extends MvcModel
      * create builder.
      *
      * @param mixed $models
+     *
      * @return \Eelly\Mvc\Model\Query\Builder
      */
     public static function createBuilder($models = null)
@@ -42,6 +43,7 @@ abstract class Model extends MvcModel
         if (null === $models) {
             $models = static::class;
         }
+
         return Di::getDefault()->getShared('modelsManager')->createBuilder()->from($models);
     }
 
