@@ -91,7 +91,15 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
         // eelly client service
         $di->setShared('eellyClient', function () {
             $options = $this->getModuleConfig()->oauth2Client->eelly->toArray();
-            $eellyClient = EellyClient::init($options);
+
+            if (ApplicationConst::ENV_PRODUCTION === ApplicationConst::$env) {
+                $eellyClient = EellyClient::init($options);
+            } else {
+                $collaborators = [
+                    'httpClient' => new \GuzzleHttp\Client(['verify' => false]),
+                ];
+                $eellyClient = EellyClient::init($options, $collaborators);
+            }
             $eellyClient->getProvider()->setAccessTokenCache($this->getCache());
 
             return $eellyClient;
