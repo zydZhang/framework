@@ -140,4 +140,72 @@ abstract class Model extends MvcModel
     {
         return get_called_class()::FIELD_SCOPE[$field];
     }
+
+    /**
+     * 结果集字段映射(支持多维数组,支持转换为对象)
+     *
+     * Example:
+     * $data = [
+     *     'a' => 1,
+     *     'b' => 2,
+     *     'c' => 3,
+     * ];
+     * $columnMap = [
+     *     'a' => 'AAA',
+     *     'b' => 'BBB',
+     *     'c' => 'CCC',
+     * ];
+     * $this->getResultByColumnMap();
+     * Result:
+     * [
+     *     'AAA' => 1,
+     *     'BBB' => 2,
+     *     'CCC' => 3,
+     * ]
+     *
+     * @param array $data 需转换的数据
+     * @param array $columnMap 字段映射关系
+     * @param string $hydrationMode 转换数据模式 array或类名
+     * @return array
+     * @author wangjiang<wangjiang@eelly.net>
+     * @since 2017-08-14
+     */
+    public function getResultByColumnMap(array $data, array $columnMap, string $hydrationMode = 'array')
+    {
+        if(empty($data) || empty($columnMap)){
+            return [];
+        }
+
+        if('array' == $hydrationMode){
+            $hydration = [];
+        }else{
+            if(!class_exists($hydrationMode)){
+                throw new \Phalcon\Exception($hydrationMode. '类型加载失败');
+            }
+            $hydration = new $hydrationMode();
+        }
+
+        if(count($data) == count($data, COUNT_RECURSIVE)){
+            foreach($data as $key => $val){
+                if(!isset($columnMap[$key])){
+                    throw new \Phalcon\Exception($key . '不存在映射关系');
+                }
+
+                $key = $columnMap[$key];
+                if('array' == $hydrationMode){
+                    $hydration[$key] = $val;
+                }else{
+                    $hydration->$key = $val;
+                }
+            }
+            return $hydration;
+        }else{
+            $result = [];
+            foreach($data as $recursiveData){
+                $result[] = $this->getResultByColumnMap($recursiveData, $columnMap, $hydrationMode);
+            }
+        }
+
+        return $result;
+    }
 }
