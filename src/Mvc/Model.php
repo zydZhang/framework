@@ -148,21 +148,21 @@ abstract class Model extends MvcModel
      *
      * Example:
      * $data = [
-     *     'a' => 1,
-     *     'b' => 2,
-     *     'c' => 3,
+     *     'a' => '1',
+     *     'b' => '2',
+     *     'c' => '3',
      * ];
      * $columnMap = [
-     *     'a' => 'AAA',
-     *     'b' => 'BBB',
-     *     'c' => 'CCC',
+     *     'a' => ['column' => 'AAA', 'type' => 'int'],
+     *     'b' => ['column' => 'BBB', 'type' => 'bool'],
+     *     'c' => ['column' => 'CCC',]
      * ];
-     * $this->getResultByColumnMap();
+     * $this->getResultByColumnMap($data, $columnMap);
      * Result:
      * [
      *     'AAA' => 1,
-     *     'BBB' => 2,
-     *     'CCC' => 3,
+     *     'BBB' => true,
+     *     'CCC' => '3',
      * ]
      *
      * @param array $data 需转换的数据
@@ -189,11 +189,12 @@ abstract class Model extends MvcModel
 
         if(count($data) == count($data, COUNT_RECURSIVE)){
             foreach($data as $key => $val){
-                if(!isset($columnMap[$key])){
+                if(!isset($columnMap[$key]['column'])){
                     throw new \Phalcon\Exception($key . '不存在映射关系');
                 }
 
-                $key = $columnMap[$key];
+                isset($columnMap[$key]['type']) && settype($val, $columnMap[$key]['type']);
+                $key = $columnMap[$key]['column'];
                 if('array' == $hydrationMode){
                     $hydration[$key] = $val;
                 }else{
