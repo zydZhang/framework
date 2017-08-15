@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Eelly\Events\Listener;
 
+use Eelly\Application\ApplicationConst;
 use Eelly\OAuth2\Client\Provider\EellyProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Phalcon\Events\Event;
@@ -31,7 +32,8 @@ class AclListener extends AbstractListener
         $provider = $this->eellyClient->getProvider();
         $psr7Request = $provider->getAuthenticatedRequest(EellyProvider::METHOD_POST, $provider->getBaseAuthorizationUrl(), $token);
         try {
-            $provider->getParsedResponse($psr7Request);
+            $parsedResponse = $provider->getParsedResponse($psr7Request);
+            ApplicationConst::$oauth = $parsedResponse['data'];
         } catch (IdentityProviderException $e) {
             $this->response->setStatusCode(401);
             $this->response->setJsonContent($e->getResponseBody());

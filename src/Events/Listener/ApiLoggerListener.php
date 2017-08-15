@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Eelly\Events\Listener;
 
+use Eelly\Application\ApplicationConst;
 use Eelly\Http\Response;
 use Eelly\SDK\Logger\Api\ApiLogger;
 use MongoDB\BSON\ObjectID;
@@ -89,6 +90,7 @@ class ApiLoggerListener extends AbstractListener
         $this->requestData['controllerClass'] = $dispatcher->getControllerClass();
         $this->requestData['actionName'] = $dispatcher->getActionName();
         $this->requestData['params'] = $this->router->getParams();
+        $this->requestData['appEnv'] = ApplicationConst::$env;
     }
 
     /**
@@ -98,6 +100,7 @@ class ApiLoggerListener extends AbstractListener
      */
     public function beforeSendResponse(Event $event, Application $application, Response $response): void
     {
+        $this->requestData['oauth'] = ApplicationConst::$oauth;
         $this->responseData['responseTime'] = microtime(true);
         $this->responseData['statusCode'] = $response->getStatusCode();
         $this->responseData['content'] = $response->getContent();
