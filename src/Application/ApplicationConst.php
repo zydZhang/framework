@@ -66,4 +66,11 @@ final class ApplicationConst
      * @var string
      */
     public static $env = self::ENV_PRODUCTION;
+
+    /**
+     * oauth info.
+     *
+     * @var array
+     */
+    public static $oauth;
 }

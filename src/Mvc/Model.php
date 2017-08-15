@@ -144,7 +144,7 @@ abstract class Model extends MvcModel
     }
 
     /**
-     * 结果集字段映射(支持多维数组,支持转换为对象)
+     * 结果集字段映射(支持多维数组,支持转换为对象).
      *
      * Example:
      * $data = [
@@ -165,24 +165,27 @@ abstract class Model extends MvcModel
      *     'CCC' => '3',
      * ]
      *
-     * @param array $data 需转换的数据
-     * @param array $columnMap 字段映射关系
+     * @param array  $data          需转换的数据
+     * @param array  $columnMap     字段映射关系
      * @param string $hydrationMode 转换数据模式 array或类名
+     *
      * @return array
+     *
      * @author wangjiang<wangjiang@eelly.net>
+     *
      * @since 2017-08-14
      */
     public function getResultByColumnMap(array $data, array $columnMap, string $hydrationMode = 'array')
     {
-        if(empty($data) || empty($columnMap)){
+        if (empty($data) || empty($columnMap)) {
             return [];
         }
 
-        if('array' == $hydrationMode){
+        if ('array' == $hydrationMode) {
             $hydration = [];
-        }else{
-            if(!class_exists($hydrationMode)){
-                throw new \Phalcon\Exception($hydrationMode. '类型加载失败');
+        } else {
+            if (!class_exists($hydrationMode)) {
+                throw new \Phalcon\Exception($hydrationMode.'类型加载失败');
             }
             $hydration = new $hydrationMode();
         }
@@ -197,14 +200,15 @@ abstract class Model extends MvcModel
                 $key = $columnMap[$key]['column'];
                 if('array' == $hydrationMode){
                     $hydration[$key] = $val;
-                }else{
+                } else {
                     $hydration->$key = $val;
                 }
             }
+
             return $hydration;
-        }else{
+        } else {
             $result = [];
-            foreach($data as $recursiveData){
+            foreach ($data as $recursiveData) {
                 $result[] = $this->getResultByColumnMap($recursiveData, $columnMap, $hydrationMode);
             }
         }
