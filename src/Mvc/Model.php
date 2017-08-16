@@ -196,7 +196,7 @@ abstract class Model extends MvcModel
                     throw new \Phalcon\Exception($key.'不存在映射关系');
                 }
 
-                isset($columnMap[$key]['type']) && settype($val, $columnMap[$key]['type']);
+                isset($columnMap[$key]['type']) && $this->convertValueType($val, $columnMap[$key]['type']);
                 $key = $columnMap[$key]['column'];
                 if ('array' == $hydrationMode) {
                     $hydration[$key] = $val;
@@ -214,5 +214,18 @@ abstract class Model extends MvcModel
         }
 
         return $result;
+    }
+
+    /**
+     * 转换值的类型
+     *
+     * @param mixed $value 需转换的值
+     * @param string $type 转换的类型
+     * @author wangjiang<wangjiang@eelly.net>
+     * @since 2017-08-16
+     */
+    public function convertValueType(&$value, string $type): void
+    {
+        ('date' === $type && $value = date('Y-m-d H:i:s', (int)$value)) || settype($value, $type);
     }
 }
