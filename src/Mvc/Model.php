@@ -190,15 +190,15 @@ abstract class Model extends MvcModel
             $hydration = new $hydrationMode();
         }
 
-        if(count($data) == count($data, COUNT_RECURSIVE)){
-            foreach($data as $key => $val){
-                if(!isset($columnMap[$key]['column'])){
-                    throw new \Phalcon\Exception($key . '不存在映射关系');
+        if (count($data) == count($data, COUNT_RECURSIVE)) {
+            foreach ($data as $key => $val) {
+                if (!isset($columnMap[$key]['column'])) {
+                    throw new \Phalcon\Exception($key.'不存在映射关系');
                 }
 
                 isset($columnMap[$key]['type']) && settype($val, $columnMap[$key]['type']);
                 $key = $columnMap[$key]['column'];
-                if('array' == $hydrationMode){
+                if ('array' == $hydrationMode) {
                     $hydration[$key] = $val;
                 } else {
                     $hydration->$key = $val;

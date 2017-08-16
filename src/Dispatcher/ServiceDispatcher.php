@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Eelly\Dispatcher;
 
+use Eelly\DTO\UidDTO;
 use InvalidArgumentException;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;
@@ -23,6 +24,11 @@ use Phalcon\Mvc\Dispatcher\Exception as DispatchException;
  */
 class ServiceDispatcher extends Dispatcher
 {
+    /**
+     * @var UidDTO
+     */
+    public static $uidDTO;
+
     public function afterServiceResolve(): void
     {
         $this->setControllerSuffix('Logic');
@@ -123,7 +129,11 @@ class ServiceDispatcher extends Dispatcher
                     unset($routeParams[$paramName]);
                 } elseif ($parameter->isDefaultValueAvailable()) {
                     // 存在默认值参数
-                    $routeParams[$position] = $parameter->getDefaultValue();
+                    if ($expectedType == UidDTO::class) {
+                        $routeParams[$position] = self::$uidDTO = new UidDTO();
+                    } else {
+                        $routeParams[$position] = $parameter->getDefaultValue();
+                    }
                     $checkedParameter = true;
                 } else {
                     $functionOfThrowInvalidArgumentException($position, $expectedType, 'null');
