@@ -16,6 +16,7 @@ namespace Eelly\Error;
 use Eelly\Application\ApplicationConst;
 use Eelly\Error\Handler\ServiceHandler;
 use Monolog\Handler\AbstractHandler;
+use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Phalcon\Di\Injectable;
 use Psr\Log\LogLevel;
@@ -87,6 +88,8 @@ class Handler extends Injectable
             $di = $this->getDI();
             $this->logger = $di->getLogger();
             if (PHP_SAPI == 'cli') {
+                $streamHandler = new StreamHandler('php://stdout');
+                $this->logger->pushHandler($streamHandler);
             } else {
                 $serviceHandler = $di->getShared(ServiceHandler::class);
                 $this->logger->pushHandler($serviceHandler);
