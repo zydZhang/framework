@@ -13,6 +13,11 @@ declare(strict_types=1);
 
 namespace Eelly\Dispatcher;
 
+use Eelly\Doc\Adapter\ApiDocumentShow;
+use Eelly\Doc\Adapter\HomeDocumentShow;
+use Eelly\Doc\Adapter\ModuleDocumentShow;
+use Eelly\Doc\Adapter\ServiceDocumentShow;
+use Eelly\Doc\ApiDoc;
 use Eelly\DTO\UidDTO;
 use InvalidArgumentException;
 use Phalcon\Events\Event;
@@ -73,7 +78,37 @@ class ServiceDispatcher extends Dispatcher
     {
         $class = $this->getControllerClass();
         $method = $this->getActionName();
-        $classMethod = new \ReflectionMethod($class, $method);
+        /**
+         * @var \Eelly\Http\ServiceRequest $request
+         */
+        $request = $this->getDI()->getShared('request');
+        $documentShow = null;
+        try {
+            $reflectClass = new \ReflectionClass($class);
+            try {
+                $classMethod = $reflectClass->getMethod($method);
+            } catch (\ReflectionException $e) {
+                if ('index' == $method) {
+                    $documentShow = new ServiceDocumentShow($class);
+                } else {
+                    $this->throwInvalidArgumentException('URI error');
+                }
+            }
+        } catch (\ReflectionException $e) {
+            if ('/' == $request->getURI()) {
+                $documentShow = new HomeDocumentShow();
+            } elseif (($moduleClass = str_replace('Logic\\IndexLogic', 'Module', $class)) && class_exists($moduleClass)) {
+                $documentShow = new ModuleDocumentShow($moduleClass);
+            } else {
+                $this->throwInvalidArgumentException('URI error');
+            }
+        }
+        if ($request->isGet()) {
+            if (null === $documentShow) {
+                $documentShow = new ApiDocumentShow($class, $method);
+            }
+            $this->getDI()->getShared(ApiDoc::class)->display($documentShow);
+        }
         $parameters = $classMethod->getParameters();
         $parametersNumber = $classMethod->getNumberOfParameters();
         if (0 != $parametersNumber) {

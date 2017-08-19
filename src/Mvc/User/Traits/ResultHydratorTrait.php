@@ -14,9 +14,10 @@ declare(strict_types=1);
 namespace Eelly\Mvc\User\Traits;
 
 /**
- * 结果集转换
+ * 结果集转换.
  *
  * @author wangjiang<wangjiang@eelly.net>
+ *
  * @since 2017-08-18
  */
 trait ResultHydratorTrait
@@ -95,15 +96,17 @@ trait ResultHydratorTrait
     }
 
     /**
-     * 转换值的类型
+     * 转换值的类型.
      *
-     * @param mixed $value 需转换的值
-     * @param string $type 转换的类型
+     * @param mixed  $value 需转换的值
+     * @param string $type  转换的类型
+     *
      * @author wangjiang<wangjiang@eelly.net>
+     *
      * @since 2017-08-16
      */
     protected function convertValueType(&$value, string $type): void
     {
-        ('date' === $type && $value = date('Y-m-d H:i:s', (int)$value)) || settype($value, $type);
+        ('date' === $type && $value = date('Y-m-d H:i:s', (int) $value)) || settype($value, $type);
     }
 }
