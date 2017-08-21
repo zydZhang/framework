@@ -225,7 +225,7 @@ class Database extends Adapter
 
         if ($this->checkExists($this->tables['permission'], ['hash_name' => $hashName])) {
             $permId = $this->getPermId($hashName);
-            $this->commonDelete($this->tables['permissionParameter'], ['permission_id' => $permId]);
+            $this->commonDelete($this->tables['permissionRequest'], ['permission_id' => $permId]);
             $this->commonDelete($this->tables['permissionReturn'], ['permission_id' => $permId]);
             $this->commonDelete($this->tables['permission'], ['hash_name' => $hashName]);
         }
@@ -237,6 +237,7 @@ class Database extends Adapter
             'request_example' => $data['requestExample'],
             'remark'          => $data['methodDescribe'],
             'created_time'    => $data['created_time'],
+            'is_login' => $data['isLogin'],
         ]);
     }
 
@@ -254,15 +255,15 @@ class Database extends Adapter
             return false;
         }
 
-        if ($this->checkExists($this->tables['permissionParameter'], ['permission_id' => $permId])) {
-            $this->commonDelete($this->tables['permissionParameter'], ['permission_id' => $permId]);
+        if ($this->checkExists($this->tables['permissionRequest'], ['permission_id' => $permId])) {
+            $this->commonDelete($this->tables['permissionRequest'], ['permission_id' => $permId]);
         }
 
         foreach ($data as &$val) {
             $val['permission_id'] = $permId;
         }
 
-        return $this->commonBatchInsert($this->tables['permissionParameter'], $data);
+        return $this->commonBatchInsert($this->tables['permissionRequest'], $data);
     }
 
     /**
