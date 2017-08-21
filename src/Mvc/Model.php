@@ -140,6 +140,6 @@ abstract class Model extends MvcModel
      */
     public static function getField(string $field = 'base'): string
     {
-        return get_called_class()::FIELD_SCOPE[$field];
+        return get_called_class()::FIELD_SCOPE[$field] ?? $field;
     }
 }
