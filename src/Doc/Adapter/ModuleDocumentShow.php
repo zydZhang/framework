@@ -13,12 +13,10 @@ declare(strict_types=1);
 
 namespace Eelly\Doc\Adapter;
 
-use Eelly\Di\Injectable;
-
 /**
  * Class ModuleDocumentShow.
  */
-class ModuleDocumentShow extends Injectable implements DocumentShowInterface
+class ModuleDocumentShow extends AbstractDocumentShow implements DocumentShowInterface
 {
     /**
      * @var string

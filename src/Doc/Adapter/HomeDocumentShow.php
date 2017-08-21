@@ -13,12 +13,10 @@ declare(strict_types=1);
 
 namespace Eelly\Doc\Adapter;
 
-use Eelly\Di\Injectable;
-
 /**
  * Class HomeDocumentShow.
  */
-class HomeDocumentShow extends Injectable implements DocumentShowInterface
+class HomeDocumentShow extends AbstractDocumentShow implements DocumentShowInterface
 {
     public function display(): void
     {

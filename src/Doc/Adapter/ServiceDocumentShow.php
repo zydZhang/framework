@@ -13,13 +13,12 @@ declare(strict_types=1);
 
 namespace Eelly\Doc\Adapter;
 
-use Eelly\Di\Injectable;
 use ReflectionClass;
 
 /**
  * Class ServiceDocumentShow.
  */
-class ServiceDocumentShow extends Injectable implements DocumentShowInterface
+class ServiceDocumentShow extends AbstractDocumentShow implements DocumentShowInterface
 {
     /**
      * @var string
@@ -36,10 +35,10 @@ class ServiceDocumentShow extends Injectable implements DocumentShowInterface
         $reflectionClass = new ReflectionClass($this->class);
         $interfaces = $reflectionClass->getInterfaces();
         $interface = array_pop($interfaces);
-        $str = '';
+        $markdown = '';
         foreach ($interface->getMethods() as $method) {
-            $str .= "<div><a href=\"{$_SERVER['REQUEST_URI']}/{$method->name}\">{$method->name}</a></div>";
+            $markdown .= "- [{$method->name}]({$_SERVER['REQUEST_URI']}/{$method->name})".PHP_EOL;
         }
-        echo $str;
+        $this->echoMarkdownHtml($markdown);
     }
 }
