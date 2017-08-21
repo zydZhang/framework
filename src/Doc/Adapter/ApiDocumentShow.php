@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Eelly\Doc\Adapter;
 
+use Eelly\Annotations\Adapter\AdapterInterface;
+use GuzzleHttp\json_encode;
 use ReflectionClass;
 
 /**
@@ -43,7 +45,6 @@ class ApiDocumentShow extends AbstractDocumentShow implements DocumentShowInterf
         $interface = array_pop($interfaces);
         $reflectionMethod = $interface->getMethod($this->method);
         $methodStr = 'function '.$reflectionMethod->getName().'(';
-        //dd($reflectionMethod->getParameters());
         foreach ($reflectionMethod->getParameters() as $key => $value) {
             if (0 != $key) {
                 $methodStr .= ', ';
@@ -58,8 +59,18 @@ class ApiDocumentShow extends AbstractDocumentShow implements DocumentShowInterf
             }
         }
         $methodStr .= ')';
-        $doc = $reflectionMethod->getDocComment();
-        $this->annotations->delete($reflectionMethod->class);
+        $docComment = $reflectionMethod->getDocComment();
+        $factory = \phpDocumentor\Reflection\DocBlockFactory::createInstance();
+        $docblock = $factory->create($docComment);
+        $summary = $docblock->getSummary();
+        $description = $docblock->getDescription();
+        $params = '';
+        foreach ($docblock->getTagsByName('param') as $item) {
+            $params .= $item->getVariableName().'|'.$item->getDescription().PHP_EOL;
+        }
+        if ($this->annotations instanceof AdapterInterface) {
+            $this->annotations->delete($reflectionMethod->class);
+        }
         $annotations = $this->annotations->getMethod(
             $reflectionMethod->class,
             $reflectionMethod->name
@@ -69,23 +80,34 @@ class ApiDocumentShow extends AbstractDocumentShow implements DocumentShowInterf
         $requestExample = '';
         if (is_array($arguments)) {
             foreach ($arguments as $key => $value) {
+                if (is_array($value)) {
+                    $value = json_encode($value, JSON_UNESCAPED_UNICODE);
+                }
                 $requestExample .= $key.':'.$value.PHP_EOL;
             }
         }
         $arguments = $annotations->get('returnExample')->getArgument(0);
-        $returnExample = \GuzzleHttp\json_encode(['data' => $arguments], JSON_PRETTY_PRINT);
+        $returnExample = json_encode(['data' => $arguments], JSON_PRETTY_PRINT);
         $markdown = <<<EOF
-```
-    $doc
-```
-## $methodStr
+## $summary
 
-## Request example
+$description
+
+### 参数
+
+参数名|说明
+------|-----
+$params
+
+### 接口原型
+$methodStr
+
+### 请求示例
 
 ```
 $requestExample
 ```
-## Return example
+### 返回示例
 
 ```json
 $returnExample    

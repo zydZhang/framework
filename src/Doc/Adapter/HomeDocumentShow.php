@@ -20,7 +20,16 @@ class HomeDocumentShow extends AbstractDocumentShow implements DocumentShowInter
 {
     public function display(): void
     {
-        // TODO create view
-        echo 'home doc';
+        $moduleList = '';
+        foreach ($this->config->modules as $module => $value) {
+            $moduleList .= '- ['.$module.'](/'.$module.')'.PHP_EOL;
+        }
+        $markdown = <<<EOF
+## 衣联网api开放文档
+
+### 模块列表
+$moduleList
+EOF;
+        $this->echoMarkdownHtml($markdown);
     }
 }
