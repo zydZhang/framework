@@ -13,13 +13,12 @@ declare(strict_types=1);
 
 namespace Eelly\Doc\Adapter;
 
-use Eelly\Di\Injectable;
 use ReflectionClass;
 
 /**
  * Class ApiDocumentShow.
  */
-class ApiDocumentShow extends Injectable implements DocumentShowInterface
+class ApiDocumentShow extends AbstractDocumentShow implements DocumentShowInterface
 {
     /**
      * @var string
@@ -43,7 +42,7 @@ class ApiDocumentShow extends Injectable implements DocumentShowInterface
         $interfaces = $reflectionClass->getInterfaces();
         $interface = array_pop($interfaces);
         $reflectionMethod = $interface->getMethod($this->method);
-        $methodStr = '<b>function '.$reflectionMethod->getName().'(';
+        $methodStr = 'function '.$reflectionMethod->getName().'(';
         //dd($reflectionMethod->getParameters());
         foreach ($reflectionMethod->getParameters() as $key => $value) {
             if (0 != $key) {
@@ -58,7 +57,7 @@ class ApiDocumentShow extends Injectable implements DocumentShowInterface
                 $methodStr .= ' = '.$defaultValue;
             }
         }
-        $methodStr .= ')</b>';
+        $methodStr .= ')';
         $doc = $reflectionMethod->getDocComment();
         $this->annotations->delete($reflectionMethod->class);
         $annotations = $this->annotations->getMethod(
@@ -75,22 +74,23 @@ class ApiDocumentShow extends Injectable implements DocumentShowInterface
         }
         $arguments = $annotations->get('returnExample')->getArgument(0);
         $returnExample = \GuzzleHttp\json_encode(['data' => $arguments], JSON_PRETTY_PRINT);
-        echo <<<EOF
-<pre>
-===========
-DocComment
-===========
+        $markdown = <<<EOF
+```
     $doc
-    $methodStr
-================    
-Request example
-================    
+```
+## $methodStr
+
+## Request example
+
+```
 $requestExample
-===============    
-Return example
-===============    
+```
+## Return example
+
+```json
 $returnExample    
-</pre>
+```
 EOF;
+        $this->echoMarkdownHtml($markdown);
     }
 }

@@ -17,12 +17,13 @@
 	"require": {
 		"php": "^7.1.3",
 		"ext-phalcon": "^3.1.2",
+		"erusev/parsedown": "^1.6",
 		"guzzlehttp/guzzle": "^6.2.3",
 		"mongodb/mongodb": "^1.1.2",
 		"monolog/monolog": "^1.22.1",
 		"predis/predis": "^1.1.1",
 		"php-amqplib/thumper": "^0.5.0",
-		"swiftmailer/swiftmailer":"^6.0.1",
+		"swiftmailer/swiftmailer": "^6.0.1",
 		"vlucas/phpdotenv": "^2.4"
 	},
 	"require-dev": {
@@ -34,7 +35,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Eelly\\":"src"
+			"Eelly\\": "src"
 		},
 		"files": [
 			"Resources/functions/image.php",
