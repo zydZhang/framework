@@ -44,21 +44,21 @@ class ApiDocumentShow extends AbstractDocumentShow implements DocumentShowInterf
         $interfaces = $reflectionClass->getInterfaces();
         $interface = array_pop($interfaces);
         $reflectionMethod = $interface->getMethod($this->method);
-        $methodStr = 'function '.$reflectionMethod->getName().'(';
+        $method = 'function '.$reflectionMethod->getName().'(';
         foreach ($reflectionMethod->getParameters() as $key => $value) {
             if (0 != $key) {
-                $methodStr .= ', ';
+                $method .= ', ';
             }
-            $methodStr .= $value->getType().' '.$value->getName();
+            $method .= $value->getType().' '.$value->getName();
             if ($value->isDefaultValueAvailable()) {
                 $defaultValue = $value->getDefaultValue();
                 if (null === $defaultValue) {
                     $defaultValue = 'null';
                 }
-                $methodStr .= ' = '.$defaultValue;
+                $method .= ' = '.$defaultValue;
             }
         }
-        $methodStr .= ')';
+        $method .= ')';
         $docComment = $reflectionMethod->getDocComment();
         $factory = \phpDocumentor\Reflection\DocBlockFactory::createInstance();
         $docblock = $factory->create($docComment);
@@ -94,21 +94,21 @@ class ApiDocumentShow extends AbstractDocumentShow implements DocumentShowInterf
 $description
 
 ### 参数
-
 参数名|说明
 ------|-----
 $params
 
 ### 接口原型
-$methodStr
+```php
+$method
+```
 
 ### 请求示例
-
-```
+```json
 $requestExample
 ```
-### 返回示例
 
+### 返回示例
 ```json
 $returnExample    
 ```

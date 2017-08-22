@@ -49,8 +49,12 @@ class ModuleDocumentShow extends AbstractDocumentShow implements DocumentShowInt
         $namespaceName = $reflectionClass->getNamespaceName();
         foreach ($finder as $item) {
             $serviceName = substr($item->getFilename(), 0, -9);
-            $interfaceName = '\\Eelly\\SDK\\'.$namespaceName.'\\Service\\'.$serviceName.'Interface';
-            $interfaceList .= '- ['.$interfaceName.'](/'.lcfirst($namespaceName).'/'.lcfirst($serviceName).')'.PHP_EOL;
+            $interfaceName = 'Eelly\\SDK\\'.$namespaceName.'\\Service\\'.$serviceName.'Interface';
+            $reflectionClass = new ReflectionClass($interfaceName);
+            $docComment = $reflectionClass->getDocComment();
+            $factory = \phpDocumentor\Reflection\DocBlockFactory::createInstance();
+            $docblock = $factory->create($docComment);
+            $interfaceList .= '- ['.$interfaceName.'](/'.lcfirst($namespaceName).'/'.lcfirst($serviceName).') '.$docblock->getSummary().PHP_EOL;
         }
         $markdown = <<<EOF
 ## $summary

@@ -30,6 +30,8 @@ abstract class AbstractDocumentShow extends Injectable
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.8.0/github-markdown.min.css">
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
         <style>
 .markdown-body {
     box-sizing: border-box;
@@ -45,7 +47,10 @@ abstract class AbstractDocumentShow extends Injectable
 }
         </style>
     </head>
-    <body><article class="markdown-body">$markup</article></body>
+    <body>
+        <article class="markdown-body">$markup</article>
+        <script>hljs.initHighlightingOnLoad();</script>
+    </body>
 </html>
 HTML;
     }

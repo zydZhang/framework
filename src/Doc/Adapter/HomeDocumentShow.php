@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Eelly\Doc\Adapter;
 
+use ReflectionClass;
+
 /**
  * Class HomeDocumentShow.
  */
@@ -22,13 +24,23 @@ class HomeDocumentShow extends AbstractDocumentShow implements DocumentShowInter
     {
         $moduleList = '';
         foreach ($this->config->modules as $module => $value) {
-            $moduleList .= '- ['.$module.'](/'.$module.')'.PHP_EOL;
+            require $value->path;
+            $reflectionClass = new ReflectionClass($value->className);
+            $docComment = $reflectionClass->getDocComment();
+            $factory = \phpDocumentor\Reflection\DocBlockFactory::createInstance();
+            $docblock = $factory->create($docComment);
+            $summary = $docblock->getSummary();
+            $moduleList .= '- ['.$value->className.'](/'.$module.')  '.$summary.PHP_EOL;
         }
         $markdown = <<<EOF
 ## 衣联网api开放文档
 
+### 帮助文档
+[sdk-php-wiki](https://github.com/EellyDev/eelly-sdk-php/wiki)
+
 ### 模块列表
 $moduleList
+
 EOF;
         $this->echoMarkdownHtml($markdown);
     }
