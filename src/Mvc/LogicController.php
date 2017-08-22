@@ -18,4 +18,14 @@ namespace Eelly\Mvc;
  */
 class LogicController extends Controller
 {
+    /**
+     * @param string $repository
+     * @param array  $parameters
+     *
+     * @return mixed
+     */
+    public function getRepository(string $repository, array $parameters = null)
+    {
+        return $this->getDI()->getShared($repository, $parameters);
+    }
 }
