@@ -44,13 +44,20 @@ class ModuleDocumentShow extends AbstractDocumentShow implements DocumentShowInt
         foreach ($authors as $item) {
             $authorsStr .= $item->getAuthorName().'|<'.$item->getEmail().'>'.PHP_EOL;
         }
-        $finder = Finder::create()->in(dirname($reflectionClass->getFileName()).'/Logic')->files();
+        $finder = Finder::create()
+            ->in(dirname($reflectionClass->getFileName()).'/Logic')
+            ->files()
+            ->name('*Logic.php');
         $interfaceList = '';
         $namespaceName = $reflectionClass->getNamespaceName();
         foreach ($finder as $item) {
             $serviceName = substr($item->getFilename(), 0, -9);
             $interfaceName = 'Eelly\\SDK\\'.$namespaceName.'\\Service\\'.$serviceName.'Interface';
-            $reflectionClass = new ReflectionClass($interfaceName);
+            try {
+                $reflectionClass = new ReflectionClass($interfaceName);
+            } catch (\ReflectionException $e) {
+                continue;
+            }
             $docComment = $reflectionClass->getDocComment();
             $factory = \phpDocumentor\Reflection\DocBlockFactory::createInstance();
             $docblock = $factory->create($docComment);
