@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Eelly\Doc\Adapter;
 
 use Eelly\Di\Injectable;
+use SplFileObject;
 
 /**
  * Class AbstractDocumentShow.
@@ -53,5 +54,38 @@ abstract class AbstractDocumentShow extends Injectable
     </body>
 </html>
 HTML;
+    }
+
+    /**
+     * 获取文件内容.
+     *
+     * @param string $filename         文件名
+     * @param int    $startLineNumber  起始行
+     * @param int    $lineNumber行数
+     *
+     * @return null|string
+     */
+    protected function getFileContent(string $filename, int $startLineNumber, int $lineNumber)
+    {
+        if (!is_file($filename)) {
+            return null;
+        }
+        $content = '';
+        $lineCnt = 0;
+        $lineNumberCnt = 0;
+        $file = new SplFileObject($filename);
+        while (!$file->eof()) {
+            ++$lineCnt;
+            $line = $file->fgets();
+            if ($startLineNumber <= $lineCnt) {
+                $content .= $line;
+                ++$lineNumberCnt;
+            }
+            if ($lineNumber == $lineNumberCnt) {
+                break;
+            }
+        }
+
+        return $content;
     }
 }

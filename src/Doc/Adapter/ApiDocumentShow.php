@@ -44,30 +44,45 @@ class ApiDocumentShow extends AbstractDocumentShow implements DocumentShowInterf
         $interfaces = $reflectionClass->getInterfaces();
         $interface = array_pop($interfaces);
         $reflectionMethod = $interface->getMethod($this->method);
-        $method = 'function '.$reflectionMethod->getName().'(';
-        foreach ($reflectionMethod->getParameters() as $key => $value) {
-            if (0 != $key) {
-                $method .= ', ';
-            }
-            $method .= $value->getType().' '.$value->getName();
-            if ($value->isDefaultValueAvailable()) {
-                $defaultValue = $value->getDefaultValue();
-                if (null === $defaultValue) {
-                    $defaultValue = 'null';
-                }
-                $method .= ' = '.$defaultValue;
-            }
-        }
-        $method .= ')';
+
         $docComment = $reflectionMethod->getDocComment();
         $factory = \phpDocumentor\Reflection\DocBlockFactory::createInstance();
         $docblock = $factory->create($docComment);
         $summary = $docblock->getSummary();
         $description = $docblock->getDescription();
-        $params = '';
+
+        $paramsDescriptions = [];
         foreach ($docblock->getTagsByName('param') as $item) {
-            $params .= $item->getVariableName().'|'.$item->getDescription().PHP_EOL;
+            $paramsDescriptions[$item->getVariableName()] = (string) $item->getDescription();
         }
+
+        $params = [];
+        $paramsMarkdown = '';
+        foreach ($reflectionMethod->getParameters() as $key => $value) {
+            $name = $value->getName();
+            $params[$key] = [
+                'name'         => $name,
+                'type'         => (string) $value->getType(),
+                'allowsNull'   => '否',
+                'defaultValue' => ' ',
+                'description'  => $paramsDescriptions[$name],
+            ];
+            if ($value->isDefaultValueAvailable()) {
+                $params[$key]['defaultValue'] = $value->getDefaultValue();
+                $params[$key]['allowsNull'] = '是';
+                if (null === $params[$key]['defaultValue']) {
+                    $params[$key]['defaultValue'] = 'null';
+                }
+            }
+            $paramsMarkdown .= sprintf("%s|%s|%s|%s|%s\n",
+                $params[$key]['name'],
+                $params[$key]['type'],
+                $params[$key]['allowsNull'],
+                $params[$key]['defaultValue'],
+                $params[$key]['description']);
+        }
+        $methodMarkdown = $this->getFileContent($interface->getFileName(), $reflectionMethod->getStartLine(), 1);
+        $methodMarkdown = trim($methodMarkdown);
         if ($this->annotations instanceof AdapterInterface) {
             $this->annotations->delete($reflectionMethod->class);
         }
@@ -87,20 +102,20 @@ class ApiDocumentShow extends AbstractDocumentShow implements DocumentShowInterf
             }
         }
         $arguments = $annotations->get('returnExample')->getArgument(0);
-        $returnExample = json_encode(['data' => $arguments], JSON_PRETTY_PRINT);
+        $returnExample = json_encode(['data' => $arguments], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         $markdown = <<<EOF
 ## $summary
 
 $description
 
-### 参数
-参数名|说明
-------|-----
-$params
+### 请求参数
+参数名|类型|是否可选|默认值|说明
+-----|----|-----|-------|---
+$paramsMarkdown
 
 ### 接口原型
 ```php
-$method
+$methodMarkdown
 ```
 
 ### 请求示例
