@@ -50,7 +50,11 @@ class ApiDocumentShow extends AbstractDocumentShow implements DocumentShowInterf
         $docblock = $factory->create($docComment);
         $summary = $docblock->getSummary();
         $description = $docblock->getDescription();
-
+        $authors = $docblock->getTagsByName('author');
+        $authorsMarkdown = '';
+        foreach ($authors as $item) {
+            $authorsMarkdown .= sprintf("- %s <%s>\n", $item->getAuthorName(), $item->getEmail());
+        }
         $paramsDescriptions = [];
         foreach ($docblock->getTagsByName('param') as $item) {
             $paramsDescriptions[$item->getVariableName()] = (string) $item->getDescription();
@@ -103,6 +107,7 @@ class ApiDocumentShow extends AbstractDocumentShow implements DocumentShowInterf
         }
         $arguments = $annotations->get('returnExample')->getArgument(0);
         $returnExample = json_encode(['data' => $arguments], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
         $markdown = <<<EOF
 ## $summary
 
@@ -127,6 +132,11 @@ $requestExample
 ```json
 $returnExample    
 ```
+
+### 代码贡献
+$authorsMarkdown
+
+
 EOF;
         $this->echoMarkdownHtml($markdown);
     }
