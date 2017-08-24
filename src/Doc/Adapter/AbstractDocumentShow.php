@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Eelly\Doc\Adapter;
 
 use Eelly\Di\Injectable;
+use phpDocumentor\Reflection\DocBlockFactory;
 use SplFileObject;
 
 /**
@@ -87,5 +88,30 @@ HTML;
         }
 
         return $content;
+    }
+
+    /**
+     * @param string $docComment
+     *
+     * @return array
+     */
+    protected function getDocComment(string $docComment)
+    {
+        static $factory;
+        if (null === $factory) {
+            $factory = DocBlockFactory::createInstance();
+        }
+        $docblock = $factory->create($docComment);
+        $summary = $docblock->getSummary();
+        $description = $docblock->getDescription();
+        $authors = $docblock->getTagsByName('author');
+        $params = $docblock->getTagsByName('param');
+
+        return [
+            'summary'     => $summary,
+            'description' => $description,
+            'authors'     => $authors,
+            'params'      => $params,
+        ];
     }
 }

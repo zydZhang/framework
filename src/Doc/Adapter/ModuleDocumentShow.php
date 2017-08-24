@@ -34,14 +34,9 @@ class ModuleDocumentShow extends AbstractDocumentShow implements DocumentShowInt
     public function display(): void
     {
         $reflectionClass = new ReflectionClass($this->class);
-        $docComment = $reflectionClass->getDocComment();
-        $factory = \phpDocumentor\Reflection\DocBlockFactory::createInstance();
-        $docblock = $factory->create($docComment);
-        $summary = $docblock->getSummary();
-        $description = $docblock->getDescription();
-        $authors = $docblock->getTagsByName('author');
+        $docComment = $this->getDocComment($reflectionClass->getDocComment());
         $authorsStr = '';
-        foreach ($authors as $item) {
+        foreach ($docComment['authors'] as $item) {
             $authorsStr .= $item->getAuthorName().'|<'.$item->getEmail().'>'.PHP_EOL;
         }
         $finder = Finder::create()
@@ -58,26 +53,18 @@ class ModuleDocumentShow extends AbstractDocumentShow implements DocumentShowInt
             } catch (\ReflectionException $e) {
                 continue;
             }
-            $docComment = $reflectionClass->getDocComment();
-            $factory = \phpDocumentor\Reflection\DocBlockFactory::createInstance();
-            $docblock = $factory->create($docComment);
-            $interfaceList .= '- ['.$interfaceName.'](/'.lcfirst($namespaceName).'/'.lcfirst($serviceName).') '.$docblock->getSummary().PHP_EOL;
+            $docc = $this->getDocComment($reflectionClass->getDocComment());
+            $interfaceList .= '- ['.$interfaceName.'](/'.lcfirst($namespaceName).'/'.lcfirst($serviceName).') '.$docc['summary'].PHP_EOL;
         }
         $markdown = <<<EOF
-## $summary
-
-$description
-
+## {$docComment['summary']}
+{$docComment['description']}
 ### 服务列表
-
 $interfaceList
-
 ### 作者
-
 用户名|邮箱
 ------|-------
 $authorsStr
-
 EOF;
         $this->echoMarkdownHtml($markdown);
     }

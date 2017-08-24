@@ -36,22 +36,19 @@ class ServiceDocumentShow extends AbstractDocumentShow implements DocumentShowIn
         $interfaces = $reflectionClass->getInterfaces();
         $interface = array_pop($interfaces);
         $interfaceName = $interface->getName();
-        $docComment = $reflectionClass->getDocComment();
-        $factory = \phpDocumentor\Reflection\DocBlockFactory::createInstance();
-        $docblock = $factory->create($docComment);
-        $summary = $docblock->getSummary();
+        $docComment = $this->getDocComment($interface->getDocComment());
         $methodList = '';
         foreach ($interface->getMethods() as $method) {
-            $methodList .= "- [{$method->name}]({$_SERVER['REQUEST_URI']}/{$method->name})".PHP_EOL;
+            $docc = $this->getDocComment($method->getDocComment());
+            $methodList .= sprintf("- [%s](%s) %s\n", $method->getName(), $_SERVER['REQUEST_URI'].'/'.$method->getName(), $docc['summary']);
         }
         $markdown = <<<EOF
-### $summary
-{$interfaceName}
-
+### {$docComment['summary']}
+> {$interfaceName}
+{$docComment['description']}
 ### 接口列表
 $methodList
 EOF;
-
         $this->echoMarkdownHtml($markdown);
     }
 }

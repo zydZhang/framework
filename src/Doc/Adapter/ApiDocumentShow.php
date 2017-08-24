@@ -45,18 +45,13 @@ class ApiDocumentShow extends AbstractDocumentShow implements DocumentShowInterf
         $interface = array_pop($interfaces);
         $reflectionMethod = $interface->getMethod($this->method);
 
-        $docComment = $reflectionMethod->getDocComment();
-        $factory = \phpDocumentor\Reflection\DocBlockFactory::createInstance();
-        $docblock = $factory->create($docComment);
-        $summary = $docblock->getSummary();
-        $description = $docblock->getDescription();
-        $authors = $docblock->getTagsByName('author');
+        $docComment = $this->getDocComment($reflectionMethod->getDocComment());
         $authorsMarkdown = '';
-        foreach ($authors as $item) {
+        foreach ($docComment['authors'] as $item) {
             $authorsMarkdown .= sprintf("- %s <%s>\n", $item->getAuthorName(), $item->getEmail());
         }
         $paramsDescriptions = [];
-        foreach ($docblock->getTagsByName('param') as $item) {
+        foreach ($docComment['params'] as $item) {
             $paramsDescriptions[$item->getVariableName()] = (string) $item->getDescription();
         }
 
@@ -109,34 +104,25 @@ class ApiDocumentShow extends AbstractDocumentShow implements DocumentShowInterf
         $returnExample = json_encode(['data' => $arguments], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
         $markdown = <<<EOF
-## $summary
-
-$description
-
+## {$docComment['summary']}
+```php
+$methodMarkdown
+```
 ### 请求参数
 参数名|类型|是否可选|默认值|说明
 -----|----|-----|-------|---
 $paramsMarkdown
-
-### 接口原型
-```php
-$methodMarkdown
-```
-
 ### 请求示例
 ```json
 $requestExample
 ```
-
+{$docComment['description']}
 ### 返回示例
 ```json
 $returnExample    
 ```
-
 ### 代码贡献
 $authorsMarkdown
-
-
 EOF;
         $this->echoMarkdownHtml($markdown);
     }
