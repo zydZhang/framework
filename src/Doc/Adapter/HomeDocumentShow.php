@@ -34,13 +34,10 @@ class HomeDocumentShow extends AbstractDocumentShow implements DocumentShowInter
         }
         $markdown = <<<EOF
 ## 衣联网api开放文档
-
 ### 帮助文档
 [sdk-php-wiki](https://github.com/EellyDev/eelly-sdk-php/wiki)
-
 ### 模块列表
 $moduleList
-
 EOF;
         $this->echoMarkdownHtml($markdown);
     }

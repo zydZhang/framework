@@ -69,9 +69,7 @@ class ApiDocumentShow extends AbstractDocumentShow implements DocumentShowInterf
             if ($value->isDefaultValueAvailable()) {
                 $params[$key]['defaultValue'] = $value->getDefaultValue();
                 $params[$key]['allowsNull'] = '是';
-                if (null === $params[$key]['defaultValue']) {
-                    $params[$key]['defaultValue'] = 'null';
-                }
+                $params[$key]['defaultValue'] = preg_replace("/\s/", '', var_export($params[$key]['defaultValue'], true));
             }
             $paramsMarkdown .= sprintf("%s|%s|%s|%s|%s\n",
                 $params[$key]['name'],

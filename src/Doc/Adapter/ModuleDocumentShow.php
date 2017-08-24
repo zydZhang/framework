@@ -61,7 +61,7 @@ class ModuleDocumentShow extends AbstractDocumentShow implements DocumentShowInt
 {$docComment['description']}
 ### 服务列表
 $interfaceList
-### 作者
+### 代码贡献
 用户名|邮箱
 ------|-------
 $authorsStr
