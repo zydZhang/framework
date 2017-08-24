@@ -56,7 +56,12 @@ class ApiDocumentShow extends AbstractDocumentShow implements DocumentShowInterf
         }
 
         $params = [];
-        $paramsMarkdown = '';
+        $paramsMarkdown = 0 ==$reflectionMethod->getNumberOfParameters() ? '' : <<<EOF
+### 请求参数
+参数名|类型|是否可选|默认值|说明
+-----|----|-----|-------|---
+
+EOF;
         foreach ($reflectionMethod->getParameters() as $key => $value) {
             $name = $value->getName();
             $params[$key] = [
@@ -88,40 +93,48 @@ class ApiDocumentShow extends AbstractDocumentShow implements DocumentShowInterf
             $reflectionMethod->name
         );
 
-        $arguments = $annotations->get('requestExample')->getArgument(0);
         $requestExample = '';
-        if (is_array($arguments)) {
-            foreach ($arguments as $key => $value) {
-                if (is_array($value)) {
-                    $value = json_encode($value, JSON_UNESCAPED_UNICODE);
-                }
-                $requestExample .= $key.':'.$value.PHP_EOL;
-            }
-        }
-        $arguments = $annotations->get('returnExample')->getArgument(0);
-        $returnExample = json_encode(['data' => $arguments], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        if($annotations->has('requestExample')) {
+            $arguments = $annotations->get('requestExample')->getArgument(0);
+            $requestExample = <<<EOF
+### 请求示例
+```\n
+EOF;
 
+            if (is_array($arguments)) {
+                foreach ($arguments as $key => $value) {
+                    if (is_array($value)) {
+                        $value = json_encode($value, JSON_UNESCAPED_UNICODE);
+                    }
+                    $requestExample .= $key.':'.$value.PHP_EOL;
+                }
+            }
+            $requestExample .= '```';
+
+        }
+        $returnExample = '';
+        if($annotations->has('returnExample')) {
+            $returnExample .= "### 返回示例\n```\n";
+            $arguments = $annotations->get('returnExample')->getArgument(0);
+            $returnExample .= json_encode(['data' => $arguments], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)."\n```";
+        }
         $markdown = <<<EOF
 ## {$docComment['summary']}
 ```php
 $methodMarkdown
 ```
-### 请求参数
-参数名|类型|是否可选|默认值|说明
------|----|-----|-------|---
-$paramsMarkdown
-### 请求示例
-```json
-$requestExample
-```
 {$docComment['description']}
-### 返回示例
-```json
-$returnExample    
-```
+
+$returnExample
+
+$paramsMarkdown
+
+$requestExample
+
 ### 代码贡献
 $authorsMarkdown
 EOF;
+        //dd($returnExample);
         $this->echoMarkdownHtml($markdown);
     }
 }
