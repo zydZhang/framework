@@ -95,7 +95,6 @@ class ServiceDispatcher extends Dispatcher
                 }
             }
         } catch (\ReflectionException $e) {
-
             if ('/' == $request->getURI()) {
                 $documentShow = new HomeDocumentShow();
             } elseif (($moduleClass = str_replace('Logic\\IndexLogic', 'Module', $class)) && class_exists($moduleClass)) {

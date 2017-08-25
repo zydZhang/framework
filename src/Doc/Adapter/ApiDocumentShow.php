@@ -56,7 +56,7 @@ class ApiDocumentShow extends AbstractDocumentShow implements DocumentShowInterf
         }
 
         $params = [];
-        $paramsMarkdown = 0 ==$reflectionMethod->getNumberOfParameters() ? '' : <<<EOF
+        $paramsMarkdown = 0 == $reflectionMethod->getNumberOfParameters() ? '' : <<<EOF
 ### 请求参数
 参数名|类型|是否可选|默认值|说明
 -----|----|-----|-------|---
@@ -94,7 +94,7 @@ EOF;
         );
 
         $requestExample = '';
-        if($annotations->has('requestExample')) {
+        if ($annotations->has('requestExample')) {
             $arguments = $annotations->get('requestExample')->getArgument(0);
             $requestExample = <<<EOF
 ### 请求示例
@@ -110,10 +110,9 @@ EOF;
                 }
             }
             $requestExample .= '```';
-
         }
         $returnExample = '';
-        if($annotations->has('returnExample')) {
+        if ($annotations->has('returnExample')) {
             $returnExample .= "### 返回示例\n```\n";
             $arguments = $annotations->get('returnExample')->getArgument(0);
             $returnExample .= json_encode(['data' => $arguments], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)."\n```";

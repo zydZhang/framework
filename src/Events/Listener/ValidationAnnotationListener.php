@@ -48,8 +48,15 @@ class ValidationAnnotationListener extends AbstractListener
             $validation = new Validation();
             foreach ($annotations->get(self::ANNOTATIONS_NAME)->getArguments() as $annotation) {
                 list($field, $args) = $annotation->getArguments();
-                $validatorName = '\\Phalcon\\Validation\\Validator\\'.$annotation->getName();
-                $validation->add($field, new $validatorName($args));
+                $validatorName = '\\Eelly\\Validation\\Validator\\'.$annotation->getName();
+                if (!class_exists($validatorName)) {
+                    $validatorName = '\\Phalcon\\Validation\\Validator\\'.$annotation->getName();
+                }
+                if (class_exists($validatorName)) {
+                    $validation->add($field, new $validatorName($args));
+                } else {
+                    throw new \RuntimeException('Not found '.$annotation->getName().' validator');
+                }
             }
             $params = array_values($dispatcher->getParams());
             foreach ($validation->validate($params) as $item) {
