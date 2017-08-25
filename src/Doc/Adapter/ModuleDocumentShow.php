@@ -13,6 +13,9 @@ declare(strict_types=1);
 
 namespace Eelly\Doc\Adapter;
 
+use ReflectionClass;
+use Symfony\Component\Finder\Finder;
+
 /**
  * Class ModuleDocumentShow.
  */
@@ -30,7 +33,35 @@ class ModuleDocumentShow extends AbstractDocumentShow implements DocumentShowInt
 
     public function display(): void
     {
-        // TODO create view
-        echo 'module doc '.$this->class;
+        $reflectionClass = new ReflectionClass($this->class);
+        $docComment = $this->getDocComment($reflectionClass->getDocComment());
+        $authorsStr = '';
+        foreach ($docComment['authors'] as $item) {
+            $authorsStr .= $item->getAuthorName().'|<'.$item->getEmail().'>'.PHP_EOL;
+        }
+        $finder = Finder::create()
+            ->in(dirname($reflectionClass->getFileName()).'/Logic')
+            ->files()
+            ->name('*Logic.php');
+        $interfaceList = '';
+        $namespaceName = $reflectionClass->getNamespaceName();
+        foreach ($finder as $item) {
+            $serviceName = substr($item->getFilename(), 0, -9);
+            $interfaceName = 'Eelly\\SDK\\'.$namespaceName.'\\Service\\'.$serviceName.'Interface';
+            $reflectionClass = new ReflectionClass($interfaceName);
+            $docc = $this->getDocComment($reflectionClass->getDocComment());
+            $interfaceList .= '- ['.$interfaceName.'](/'.lcfirst($namespaceName).'/'.lcfirst($serviceName).') '.$docc['summary'].PHP_EOL;
+        }
+        $markdown = <<<EOF
+## {$docComment['summary']}
+{$docComment['description']}
+### 服务列表
+$interfaceList
+### 代码贡献
+用户名|邮箱
+------|-------
+$authorsStr
+EOF;
+        $this->echoMarkdownHtml($markdown);
     }
 }

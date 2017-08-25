@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace Eelly\Doc\Adapter;
 
 use Eelly\Di\Injectable;
+use phpDocumentor\Reflection\DocBlockFactory;
+use SplFileObject;
 
 /**
  * Class AbstractDocumentShow.
@@ -30,6 +32,8 @@ abstract class AbstractDocumentShow extends Injectable
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.8.0/github-markdown.min.css">
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
         <style>
 .markdown-body {
     box-sizing: border-box;
@@ -45,8 +49,69 @@ abstract class AbstractDocumentShow extends Injectable
 }
         </style>
     </head>
-    <body><article class="markdown-body">$markup</article></body>
+    <body>
+        <article class="markdown-body">$markup</article>
+        <script>hljs.initHighlightingOnLoad();</script>
+    </body>
 </html>
 HTML;
+    }
+
+    /**
+     * 获取文件内容.
+     *
+     * @param string $filename         文件名
+     * @param int    $startLineNumber  起始行
+     * @param int    $lineNumber行数
+     *
+     * @return null|string
+     */
+    protected function getFileContent(string $filename, int $startLineNumber, int $lineNumber)
+    {
+        if (!is_file($filename)) {
+            return null;
+        }
+        $content = '';
+        $lineCnt = 0;
+        $lineNumberCnt = 0;
+        $file = new SplFileObject($filename);
+        while (!$file->eof()) {
+            ++$lineCnt;
+            $line = $file->fgets();
+            if ($startLineNumber <= $lineCnt) {
+                $content .= $line;
+                ++$lineNumberCnt;
+            }
+            if ($lineNumber == $lineNumberCnt) {
+                break;
+            }
+        }
+
+        return $content;
+    }
+
+    /**
+     * @param string $docComment
+     *
+     * @return array
+     */
+    protected function getDocComment(string $docComment)
+    {
+        static $factory;
+        if (null === $factory) {
+            $factory = DocBlockFactory::createInstance();
+        }
+        $docblock = $factory->create($docComment);
+        $summary = $docblock->getSummary();
+        $description = $docblock->getDescription();
+        $authors = $docblock->getTagsByName('author');
+        $params = $docblock->getTagsByName('param');
+
+        return [
+            'summary'     => $summary,
+            'description' => $description,
+            'authors'     => $authors,
+            'params'      => $params,
+        ];
     }
 }

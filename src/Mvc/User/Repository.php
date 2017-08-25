@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Eelly\Mvc\User;
 
-use Phalcon\Di\Injectable;
+use Eelly\Di\Injectable;
 
-class Business extends Injectable
+class Repository extends Injectable
 {
 }

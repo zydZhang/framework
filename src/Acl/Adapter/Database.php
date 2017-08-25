@@ -237,7 +237,7 @@ class Database extends Adapter
             'request_example' => $data['requestExample'],
             'remark'          => $data['methodDescribe'],
             'created_time'    => $data['created_time'],
-            'is_login' => $data['isLogin'],
+            'is_login'        => $data['isLogin'],
         ]);
     }
 
