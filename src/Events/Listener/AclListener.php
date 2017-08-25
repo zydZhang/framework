@@ -15,6 +15,7 @@ namespace Eelly\Events\Listener;
 
 use Eelly\Application\ApplicationConst;
 use Eelly\Dispatcher\ServiceDispatcher;
+use Eelly\Doc\ApiDoc;
 use Eelly\OAuth2\Client\Provider\EellyProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Phalcon\Events\Event;
@@ -28,6 +29,9 @@ class AclListener extends AbstractListener
     public function beforeExecuteRoute(Event $event, Dispatcher $dispatcher)
     {
         $controllerName = $dispatcher->getControllerClass();
+        if (ApiDoc::class === $controllerName) {
+            return true;
+        }
         $header = $this->request->getHeader('authorization');
         $token = trim(preg_replace('/^(?:\s+)?Bearer\s/', '', $header));
         $provider = $this->eellyClient->getProvider();

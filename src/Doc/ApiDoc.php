@@ -13,15 +13,50 @@ declare(strict_types=1);
 
 namespace Eelly\Doc;
 
-use Eelly\Di\Injectable;
-use Eelly\Doc\Adapter\DocumentShowInterface;
+use Eelly\Doc\Adapter\ApiDocumentShow;
+use Eelly\Doc\Adapter\HomeDocumentShow;
+use Eelly\Doc\Adapter\ModuleDocumentShow;
+use Eelly\Doc\Adapter\ServiceDocumentShow;
+use Eelly\Exception\RequestException;
+use Eelly\Mvc\Controller;
 
-class ApiDoc extends Injectable
+class ApiDoc extends Controller
 {
-    public function display(DocumentShowInterface $documentShow): void
+    /**
+     * @param string $module
+     * @param string $class
+     * @param string $method
+     */
+    public function display(string $module, string $class, string $method): void
     {
+        $request = $this->request;
+        //dd($module, $class,$method, $request->getURI());
+        while (true) {
+            if ('/' == $request->getURI()) {
+                $documentShow = new HomeDocumentShow();
+                break;
+            }
+            if (false !== strpos($class, 'Logic\\IndexLogic')) {
+                $moduleClass = ucfirst($module).'\Module';
+                if (class_exists($moduleClass)) {
+                    $documentShow = new ModuleDocumentShow($moduleClass);
+                    break;
+                }
+            }
+            if (class_exists($class)) {
+                if ('index' == $method) {
+                    $documentShow = new ServiceDocumentShow($class);
+                    break;
+                }
+                if (method_exists($class, $method)) {
+                    $documentShow = new ApiDocumentShow($class, $method);
+                    break;
+                }
+            }
+            throw new RequestException(404, null, $this->request, $this->response);
+        }
+        $this->response->setContentType('text/html', 'utf-8');
         $documentShow->setDI($this->getDI());
         $documentShow->display();
-        die;
     }
 }

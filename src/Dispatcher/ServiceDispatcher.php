@@ -13,12 +13,9 @@ declare(strict_types=1);
 
 namespace Eelly\Dispatcher;
 
-use Eelly\Doc\Adapter\ApiDocumentShow;
-use Eelly\Doc\Adapter\HomeDocumentShow;
-use Eelly\Doc\Adapter\ModuleDocumentShow;
-use Eelly\Doc\Adapter\ServiceDocumentShow;
 use Eelly\Doc\ApiDoc;
 use Eelly\DTO\UidDTO;
+use Eelly\Exception\RequestException;
 use InvalidArgumentException;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;
@@ -52,6 +49,7 @@ class ServiceDispatcher extends Dispatcher
     {
         $notFoundFuntion = function (): void {
             $response = $this->getDI()->getShared('response');
+            $response->setStatusCode(404);
             $response->setJsonContent([
                 'error' => 'Not found',
             ]);
@@ -62,10 +60,10 @@ class ServiceDispatcher extends Dispatcher
                 case Dispatcher::EXCEPTION_ACTION_NOT_FOUND:
                     $notFoundFuntion();
 
-                    return false;
+                    return true;
             }
 
-            return false;
+            return true;
         }
     }
 
@@ -76,39 +74,57 @@ class ServiceDispatcher extends Dispatcher
      */
     public function setParams($routeParams): void
     {
+        /**
+         * @var \Eelly\Http\ServiceRequest $request
+         */
+        $request = $this->getDI()->getShared('request');
+        if ($request->isPost()) {
+            $this->setSeviceParams($routeParams);
+        } elseif ($request->isGet()) {
+            $module = $this->getModuleName();
+            $class = parent::getHandlerClass();
+            $method = $this->getActionName();
+            $this->setControllerSuffix('');
+            $this->setControllerName(ApiDoc::class);
+            $this->setActionName('display');
+            parent::setParams([$module, $class, $method]);
+        } else {
+            // Method Not Allowed
+            throw new RequestException(405, null, $this->getDI()->getShared('request'), $this->getDI()->getShared('response'));
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @see \Phalcon\Dispatcher::getHandlerClass()
+     */
+    public function getHandlerClass()
+    {
+        $request = $this->getDI()->getShared('request');
+        if ($request->isGet()) {
+            return ApiDoc::class;
+        } else {
+            return parent::getHandlerClass();
+        }
+    }
+
+    /**
+     * @param array $routeParams
+     */
+    private function setSeviceParams(array $routeParams): void
+    {
         $class = $this->getControllerClass();
         $method = $this->getActionName();
         /**
          * @var \Eelly\Http\ServiceRequest $request
          */
         $request = $this->getDI()->getShared('request');
-        $documentShow = null;
-        try {
-            $reflectClass = new \ReflectionClass($class);
-            try {
-                $classMethod = $reflectClass->getMethod($method);
-            } catch (\ReflectionException $e) {
-                if ('index' == $method) {
-                    $documentShow = new ServiceDocumentShow($class);
-                } else {
-                    $this->throwInvalidArgumentException('URI error');
-                }
-            }
-        } catch (\ReflectionException $e) {
-            if ('/' == $request->getURI()) {
-                $documentShow = new HomeDocumentShow();
-            } elseif (($moduleClass = str_replace('Logic\\IndexLogic', 'Module', $class)) && class_exists($moduleClass)) {
-                $documentShow = new ModuleDocumentShow($moduleClass);
-            } else {
-                $this->throwInvalidArgumentException('URI error');
-            }
+        if (!class_exists($class) || !method_exists($class, $method)) {
+            throw new RequestException(404, null, $request, $this->getDI()->getShared('response'));
         }
-        if ($request->isGet()) {
-            if (null === $documentShow) {
-                $documentShow = new ApiDocumentShow($class, $method);
-            }
-            $this->getDI()->getShared(ApiDoc::class)->display($documentShow);
-        }
+
+        $classMethod = new \ReflectionMethod($class, $method);
         $parameters = $classMethod->getParameters();
         $parametersNumber = $classMethod->getNumberOfParameters();
         if (0 != $parametersNumber) {

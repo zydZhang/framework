@@ -24,7 +24,7 @@ class HomeDocumentShow extends AbstractDocumentShow implements DocumentShowInter
     {
         $moduleList = '';
         foreach ($this->config->modules as $module => $value) {
-            require $value->path;
+            require_once $value->path;
             $reflectionClass = new ReflectionClass($value->className);
             $docComment = $reflectionClass->getDocComment();
             $factory = \phpDocumentor\Reflection\DocBlockFactory::createInstance();
