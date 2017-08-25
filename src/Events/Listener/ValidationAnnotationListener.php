@@ -17,6 +17,7 @@ use Eelly\Validation\Validation;
 use InvalidArgumentException;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;
+use RuntimeException;
 
 /**
  * validation annotation listner.
@@ -52,7 +53,7 @@ class ValidationAnnotationListener extends AbstractListener
                 if (!class_exists($validatorName)) {
                     $validatorName = '\\Phalcon\\Validation\\Validator\\'.$annotation->getName();
                     if (!class_exists($validatorName)) {
-                        throw new \RuntimeException('Not found '.$annotation->getName().' validator');
+                        throw new RuntimeException('Not found '.$annotation->getName().' validator');
                     }
                 }
                 $validation->add($field, new $validatorName($args));
