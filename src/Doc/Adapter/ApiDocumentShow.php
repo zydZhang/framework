@@ -118,7 +118,7 @@ EOF;
             $returnExample .= json_encode(['data' => $arguments], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)."\n```";
         }
         $markdown = <<<EOF
-## {$docComment['summary']}
+# {$docComment['summary']}
 ```php
 $methodMarkdown
 ```
@@ -134,6 +134,6 @@ $requestExample
 $authorsMarkdown
 EOF;
         $this->view->markup = $this->parserMarkdown($markdown);
-        $this->view->render('apidoc', 'home');
+        $this->view->render('apidoc', 'api');
     }
 }

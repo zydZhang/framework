@@ -53,7 +53,7 @@ class ModuleDocumentShow extends AbstractDocumentShow implements DocumentShowInt
             $interfaceList .= '- ['.$interfaceName.'](/'.lcfirst($namespaceName).'/'.lcfirst($serviceName).') '.$docc['summary'].PHP_EOL;
         }
         $markdown = <<<EOF
-## {$docComment['summary']}
+# {$docComment['summary']}
 {$docComment['description']}
 ### 服务列表
 $interfaceList

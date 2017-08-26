@@ -43,7 +43,7 @@ class ServiceDocumentShow extends AbstractDocumentShow implements DocumentShowIn
             $methodList .= sprintf("- [%s](%s) %s\n", $method->getName(), $_SERVER['REQUEST_URI'].'/'.$method->getName(), $docc['summary']);
         }
         $markdown = <<<EOF
-### {$docComment['summary']}
+# {$docComment['summary']}
 > {$interfaceName}
 {$docComment['description']}
 ### 接口列表

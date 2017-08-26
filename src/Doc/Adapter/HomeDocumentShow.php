@@ -33,7 +33,7 @@ class HomeDocumentShow extends AbstractDocumentShow implements DocumentShowInter
             $moduleList .= '- ['.$value->className.'](/'.$module.')  '.$summary.PHP_EOL;
         }
         $markdown = <<<EOF
-## 衣联网api开放文档
+# 衣联网api开放文档
 
 > 本文档由接口代码文档生成，接口文档使用[github markdown](https://guides.github.com/features/mastering-markdown/)风格
 
