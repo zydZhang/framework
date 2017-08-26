@@ -31,7 +31,7 @@ class ModuleDocumentShow extends AbstractDocumentShow implements DocumentShowInt
         $this->class = $class;
     }
 
-    public function display(): void
+    public function renderBody(): void
     {
         $reflectionClass = new ReflectionClass($this->class);
         $docComment = $this->getDocComment($reflectionClass->getDocComment());
@@ -62,6 +62,7 @@ $interfaceList
 ------|-------
 $authorsStr
 EOF;
-        $this->echoMarkdownHtml($markdown);
+        $this->view->markup = $this->parserMarkdown($markdown);
+        $this->view->render('apidoc', 'home');
     }
 }

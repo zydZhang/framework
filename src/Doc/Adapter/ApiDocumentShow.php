@@ -38,7 +38,7 @@ class ApiDocumentShow extends AbstractDocumentShow implements DocumentShowInterf
         $this->method = $method;
     }
 
-    public function display(): void
+    public function renderBody(): void
     {
         $reflectionClass = new ReflectionClass($this->class);
         $interfaces = $reflectionClass->getInterfaces();
@@ -133,7 +133,7 @@ $requestExample
 ### 代码贡献
 $authorsMarkdown
 EOF;
-        //dd($returnExample);
-        $this->echoMarkdownHtml($markdown);
+        $this->view->markup = $this->parserMarkdown($markdown);
+        $this->view->render('apidoc', 'home');
     }
 }

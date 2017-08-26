@@ -30,7 +30,7 @@ class ServiceDocumentShow extends AbstractDocumentShow implements DocumentShowIn
         $this->class = $class;
     }
 
-    public function display(): void
+    public function renderBody(): void
     {
         $reflectionClass = new ReflectionClass($this->class);
         $interfaces = $reflectionClass->getInterfaces();
@@ -49,6 +49,7 @@ class ServiceDocumentShow extends AbstractDocumentShow implements DocumentShowIn
 ### 接口列表
 $methodList
 EOF;
-        $this->echoMarkdownHtml($markdown);
+        $this->view->markup = $this->parserMarkdown($markdown);
+        $this->view->render('apidoc', 'home');
     }
 }

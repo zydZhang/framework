@@ -17,6 +17,7 @@ use Phalcon\Di\InjectionAwareInterface as DiInjectionAwareInterface;
 
 /**
  * @property \Phalcon\Cache\Backend $cache
+ * @property \Phalcon\Mvc\Application $application
  * @property \Phalcon\Config $config 系统配置
  * @property \Eelly\SDK\EellyClient $eellyClient
  * @property \Eelly\Dispatcher\EventDispatcher $eventDispatcher

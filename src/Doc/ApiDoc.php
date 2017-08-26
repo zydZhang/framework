@@ -19,9 +19,27 @@ use Eelly\Doc\Adapter\ModuleDocumentShow;
 use Eelly\Doc\Adapter\ServiceDocumentShow;
 use Eelly\Exception\RequestException;
 use Eelly\Mvc\Controller;
+use Phalcon\Mvc\View;
 
+/**
+ * Class ApiDoc.
+ */
 class ApiDoc extends Controller
 {
+    public function onConstruct(): void
+    {
+        $this->application->useImplicitView(true);
+        $this->getDI()->setShared('view', function () {
+            $view = new View();
+            $view->setViewsDir(__DIR__.'/Resources/views/');
+            $view->registerEngines([
+                '.phtml'  => View\Engine\Php::class,
+            ]);
+
+            return $view;
+        });
+    }
+
     /**
      * @param string $module
      * @param string $class
@@ -29,8 +47,19 @@ class ApiDoc extends Controller
      */
     public function display(string $module, string $class, string $method): void
     {
+        $this->response->setContentType('text/html', 'utf-8');
+        $this->renderBody($module, $class, $method);
+        $this->view->render('apidoc', 'layout');
+    }
+
+    /**
+     * @param string $module
+     * @param string $class
+     * @param string $method
+     */
+    private function renderBody(string $module, string $class, string $method): void
+    {
         $request = $this->request;
-        //dd($module, $class,$method, $request->getURI());
         while (true) {
             if ('/' == $request->getURI()) {
                 $documentShow = new HomeDocumentShow();
@@ -55,8 +84,7 @@ class ApiDoc extends Controller
             }
             throw new RequestException(404, null, $this->request, $this->response);
         }
-        $this->response->setContentType('text/html', 'utf-8');
         $documentShow->setDI($this->getDI());
-        $documentShow->display();
+        $documentShow->renderBody();
     }
 }

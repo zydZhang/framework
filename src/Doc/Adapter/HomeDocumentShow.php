@@ -20,7 +20,7 @@ use ReflectionClass;
  */
 class HomeDocumentShow extends AbstractDocumentShow implements DocumentShowInterface
 {
-    public function display(): void
+    public function renderBody(): void
     {
         $moduleList = '';
         foreach ($this->config->modules as $module => $value) {
@@ -52,6 +52,7 @@ class HomeDocumentShow extends AbstractDocumentShow implements DocumentShowInter
 ### 已交付的模块列表
 $moduleList
 EOF;
-        $this->echoMarkdownHtml($markdown);
+        $this->view->markup = $this->parserMarkdown($markdown);
+        $this->view->render('apidoc', 'home');
     }
 }

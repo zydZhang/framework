@@ -25,5 +25,5 @@ interface DocumentShowInterface extends InjectionAwareInterface
      *
      * @return mixed
      */
-    public function display();
+    public function renderBody();
 }
