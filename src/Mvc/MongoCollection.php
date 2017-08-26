@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /*
  * This file is part of eelly package.
  *
@@ -65,14 +66,14 @@ abstract class MongoCollection extends PhalconCollection implements Unserializab
     public function getReservedAttributes()
     {
         $reserved = [
-                '_connection' => true,
+                '_connection'         => true,
                 '_dependencyInjector' => true,
-                '_source' => true,
-                '_operationMade' => true,
-                '_errorMessages' => true,
-                '_dirtyState' => true,
-                '_modelsManager' => true,
-                '_skipped' => true,
+                '_source'             => true,
+                '_operationMade'      => true,
+                '_errorMessages'      => true,
+                '_dirtyState'         => true,
+                '_modelsManager'      => true,
+                '_skipped'            => true,
             ];
 
         return $reserved;
@@ -143,7 +144,8 @@ abstract class MongoCollection extends PhalconCollection implements Unserializab
                 break;
 
             case self::OP_UPDATE:
-                $status = $collection->updateOne(['_id' => $this->_id], ['$set' => $this->toArray()]);
+                unset($data['_id']);
+                $status = $collection->updateOne(['_id' => $this->_id], ['$set' => $data]);
                 break;
 
             default:
@@ -252,7 +254,7 @@ abstract class MongoCollection extends PhalconCollection implements Unserializab
         /**
          * Get the Collection.
          *
-         * @var AdapterCollection $collection
+         * @var AdapterCollection
          */
         $collection = $connection->selectCollection($source);
 
@@ -464,7 +466,7 @@ abstract class MongoCollection extends PhalconCollection implements Unserializab
         }
 
         /**
-         * @var \Phalcon\Db\Adapter\MongoDB\Collection $mongoCollection
+         * @var \Phalcon\Db\Adapter\MongoDB\Collection
          */
         $mongoCollection = $connection->selectCollection($source);
 

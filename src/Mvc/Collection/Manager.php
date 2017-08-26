@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /*
  * This file is part of eelly package.
  *
@@ -26,15 +27,15 @@ class Manager extends \Phalcon\Mvc\Collection\Manager
                 'className' => \MongoDB\Client::class,
                 'arguments' => [
                     [
-                        'type' => 'parameter',
+                        'type'  => 'parameter',
                         'value' => $value['uri'],
                     ],
                     [
-                        'type' => 'parameter',
+                        'type'  => 'parameter',
                         'value' => $value['uriOptions']->toArray(),
                     ],
                     [
-                        'type' => 'parameter',
+                        'type'  => 'parameter',
                         'value' => $value['driverOptions']->toArray(),
                     ],
                 ],

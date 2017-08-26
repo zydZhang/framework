@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /*
  * This file is part of eelly package.
  *
@@ -21,7 +22,7 @@ use Phalcon\Cache\FrontendInterface;
 class Predis extends Redis
 {
     private const FRONTEND_PREFIX = [
-        \Phalcon\Cache\Frontend\Data::class => '_D_',
+        \Phalcon\Cache\Frontend\Data::class     => '_D_',
         \Phalcon\Cache\Frontend\Igbinary::class => '_I_',
     ];
 
@@ -40,7 +41,7 @@ class Predis extends Redis
     {
         $options = [
             'parameters' => $this->_options['parameters'],
-            'options' => $this->_options['options'],
+            'options'    => $this->_options['options'],
         ];
         static $redisClients = [];
         $clientKey = md5(serialize($options));

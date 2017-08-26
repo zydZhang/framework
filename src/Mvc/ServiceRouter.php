@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /*
  * This file is part of eelly package.
  *
@@ -26,17 +27,26 @@ class ServiceRouter extends Router
     public function beforeCheckRoutes(\Phalcon\Events\Event $event, Router $router): void
     {
         /**
-         * @var \Eelly\Mvc\ServiceApplication $application
+         * @var \Eelly\Mvc\ServiceApplication
          */
         $application = $this->getDi()->getApplication();
         foreach ($application->getModules()as $moduleName => $value) {
             $namespace = str_replace('Module', 'Logic', $value['className']);
-            $router->addPost('/'.$moduleName.'/:controller/:action', [
-                'namespace' => $namespace,
-                'module' => $moduleName,
+            $router->addGet('/'.$moduleName, [
+                'namespace'  => $namespace,
+                'module'     => $moduleName,
+            ]);
+            $router->addGet('/'.$moduleName.'/:controller', [
+                'namespace'  => $namespace,
+                'module'     => $moduleName,
                 'controller' => 1,
-                'action' => 2,
-            ])->setName($moduleName);
+            ]);
+            $router->add('/'.$moduleName.'/:controller/:action', [
+                'namespace'  => $namespace,
+                'module'     => $moduleName,
+                'controller' => 1,
+                'action'     => 2,
+            ], ['GET', 'POST'])->setName($moduleName);
         }
     }
 
@@ -45,7 +55,7 @@ class ServiceRouter extends Router
         /**
          * @var \Eelly\Http\ServiceRequest $request
          */
-        $request = $this->getDI()->getRequest();
+        $request = $this->getDI()->getShared('request');
         $router->setParams($request->getRouteParams());
     }
 

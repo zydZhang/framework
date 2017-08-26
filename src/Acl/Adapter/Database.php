@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /*
  * This file is part of eelly package.
  *
@@ -30,15 +31,16 @@ class Database extends Adapter
      * @var array
      */
     protected $tables = [
-        'client' => 'oauth_client',
-        'module' => 'oauth_module',
-        'moduleService' => 'oauth_module_service',
-        'permission' => 'oauth_permission',
-        'permissionRequest' => 'oauth_permission_request',
-        'permissionReturn' => 'oauth_permission_return',
-        'role' => 'oauth_role',
-        'roleClient' => 'oauth_role_client',
-        'rolePermission' => 'oauth_role_permission',
+        'client'                 => 'oauth_client',
+        'module'                 => 'oauth_module',
+        'moduleService'          => 'oauth_module_service',
+        'permission'             => 'oauth_permission',
+        'permissionRequest'      => 'oauth_permission_request',
+        'permissionReturn'       => 'oauth_permission_return',
+        'role'                   => 'oauth_role',
+        'roleClient'             => 'oauth_role_client',
+        'rolePermission'         => 'oauth_role_permission',
+        'permissionParameter'    => 'oauth_permission_parameter',
     ];
 
     /**
@@ -98,9 +100,9 @@ class Database extends Adapter
             foreach ($accessInherits as $permId) {
                 if (!$this->checkExists($this->tables['rolePermission'], ['role_id' => $roleId, 'permission_id' => $permId])) {
                     $data[] = [
-                        'role_id' => $roleId,
+                        'role_id'       => $roleId,
                         'permission_id' => $permId,
-                        'created_time' => time(),
+                        'created_time'  => time(),
                     ];
                 }
             }
@@ -128,8 +130,8 @@ class Database extends Adapter
 
         if (!$this->checkExists($this->tables['module'], ['module_name' => $moduleName])) {
             return $this->commonInsert($this->tables['module'], [
-                'module_name' => $moduleName,
-                'status' => 1,
+                'module_name'  => $moduleName,
+                'status'       => 1,
                 'created_time' => time(),
             ]);
         }
@@ -155,13 +157,13 @@ class Database extends Adapter
         $clientId = null;
         if (!$this->checkExists($this->tables['client'], ['client_key' => $clientKey])) {
             $clientId = $this->commonInsert($this->tables['client'], [
-                'client_key' => $clientKey,
+                'client_key'    => $clientKey,
                 'client_secret' => password_hash($moduleName.'abc123', PASSWORD_BCRYPT),
-                'is_encrypt' => 1,
-                'org_name' => 'eellyapi',
-                'app_name' => $moduleName,
-                'auth_type' => 4,
-                'created_time' => time(),
+                'is_encrypt'    => 1,
+                'org_name'      => 'eellyapi',
+                'app_name'      => $moduleName,
+                'auth_type'     => 4,
+                'created_time'  => time(),
             ]);
         }
 
@@ -169,8 +171,8 @@ class Database extends Adapter
             !isset($clientId) && $clientId = $this->getClientId($clientKey);
             if (!$this->checkExists($this->tables['roleClient'], ['client_id' => $clientId, 'role_id' => $roleId])) {
                 return $this->commonInsert($this->tables['roleClient'], [
-                    'client_id' => $clientId,
-                    'role_id' => $roleId,
+                    'client_id'    => $clientId,
+                    'role_id'      => $roleId,
                     'created_time' => time(),
                 ]);
             }
@@ -198,7 +200,7 @@ class Database extends Adapter
         if (!$this->checkExists($this->tables['moduleService'], ['service_name' => $serviceName, 'module_id' => $moduleId])) {
             return $this->commonInsert($this->tables['moduleService'], [
                 'service_name' => $serviceName,
-                'module_id' => $moduleId,
+                'module_id'    => $moduleId,
                 'created_time' => time(),
             ]);
         }
@@ -209,28 +211,34 @@ class Database extends Adapter
     /**
      * 添加接口.
      *
-     * @param string $permName
      * @param string $hashName
      * @param string $serviceName
+     * @param array  $data
      *
-     * @return bool|bool|number
+     * @return bool
      */
-    public function addPermission(string $permName, string $hashName, string $serviceName)
+    public function addPermission(string $hashName, string $serviceName, array $data)
     {
-        if (empty($hashName) || empty($serviceName) || empty($serviceId = $this->getServiceId($serviceName))) {
+        if (empty($data) || empty($serviceName) || empty($serviceId = $this->getServiceId($serviceName))) {
             return false;
         }
 
-        if (!$this->checkExists($this->tables['permission'], ['hash_name' => $hashName])) {
-            return $this->commonInsert($this->tables['permission'], [
-                'service_id' => $serviceId,
-                'hash_name' => $hashName,
-                'perm_name' => $permName,
-                'created_time' => time(),
-            ]);
+        if ($this->checkExists($this->tables['permission'], ['hash_name' => $hashName])) {
+            $permId = $this->getPermId($hashName);
+            $this->commonDelete($this->tables['permissionRequest'], ['permission_id' => $permId]);
+            $this->commonDelete($this->tables['permissionReturn'], ['permission_id' => $permId]);
+            $this->commonDelete($this->tables['permission'], ['hash_name' => $hashName]);
         }
 
-        return true;
+        return $this->commonInsert($this->tables['permission'], [
+            'service_id'      => $serviceId,
+            'hash_name'       => $hashName,
+            'perm_name'       => $data['methodName'],
+            'request_example' => $data['requestExample'],
+            'remark'          => $data['methodDescribe'],
+            'created_time'    => $data['created_time'],
+            'is_login'        => $data['isLogin'],
+        ]);
     }
 
     /**
@@ -273,16 +281,15 @@ class Database extends Adapter
             return false;
         }
 
-        $dtoName = $data['dto_name'];
-        $example = $data['return_example'];
-        if (!$this->checkExists($this->tables['permissionReturn'], ['permission_id' => $permId])) {
-            return $this->commonInsert($this->tables['permissionReturn'], [
-                'permission_id' => $permId,
-                'dto_name' => $dtoName,
-                'return_example' => $example,
-                'created_time' => time(),
-            ]);
+        if ($this->checkExists($this->tables['permissionReturn'], ['permission_id' => $permId])) {
+            $this->commonDelete($this->tables['permissionReturn'], ['permission_id' => $permId]);
         }
+
+        foreach ($data as &$val) {
+            $val['permission_id'] = $permId;
+        }
+
+        return $this->commonBatchInsert($this->tables['permissionReturn'], $data);
     }
 
     public function addRoleClient(string $roleName, string $clientKey)
@@ -293,8 +300,8 @@ class Database extends Adapter
 
         if (!$this->checkExists($this->tables['roleClient'], ['client_id' => $clientId, 'role_id' => $roleId])) {
             return $this->commonInsert($this->tables['roleClient'], [
-                'client_id' => $clientId,
-                'role_id' => $roleId,
+                'client_id'    => $clientId,
+                'role_id'      => $roleId,
                 'created_time' => time(),
             ]);
         }
@@ -356,9 +363,9 @@ class Database extends Adapter
             $permId = $this->getPermId($resourceName.'\\'.$access);
 
             return $this->commonInsert($this->tables['rolePermission'], [
-                'role_id' => $roleId,
+                'role_id'       => $roleId,
                 'permission_id' => $permId,
-                'created_time' => time(),
+                'created_time'  => time(),
             ]);
         }
 
@@ -384,7 +391,7 @@ class Database extends Adapter
             $permId = $this->getPermId($resourceName.'/'.$access);
 
             return $this->commonDelete($this->tables['rolePermission'], [
-                'role_id' => $roleId,
+                'role_id'       => $roleId,
                 'permission_id' => $permId,
             ]);
         }
@@ -481,7 +488,7 @@ class Database extends Adapter
             $permissionList = array_column($result, 'hash_name');
             $userAccess = [
                 'default_permission' => $defaultPermission,
-                'permission_list' => $permissionList,
+                'permission_list'    => $permissionList,
             ];
         }
 

@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /*
  * This file is part of eelly package.
  *
@@ -10,10 +11,14 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Mvc\User;
+namespace Eelly\Mvc\Model\Transaction;
 
-use Phalcon\Di\Injectable;
+use Phalcon\Mvc\Model\Transaction\Manager as TransactionManager;
 
-class Business extends Injectable
+/**
+ * @author hehui<hehui@eelly.net>
+ */
+class Manager extends TransactionManager
 {
+    protected $_service = 'dbMaster';
 }

@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /*
  * This file is part of eelly package.
  *
@@ -12,10 +13,10 @@ declare(strict_types=1);
 
 namespace Eelly\Error;
 
+use Eelly\Application\ApplicationConst;
 use Eelly\Error\Handler\ServiceHandler;
-use Eelly\Mvc\Application;
-use Eelly\Mvc\ServiceApplication;
 use Monolog\Handler\AbstractHandler;
+use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Phalcon\Di\Injectable;
 use Psr\Log\LogLevel;
@@ -53,20 +54,20 @@ class Handler extends Injectable
     /**
      * Registers itself as error and exception handler.
      *
-     * @see https://github.com/php/php-src/blob/master/php.ini-production#L458
+     * @link https://github.com/php/php-src/blob/master/php.ini-production#L458
      */
     public function register(): self
     {
         // dev本地，local 待上线，prod 线上，test 测试
         ini_set('display_errors', '0');
-        switch (ServiceApplication::$env) {
-            case Application::ENV_PRODUCTION:
-            case Application::ENV_STAGING:
+        switch (ApplicationConst::$env) {
+            case ApplicationConst::ENV_PRODUCTION:
+            case ApplicationConst::ENV_STAGING:
             default:
                 error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
                 break;
-            case Application::ENV_TEST:
-            case Application::ENV_DEVELOPMENT:
+            case ApplicationConst::ENV_TEST:
+            case ApplicationConst::ENV_DEVELOPMENT:
                 error_reporting(E_ALL);
                 break;
         }
@@ -86,8 +87,13 @@ class Handler extends Injectable
         if (null === $this->logger) {
             $di = $this->getDI();
             $this->logger = $di->getLogger();
-            $serviceHandler = $di->getShared(ServiceHandler::class);
-            $this->logger->pushHandler($serviceHandler);
+            if (PHP_SAPI == 'cli') {
+                $streamHandler = new StreamHandler('php://stdout');
+                $this->logger->pushHandler($streamHandler);
+            } else {
+                $serviceHandler = $di->getShared(ServiceHandler::class);
+                $this->logger->pushHandler($serviceHandler);
+            }
         }
 
         return $this->logger;
@@ -118,12 +124,14 @@ class Handler extends Injectable
             $errorLevelMap = $this->defaultErrorLevelMap();
             $level = $errorLevelMap[$code] ?? LogLevel::CRITICAL;
             $this->getLogger()->log($level, self::codeToString($code).': '.$message, [
-                'code' => $code,
+                'code'    => $code,
                 'message' => $message,
-                'file' => $file,
-                'line' => $line,
+                'file'    => $file,
+                'line'    => $line,
             ]);
         }
+
+        exit(255);
     }
 
     public function handleException(\Throwable $e): void
@@ -131,11 +139,11 @@ class Handler extends Injectable
         $errorLevelMap = $this->defaultErrorLevelMap();
         $level = $errorLevelMap[$e->getCode()] ?? LogLevel::ERROR;
         $this->getLogger()->log($level, 'Uncaught Exception: '.$e->getMessage(), [
-            'code' => $e->getCode(),
-            'message' => $e->getMessage(),
-            'class' => get_class($e),
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
+            'code'          => $e->getCode(),
+            'message'       => $e->getMessage(),
+            'class'         => get_class($e),
+            'file'          => $e->getFile(),
+            'line'          => $e->getLine(),
             'traceAsString' => $e->getTraceAsString(),
         ]);
 
@@ -168,21 +176,21 @@ class Handler extends Injectable
     protected function defaultErrorLevelMap()
     {
         return [
-            E_ERROR => LogLevel::CRITICAL,
-            E_WARNING => LogLevel::WARNING,
-            E_PARSE => LogLevel::ALERT,
-            E_NOTICE => LogLevel::NOTICE,
-            E_CORE_ERROR => LogLevel::CRITICAL,
-            E_CORE_WARNING => LogLevel::WARNING,
-            E_COMPILE_ERROR => LogLevel::ALERT,
-            E_COMPILE_WARNING => LogLevel::WARNING,
-            E_USER_ERROR => LogLevel::ERROR,
-            E_USER_WARNING => LogLevel::WARNING,
-            E_USER_NOTICE => LogLevel::NOTICE,
-            E_STRICT => LogLevel::NOTICE,
+            E_ERROR             => LogLevel::CRITICAL,
+            E_WARNING           => LogLevel::WARNING,
+            E_PARSE             => LogLevel::ALERT,
+            E_NOTICE            => LogLevel::NOTICE,
+            E_CORE_ERROR        => LogLevel::CRITICAL,
+            E_CORE_WARNING      => LogLevel::WARNING,
+            E_COMPILE_ERROR     => LogLevel::ALERT,
+            E_COMPILE_WARNING   => LogLevel::WARNING,
+            E_USER_ERROR        => LogLevel::ERROR,
+            E_USER_WARNING      => LogLevel::WARNING,
+            E_USER_NOTICE       => LogLevel::NOTICE,
+            E_STRICT            => LogLevel::NOTICE,
             E_RECOVERABLE_ERROR => LogLevel::ERROR,
-            E_DEPRECATED => LogLevel::NOTICE,
-            E_USER_DEPRECATED => LogLevel::NOTICE,
+            E_DEPRECATED        => LogLevel::NOTICE,
+            E_USER_DEPRECATED   => LogLevel::NOTICE,
         ];
     }
 

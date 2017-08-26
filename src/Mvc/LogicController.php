@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /*
  * This file is part of eelly package.
  *
@@ -12,15 +13,19 @@ declare(strict_types=1);
 
 namespace Eelly\Mvc;
 
-use Phalcon\Mvc\Controller;
-
 /**
- * @property \Phalcon\Config $config 系统配置
- * @property \Phalcon\Config $moduleConfig 模块配置
- * @property \Psr\Log\LoggerInterface $logger 日志对象
- *
  * @author hehui<hehui@eelly.net>
  */
 class LogicController extends Controller
 {
+    /**
+     * @param string $repository
+     * @param array  $parameters
+     *
+     * @return mixed
+     */
+    public function getRepository(string $repository, array $parameters = null)
+    {
+        return $this->getDI()->getShared($repository, $parameters);
+    }
 }

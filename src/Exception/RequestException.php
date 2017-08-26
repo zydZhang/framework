@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /*
  * This file is part of eelly package.
  *
@@ -104,7 +105,7 @@ class RequestException extends \RuntimeException
 
     public function __construct(
         $code,
-        $message = null,
+        $message,
         RequestInterface $request,
         ResponseInterface $response,
         \Exception $previous = null,

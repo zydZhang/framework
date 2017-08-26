@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /*
  * This file is part of eelly package.
  *
@@ -12,11 +13,18 @@ declare(strict_types=1);
 
 namespace Eelly\Mvc;
 
-use Phalcon\Mvc\Dispatcher as MvcDispatcher;
+use Eelly\Di\Injectable;
+use Phalcon\Mvc\ControllerInterface;
 
 /**
  * @author hehui<hehui@eelly.net>
  */
-class Dispatcher extends MvcDispatcher
+abstract class Controller extends Injectable implements ControllerInterface
 {
+    final public function __construct()
+    {
+        if (method_exists($this, 'onConstruct')) {
+            $this->onConstruct();
+        }
+    }
 }

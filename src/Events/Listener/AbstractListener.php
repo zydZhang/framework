@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /*
  * This file is part of eelly package.
  *
@@ -12,7 +13,7 @@ declare(strict_types=1);
 
 namespace Eelly\Events\Listener;
 
-use Phalcon\Di\Injectable;
+use Eelly\Di\Injectable;
 
 abstract class AbstractListener extends Injectable
 {

@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /*
  * This file is part of eelly package.
  *
@@ -17,7 +18,7 @@ use Phalcon\Annotations\Adapter;
 /**
  * @author    hehui<hehui@eelly.net>
  */
-abstract class AbstractAdapter extends Adapter
+abstract class AbstractAdapter extends Adapter implements AdapterInterface
 {
     /**
      * Default option for cache lifetime.
@@ -38,7 +39,7 @@ abstract class AbstractAdapter extends Adapter
      *
      * @var array
      */
-    protected $options = null;
+    protected $options;
 
     /**
      * Class constructor.
@@ -79,6 +80,16 @@ abstract class AbstractAdapter extends Adapter
     public function write($key, $data): void
     {
         $this->getCacheBackend()->save($this->prepareKey($key), $data, $this->options['lifetime']);
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @param string $key
+     */
+    public function delete($key): void
+    {
+        $this->getCacheBackend()->delete($this->prepareKey($key));
     }
 
     /**

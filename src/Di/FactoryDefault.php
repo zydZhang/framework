@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /*
  * This file is part of eelly package.
  *
@@ -14,7 +15,7 @@ namespace Eelly\Di;
 
 use Phalcon\Di\Service;
 
-class FactoryDefault extends \Phalcon\Di\FactoryDefault
+abstract class FactoryDefault extends \Phalcon\Di
 {
     public function __construct()
     {
@@ -22,7 +23,7 @@ class FactoryDefault extends \Phalcon\Di\FactoryDefault
 
         $this->_services = [
             'eventsManager' => new Service('eventsManager', \Phalcon\Events\Manager::class, true),
-            'loader' => new Service('loader', \Phalcon\Loader::class, true),
+            'loader'        => new Service('loader', \Phalcon\Loader::class, true),
         ];
     }
 }

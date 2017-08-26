@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /*
  * This file is part of eelly package.
  *
@@ -12,17 +13,20 @@ declare(strict_types=1);
 
 namespace Eelly\Logger;
 
-use Eelly\Mvc\ServiceApplication;
+use Eelly\Application\ApplicationConst;
 use Monolog\Logger;
 use Phalcon\Di\InjectionAwareInterface;
 
+/**
+ * @author hehui<hehui@eelly.net>
+ */
 class Servicelogger extends Logger implements InjectionAwareInterface
 {
     private $dependencyInjector;
 
     public function __construct()
     {
-        parent::__construct(ServiceApplication::$env);
+        parent::__construct(ApplicationConst::$env);
     }
 
     public function afterServiceResolve(): void
@@ -30,7 +34,7 @@ class Servicelogger extends Logger implements InjectionAwareInterface
         $di = $this->getDI();
         $config = $di->getConfig();
         /**
-         * @var \Phalcon\Dispatcher $dispatcher
+         * @var \Phalcon\Dispatcher
          */
         $dispatcher = $di->getDispatcher();
         $this->appendName($dispatcher->getModuleName());

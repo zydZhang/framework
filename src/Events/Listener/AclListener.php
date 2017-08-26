@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /*
  * This file is part of eelly package.
  *
@@ -12,6 +13,9 @@ declare(strict_types=1);
 
 namespace Eelly\Events\Listener;
 
+use Eelly\Application\ApplicationConst;
+use Eelly\Dispatcher\ServiceDispatcher;
+use Eelly\Doc\ApiDoc;
 use Eelly\OAuth2\Client\Provider\EellyProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Phalcon\Events\Event;
@@ -25,33 +29,26 @@ class AclListener extends AbstractListener
     public function beforeExecuteRoute(Event $event, Dispatcher $dispatcher)
     {
         $controllerName = $dispatcher->getControllerClass();
-        // 白名单
-        if (in_array($controllerName, [
-            'Oauth\Logic\AuthorizationserverLogic',
-            'Oauth\Logic\ResourceserverLogic',
-        ])) {
-            return;
+        if (ApiDoc::class === $controllerName) {
+            return true;
         }
-        /**
-         * @var \Phalcon\Http\Request $request
-         */
-        $request = $this->getDI()->getRequest();
         $header = $this->request->getHeader('authorization');
         $token = trim(preg_replace('/^(?:\s+)?Bearer\s/', '', $header));
-        /**
-         * @var \Eelly\OAuth2\Client\Provider\EellyProvider $provider
-         */
-        $provider = $this->getDI()->getEellyClient()->getProvider();
+        $provider = $this->eellyClient->getProvider();
         $psr7Request = $provider->getAuthenticatedRequest(EellyProvider::METHOD_POST, $provider->getBaseAuthorizationUrl(), $token);
         try {
-            $provider->getParsedResponse($psr7Request);
+            $parsedResponse = $provider->getParsedResponse($psr7Request);
+            $oauth = ApplicationConst::$oauth = $parsedResponse['data'];
+            $uidDTO = ServiceDispatcher::$uidDTO;
+            if (is_object($uidDTO)) {
+                $uidDTO->uid = (int) $oauth['oauth_user_id'];
+            }
         } catch (IdentityProviderException $e) {
-            /**
-             * @var \Phalcon\Http\Response $response
-             */
-            $response = $this->getDI()->getResponse();
-            $response->setStatusCode(401);
-            $response->setJsonContent($e->getResponseBody());
+            $this->response->setStatusCode(401);
+            $this->response->setJsonContent($e->getResponseBody());
+            if ($event->isCancelable()) {
+                $event->stop();
+            }
 
             return false;
         }
