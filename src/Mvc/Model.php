@@ -85,7 +85,7 @@ abstract class Model extends MvcModel
             'limit'      => $page->limit,
         ];
 
-        return $return;
+        return self::arrayToHump($return);
     }
 
     /**
@@ -122,7 +122,8 @@ abstract class Model extends MvcModel
             'limit'      => $limit,
         ];
 
-        return $return;
+        return self::arrayToHump($return);
+
     }
 
     /**
@@ -142,4 +143,32 @@ abstract class Model extends MvcModel
     {
         return get_called_class()::FIELD_SCOPE[$field] ?? $field;
     }
+
+    /**
+     * 数组转驼峰.
+     *
+     * @param array $data   等待转换的数组
+     * @return array        返回转驼峰之后的数组
+     * @requestExample({"user_id":"1","user_name":"liangxinyi"})
+     * @returnExample({"userId":"1","userName":"liangxinyi" })
+     * @author liangxinyi<liangxinyi@eelly.net>
+     * @since 2017-8-23
+     */
+    public static function arrayToHump(array &$data)
+    {
+        if (is_array($data)) {
+            foreach ($data as $key=>$value) {
+                $key = preg_replace_callback('/(_)([a-z])/i', function ($matches) use (&$data,&$key){
+                    unset($data[$key]);
+                    return ucfirst($matches[2]);
+                }, $key);
+                $data[$key] = $value;
+                if(is_array($value)) {
+                    $data[$key] = self::arrayToHump($value);
+                }
+            }
+        }
+        return $data;
+    }
+
 }
