@@ -71,12 +71,9 @@ trait ResultHydratorTrait
 
         if (count($data) == count($data, COUNT_RECURSIVE)) {
             foreach ($data as $key => $val) {
-                if (!isset($columnMap[$key]['column'])) {
-                    throw new \Phalcon\Exception($key.'不存在映射关系');
-                }
-
                 isset($columnMap[$key]['type']) && $this->convertValueType($val, $columnMap[$key]['type']);
-                $key = $columnMap[$key]['column'];
+                $key = $columnMap[$key]['column'] ?? $key;
+
                 if ('array' == $hydrationMode) {
                     $hydration[$key] = $val;
                 } else {
