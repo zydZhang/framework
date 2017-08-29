@@ -42,9 +42,9 @@ abstract class AbstractDocumentShow extends Injectable
     /**
      * 获取文件内容.
      *
-     * @param string $filename         文件名
-     * @param int    $startLineNumber  起始行
-     * @param int    $lineNumber 行数
+     * @param string $filename        文件名
+     * @param int    $startLineNumber 起始行
+     * @param int    $lineNumber      行数
      *
      * @return null|string
      */

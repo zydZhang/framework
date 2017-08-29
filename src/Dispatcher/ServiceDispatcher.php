@@ -15,8 +15,8 @@ namespace Eelly\Dispatcher;
 
 use Eelly\Doc\ApiDoc;
 use Eelly\DTO\UidDTO;
+use Eelly\Exception\InvalidArgumentException;
 use Eelly\Exception\RequestException;
-use InvalidArgumentException;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;
 use Phalcon\Mvc\Dispatcher\Exception as DispatchException;
