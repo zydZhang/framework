@@ -23,6 +23,7 @@ abstract class Controller extends Injectable implements ControllerInterface
 {
     final public function __construct()
     {
+        $this->eventsManager->fire("controler:init", $this);
         if (method_exists($this, 'onConstruct')) {
             $this->onConstruct();
         }
