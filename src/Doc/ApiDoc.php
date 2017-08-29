@@ -82,6 +82,7 @@ class ApiDoc extends Controller
                     break;
                 }
             }
+
             throw new RequestException(404, null, $this->request, $this->response);
         }
         $documentShow->setDI($this->getDI());

@@ -56,12 +56,15 @@ class ApiDocumentShow extends AbstractDocumentShow implements DocumentShowInterf
         }
 
         $params = [];
-        $paramsMarkdown = 0 == $reflectionMethod->getNumberOfParameters() ? '' : <<<EOF
+        if (0 == $reflectionMethod->getNumberOfParameters()) {
+            $paramsMarkdown = '';
+        } else {
+            $paramsMarkdown = <<<EOF
 ### 请求参数
 参数名|类型|是否可选|默认值|说明
------|----|-----|-------|---
-
+-----|----|-----|-------|---\n
 EOF;
+        }
         foreach ($reflectionMethod->getParameters() as $key => $value) {
             $name = $value->getName();
             $params[$key] = [
@@ -100,7 +103,6 @@ EOF;
 ### 请求示例
 ```\n
 EOF;
-
             if (is_array($arguments)) {
                 foreach ($arguments as $key => $value) {
                     if (is_array($value)) {

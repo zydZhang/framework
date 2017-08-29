@@ -46,12 +46,12 @@ abstract class AbstractDocumentShow extends Injectable
      * @param int    $startLineNumber 起始行
      * @param int    $lineNumber      行数
      *
-     * @return null|string
+     * @return string
      */
-    protected function getFileContent(string $filename, int $startLineNumber, int $lineNumber)
+    protected function getFileContent(string $filename, int $startLineNumber, int $lineNumber):string
     {
         if (!is_file($filename)) {
-            return null;
+            return '';
         }
         $content = '';
         $lineCnt = 0;
