@@ -13,10 +13,10 @@ declare(strict_types=1);
 
 namespace Eelly\Validation\Validator;
 
-use Phalcon\Validation\Validator;
 use Phalcon\Validation;
-use Phalcon\Validation\Validator\Exception;
 use Phalcon\Validation\Message;
+use Phalcon\Validation\Validator;
+use Phalcon\Validation\Validator\Exception;
 
 class OperatorValidator extends Validator
 {
@@ -24,31 +24,32 @@ class OperatorValidator extends Validator
      * 支持的运算符 eq ne gt gte lt lte
      * usage:
      * $validator->add('field', new OperatorValidator([
-            'message' => 'field不等于0',
-            'operator' => ['eq', 0],
-        ]));
+     * 'message' => 'field不等于0',
+     * 'operator' => ['eq', 0],
+     * ]));.
      *
-     * {@inheritDoc}
+     * {@inheritdoc}
+     *
      * @see \Phalcon\Validation\Validator::validate()
      */
     public function validate(Validation $validation, $attribute): bool
     {
-        $validationValue = (int)$validation->getValue($attribute);
+        $validationValue = (int) $validation->getValue($attribute);
         $operatorArr = $this->getOption('operator');
-        if(!is_array($operatorArr) || 2 > count($operatorArr)){
+        if (!is_array($operatorArr) || 2 > count($operatorArr)) {
             throw new Exception('operator type error');
         }
 
         list($operator, $value) = $operatorArr;
-        $value = (int)$value;
+        $value = (int) $value;
         $validationResult = true;
 
-        switch ($operator){
+        switch ($operator) {
             case 'eq':
                 $validationResult = $validationValue == $value;
                 break;
             case 'ne':
-                $validationResult = $validationValue <> $value;
+                $validationResult = $validationValue != $value;
                 break;
             case 'gt':
                 $validationResult = $validationValue > $value;
@@ -66,7 +67,7 @@ class OperatorValidator extends Validator
                 throw new Exception('not found operator');
         }
 
-        if(!$validationResult){
+        if (!$validationResult) {
             $message = $this->prepareMessage($validation, $attribute, 'operator');
             $message = strtr($message, [':field:' => $attribute]);
             $validation->appendMessage(new Message($message, $attribute, 'operator'));
