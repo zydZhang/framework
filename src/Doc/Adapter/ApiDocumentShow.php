@@ -99,25 +99,31 @@ EOF;
         $requestExample = '';
         if ($annotations->has('requestExample')) {
             $arguments = $annotations->get('requestExample')->getArgument(0);
-            $requestExample = <<<EOF
+            if (is_array($arguments)) {
+                $requestExample = <<<EOF
 ### 请求示例
 ```\n
 EOF;
-            if (is_array($arguments)) {
                 foreach ($arguments as $key => $value) {
                     if (is_array($value)) {
                         $value = json_encode($value, JSON_UNESCAPED_UNICODE);
                     }
                     $requestExample .= $key.':'.$value.PHP_EOL;
                 }
+
+                $requestExample .= '```';
             }
-            $requestExample .= '```';
         }
         $returnExample = '';
         if ($annotations->has('returnExample')) {
-            $returnExample .= "### 返回示例\n```\n";
             $arguments = $annotations->get('returnExample')->getArgument(0);
-            $returnExample .= json_encode(['data' => $arguments], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)."\n```";
+            if (is_array($arguments)) {
+                $returnExample .= "### 返回示例\n```\n";
+                $returnExample .= json_encode(
+                        ['data' => $arguments],
+                        JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+                    )."\n```";
+            }
         }
         $markdown = <<<EOF
 # {$docComment['summary']}

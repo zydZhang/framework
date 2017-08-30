@@ -48,7 +48,7 @@ abstract class AbstractDocumentShow extends Injectable
      *
      * @return string
      */
-    protected function getFileContent(string $filename, int $startLineNumber, int $lineNumber):string
+    protected function getFileContent(string $filename, int $startLineNumber, int $lineNumber): string
     {
         if (!is_file($filename)) {
             return '';
