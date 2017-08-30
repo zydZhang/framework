@@ -1,7 +1,10 @@
 # Eelly framework
 
-[![Latest Stable Version](https://poser.pugx.org/eelly/framework/v/stable.png)](https://packagist.org/packages/eelly/framework)
-[![Total Downloads](https://poser.pugx.org/eelly/framework/downloads.png)](https://packagist.org/packages/eelly/framework)
-[![StyleCI](https://styleci.io/repos/94968797/shield?branch=master)](https://styleci.io/repos/94968797)
+[![Latest Version on Packagist][ico-version]][link-packagist]
+[![Software License][ico-license]](LICENSE.md)
+[![Build Status][ico-travis]][link-travis]
+[![Coverage Status][ico-scrutinizer]][link-scrutinizer]
+[![Quality Score][ico-code-quality]][link-code-quality]
+[![Total Downloads][ico-downloads]][link-downloads]
 
 ## About Eelly framework
