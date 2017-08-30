@@ -34,12 +34,12 @@ class OperatorValidator extends Validator
     public function validate(Validation $validation, $attribute): bool
     {
         $validationValue = (int)$validation->getValue($attribute);
-        $operator = $this->getOption('operator');
-        if(!is_array($operator) || 2 > count($operator)){
+        $operatorArr = $this->getOption('operator');
+        if(!is_array($operatorArr) || 2 > count($operatorArr)){
             throw new Exception('operator type error');
         }
 
-        list($operator, $value) = $operator;
+        list($operator, $value) = $operatorArr;
         $value = (int)$value;
         $validationResult = true;
 
