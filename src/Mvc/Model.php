@@ -51,14 +51,14 @@ abstract class Model extends MvcModel
      * 返回分页数组.
      *
      * @param $data Model查找结果集|如 $data = OauthModuleService::find();
-     * @param int $limit 分页页数
      * @param int $page  当前页数
+     * @param int $limit 分页页数
      *
      * @return array
      *
      * @author liangxinyi<liangxinyi@eelly.net>
      */
-    public function pagination($data, int $limit = 10, int $page = 1): array
+    public function pagination($data,int $page = 1, int $limit = 10): array
     {
         if (empty($data)) {
             return [];
@@ -92,14 +92,14 @@ abstract class Model extends MvcModel
      * 原生sql语句返回分页数组.
      *
      * @param string $sql   sql语句
-     * @param int    $limit 分页页数
      * @param int    $page  当前页数
+     * @param int    $limit 分页页数
      *
      * @return array
      *
      * @author liangxinyi<liangxinyi@eelly.net>
      */
-    public function paginationSql(string $sql, int $limit = 10, int $page = 1): array
+    public function paginationSql(string $sql, int $page = 1,int $limit = 10): array
     {
         $start = ($page - 1) * $limit;
         $count = count($this->getReadConnection()->fetchAll($sql));
