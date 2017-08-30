@@ -40,7 +40,7 @@ class OperatorValidator extends Validator
             throw new Exception('operator type error');
         }
 
-        list($operator, $value) = $operatorArr;
+        list($operator, $value) = $operatorArr[$attribute] ?? $operatorArr;
         $value = (int) $value;
         $validationResult = true;
 
