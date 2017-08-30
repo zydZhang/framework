@@ -44,3 +44,27 @@ if (!function_exists('isLocalIpAddress')) {
         return !filter_var($ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
     }
 }
+
+if (!function_exists('isValidObjectId')) {
+    /**
+     * Check if a value is a valid ObjectId.
+     *
+     *
+     * @param mixed $value
+     *
+     * @return bool
+     *
+     * @author hehui<hehui@eelly.net>
+     */
+    function isValidObjectId($value)
+    {
+        if ($value instanceof \MongoDB\BSON\ObjectID
+            || preg_match('/^[a-f\d]{24}$/i', $value)) {
+            $isValid = true;
+        } else {
+            $isValid = false;
+        }
+
+        return $isValid;
+    }
+}
