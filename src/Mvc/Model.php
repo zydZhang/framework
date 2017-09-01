@@ -162,13 +162,13 @@ abstract class Model extends MvcModel
                     unset($data[$key]);
                     return ucfirst($matches[2]);
                 }, $key);
-                $data[$key] = $value;
+                $temp[$key] = $value;
                 if(is_array($value)) {
-                    $data[$key] = self::arrayToHump($value);
+                    $temp[$key] = self::arrayToHump($value);
                 }
             }
         }
-        return $data;
+        return $temp;
     }
 
 }
