@@ -31,47 +31,38 @@ class ModuleDocumentShow extends AbstractDocumentShow implements DocumentShowInt
         $this->class = $class;
     }
 
-    public function display(): void
+    public function renderBody(): void
     {
         $reflectionClass = new ReflectionClass($this->class);
-        $docComment = $reflectionClass->getDocComment();
-        $factory = \phpDocumentor\Reflection\DocBlockFactory::createInstance();
-        $docblock = $factory->create($docComment);
-        $summary = $docblock->getSummary();
-        $description = $docblock->getDescription();
-        $authors = $docblock->getTagsByName('author');
+        $docComment = $this->getDocComment($reflectionClass->getDocComment());
         $authorsStr = '';
-        foreach ($authors as $item) {
+        foreach ($docComment['authors'] as $item) {
             $authorsStr .= $item->getAuthorName().'|<'.$item->getEmail().'>'.PHP_EOL;
         }
-        $finder = Finder::create()->in(dirname($reflectionClass->getFileName()).'/Logic')->files();
+        $finder = Finder::create()
+            ->in(dirname($reflectionClass->getFileName()).'/Logic')
+            ->files()
+            ->name('*Logic.php');
         $interfaceList = '';
         $namespaceName = $reflectionClass->getNamespaceName();
         foreach ($finder as $item) {
             $serviceName = substr($item->getFilename(), 0, -9);
             $interfaceName = 'Eelly\\SDK\\'.$namespaceName.'\\Service\\'.$serviceName.'Interface';
             $reflectionClass = new ReflectionClass($interfaceName);
-            $docComment = $reflectionClass->getDocComment();
-            $factory = \phpDocumentor\Reflection\DocBlockFactory::createInstance();
-            $docblock = $factory->create($docComment);
-            $interfaceList .= '- ['.$interfaceName.'](/'.lcfirst($namespaceName).'/'.lcfirst($serviceName).') '.$docblock->getSummary().PHP_EOL;
+            $docc = $this->getDocComment($reflectionClass->getDocComment());
+            $interfaceList .= '- ['.$interfaceName.'](/'.lcfirst($namespaceName).'/'.lcfirst($serviceName).') '.$docc['summary'].PHP_EOL;
         }
         $markdown = <<<EOF
-## $summary
-
-$description
-
+# {$docComment['summary']}
+{$docComment['description']}
 ### 服务列表
-
 $interfaceList
-
-### 作者
-
+### 代码贡献
 用户名|邮箱
 ------|-------
 $authorsStr
-
 EOF;
-        $this->echoMarkdownHtml($markdown);
+        $this->view->markup = $this->parserMarkdown($markdown);
+        $this->view->render('apidoc', 'home');
     }
 }

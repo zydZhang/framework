@@ -15,8 +15,8 @@ namespace Eelly\Application;
 
 use Eelly\Di\Injectable;
 use Eelly\Error\Handler as ErrorHandler;
-use Eelly\Exception\ClientException;
-use Eelly\Exception\LogicException as EellyLogicException;
+use Eelly\Exception\LogicException;
+use Eelly\Exception\RequestException;
 use Eelly\Mvc\Application;
 use Phalcon\Di;
 
@@ -55,17 +55,16 @@ class ServiceApplication extends Injectable
     {
         $this->application->useImplicitView(false);
         $this->application->registerModules($this->config->modules->toArray());
+
         try {
             $response = $this->application->handle($uri);
-        } catch (\LogicException $e) {
+        } catch (LogicException $e) {
             $response = $this->response;
             $response->setHeader('returnType', get_class($e));
             $content = ['error' => $e->getMessage(), 'returnType' => get_class($e)];
-            if ($e instanceof EellyLogicException) {
-                $content['context'] = $e->getContext();
-            }
+            $content['context'] = $e->getContext();
             $response->setJsonContent($content);
-        } catch (ClientException $e) {
+        } catch (RequestException $e) {
             $response = $e->getResponse();
         }
 

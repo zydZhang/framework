@@ -38,26 +38,33 @@ class ApiDocumentShow extends AbstractDocumentShow implements DocumentShowInterf
         $this->method = $method;
     }
 
-    public function display(): void
+    public function renderBody(): void
     {
         $reflectionClass = new ReflectionClass($this->class);
         $interfaces = $reflectionClass->getInterfaces();
         $interface = array_pop($interfaces);
         $reflectionMethod = $interface->getMethod($this->method);
 
-        $docComment = $reflectionMethod->getDocComment();
-        $factory = \phpDocumentor\Reflection\DocBlockFactory::createInstance();
-        $docblock = $factory->create($docComment);
-        $summary = $docblock->getSummary();
-        $description = $docblock->getDescription();
-
+        $docComment = $this->getDocComment($reflectionMethod->getDocComment());
+        $authorsMarkdown = '';
+        foreach ($docComment['authors'] as $item) {
+            $authorsMarkdown .= sprintf("- %s <%s>\n", $item->getAuthorName(), $item->getEmail());
+        }
         $paramsDescriptions = [];
-        foreach ($docblock->getTagsByName('param') as $item) {
+        foreach ($docComment['params'] as $item) {
             $paramsDescriptions[$item->getVariableName()] = (string) $item->getDescription();
         }
 
         $params = [];
-        $paramsMarkdown = '';
+        if (0 == $reflectionMethod->getNumberOfParameters()) {
+            $paramsMarkdown = '';
+        } else {
+            $paramsMarkdown = <<<EOF
+### 请求参数
+参数名|类型|是否可选|默认值|说明
+-----|----|-----|-------|---\n
+EOF;
+        }
         foreach ($reflectionMethod->getParameters() as $key => $value) {
             $name = $value->getName();
             $params[$key] = [
@@ -70,9 +77,7 @@ class ApiDocumentShow extends AbstractDocumentShow implements DocumentShowInterf
             if ($value->isDefaultValueAvailable()) {
                 $params[$key]['defaultValue'] = $value->getDefaultValue();
                 $params[$key]['allowsNull'] = '是';
-                if (null === $params[$key]['defaultValue']) {
-                    $params[$key]['defaultValue'] = 'null';
-                }
+                $params[$key]['defaultValue'] = preg_replace("/\s/", '', var_export($params[$key]['defaultValue'], true));
             }
             $paramsMarkdown .= sprintf("%s|%s|%s|%s|%s\n",
                 $params[$key]['name'],
@@ -91,43 +96,52 @@ class ApiDocumentShow extends AbstractDocumentShow implements DocumentShowInterf
             $reflectionMethod->name
         );
 
-        $arguments = $annotations->get('requestExample')->getArgument(0);
         $requestExample = '';
-        if (is_array($arguments)) {
-            foreach ($arguments as $key => $value) {
-                if (is_array($value)) {
-                    $value = json_encode($value, JSON_UNESCAPED_UNICODE);
+        if ($annotations->has('requestExample')) {
+            $arguments = $annotations->get('requestExample')->getArgument(0);
+            if (is_array($arguments)) {
+                $requestExample = <<<EOF
+### 请求示例
+```\n
+EOF;
+                foreach ($arguments as $key => $value) {
+                    if (is_array($value)) {
+                        $value = json_encode($value, JSON_UNESCAPED_UNICODE);
+                    }
+                    $requestExample .= $key.':'.$value.PHP_EOL;
                 }
-                $requestExample .= $key.':'.$value.PHP_EOL;
+
+                $requestExample .= '```';
             }
         }
-        $arguments = $annotations->get('returnExample')->getArgument(0);
-        $returnExample = json_encode(['data' => $arguments], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $returnExample = '';
+        if ($annotations->has('returnExample')) {
+            $arguments = $annotations->get('returnExample')->getArgument(0);
+            if (is_array($arguments)) {
+                $returnExample .= "### 返回示例\n```\n";
+                $returnExample .= json_encode(
+                        ['data' => $arguments],
+                        JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+                    )."\n```";
+            }
+        }
         $markdown = <<<EOF
-## $summary
-
-$description
-
-### 请求参数
-参数名|类型|是否可选|默认值|说明
------|----|-----|-------|---
-$paramsMarkdown
-
-### 接口原型
+# {$docComment['summary']}
 ```php
 $methodMarkdown
 ```
+{$docComment['description']}
 
-### 请求示例
-```json
+$returnExample
+
+$paramsMarkdown
+
 $requestExample
-```
 
-### 返回示例
-```json
-$returnExample    
-```
+### 代码贡献
+$authorsMarkdown
 EOF;
-        $this->echoMarkdownHtml($markdown);
+        $this->view->markup = $this->parserMarkdown($markdown);
+        $this->view->render('apidoc', 'api');
     }
 }

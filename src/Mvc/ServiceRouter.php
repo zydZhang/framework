@@ -46,7 +46,7 @@ class ServiceRouter extends Router
                 'module'     => $moduleName,
                 'controller' => 1,
                 'action'     => 2,
-            ])->setName($moduleName);
+            ], ['GET', 'POST'])->setName($moduleName);
         }
     }
 
