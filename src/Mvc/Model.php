@@ -58,7 +58,7 @@ abstract class Model extends MvcModel
      *
      * @author liangxinyi<liangxinyi@eelly.net>
      */
-    public function pagination($data,int $page = 1, int $limit = 10): array
+    public function pagination($data, int $page = 1, int $limit = 10): array
     {
         if (empty($data)) {
             return [];
@@ -99,7 +99,7 @@ abstract class Model extends MvcModel
      *
      * @author liangxinyi<liangxinyi@eelly.net>
      */
-    public function paginationSql(string $sql, int $page = 1,int $limit = 10): array
+    public function paginationSql(string $sql, int $page = 1, int $limit = 10): array
     {
         $start = ($page - 1) * $limit;
         $count = count($this->getReadConnection()->fetchAll($sql));
