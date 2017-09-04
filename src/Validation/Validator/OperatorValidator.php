@@ -40,7 +40,8 @@ class OperatorValidator extends Validator
             throw new Exception('operator type error');
         }
 
-        list($operator, $value) = $operatorArr[$attribute] ?? $operatorArr;
+        $isMultiple = count($operatorArr) != count($operatorArr, COUNT_RECURSIVE);
+        list($operator, $value) = $isMultiple && isset($operatorArr[$attribute]) ? $operatorArr[$attribute] : $operatorArr;
         $value = (int) $value;
         $validationResult = true;
 
