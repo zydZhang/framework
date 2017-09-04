@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Eelly\Http;
 
-use Eelly\Exception\ClientException;
 use GuzzleHttp\Psr7\ServerRequest;
 use Phalcon\Http\Request as HttpRequest;
 
@@ -28,7 +27,7 @@ class ServiceRequest extends HttpRequest
     public function getRouteParams(): array
     {
         if (!$this->isPost()) {
-            throw new ClientException(400, 'HTTP request method only support POST', $this, $this->getDI()->getResponse());
+            return [];
         }
         $params = $this->getPost();
         $uploadFiles = ServerRequest::normalizeFiles($_FILES);
@@ -38,7 +37,7 @@ class ServiceRequest extends HttpRequest
         return $params;
     }
 
-    private function sortNestedArrayAssoc(&$arr): bool
+    private function sortNestedArrayAssoc($arr): bool
     {
         if (!is_array($arr)) {
             return false;

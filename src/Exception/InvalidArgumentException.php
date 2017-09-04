@@ -11,10 +11,11 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Mvc\User;
+namespace Eelly\Exception;
 
-use Phalcon\Di\Injectable;
-
-class Business extends Injectable
+/**
+ * Class InvalidArgumentException.
+ */
+class InvalidArgumentException extends LogicException
 {
 }

@@ -81,7 +81,7 @@ class AMQPFactory extends Injectable implements QueueFactoryInterface
         $this->defaultConsumer = $defaultConsumer;
     }
 
-    public function afterServiceResolve()
+    public function afterServiceResolve(): void
     {
         $connectionOptions = $this->connectionOptions;
         $this->getDI()->setShared(ConnectionRegistry::class, function () use ($connectionOptions) {

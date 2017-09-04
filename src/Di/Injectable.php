@@ -25,7 +25,7 @@ abstract class Injectable extends DiInjectable implements InjectionAwareInterfac
     /**
      * Register db service.
      */
-    public function registerDbService()
+    public function registerDbService(): void
     {
         $di = $this->getDI();
         // mysql master connection service
@@ -65,7 +65,7 @@ abstract class Injectable extends DiInjectable implements InjectionAwareInterfac
     /**
      * Register queue service.
      */
-    public function registerQueueService()
+    public function registerQueueService(): void
     {
         $this->getDI()->setShared('queueFactory', function () {
             $connectionOptions = $this->getModuleConfig()->amqp->toArray();

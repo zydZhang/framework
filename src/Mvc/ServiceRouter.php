@@ -32,12 +32,21 @@ class ServiceRouter extends Router
         $application = $this->getDi()->getApplication();
         foreach ($application->getModules()as $moduleName => $value) {
             $namespace = str_replace('Module', 'Logic', $value['className']);
-            $router->addPost('/'.$moduleName.'/:controller/:action', [
+            $router->addGet('/'.$moduleName, [
+                'namespace'  => $namespace,
+                'module'     => $moduleName,
+            ]);
+            $router->addGet('/'.$moduleName.'/:controller', [
+                'namespace'  => $namespace,
+                'module'     => $moduleName,
+                'controller' => 1,
+            ]);
+            $router->add('/'.$moduleName.'/:controller/:action', [
                 'namespace'  => $namespace,
                 'module'     => $moduleName,
                 'controller' => 1,
                 'action'     => 2,
-            ])->setName($moduleName);
+            ], ['GET', 'POST'])->setName($moduleName);
         }
     }
 

@@ -13,7 +13,10 @@ declare(strict_types=1);
 
 namespace Eelly\Dispatcher;
 
-use InvalidArgumentException;
+use Eelly\Doc\ApiDoc;
+use Eelly\DTO\UidDTO;
+use Eelly\Exception\InvalidArgumentException;
+use Eelly\Exception\RequestException;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;
 use Phalcon\Mvc\Dispatcher\Exception as DispatchException;
@@ -23,6 +26,11 @@ use Phalcon\Mvc\Dispatcher\Exception as DispatchException;
  */
 class ServiceDispatcher extends Dispatcher
 {
+    /**
+     * @var UidDTO
+     */
+    public static $uidDTO;
+
     public function afterServiceResolve(): void
     {
         $this->setControllerSuffix('Logic');
@@ -41,6 +49,7 @@ class ServiceDispatcher extends Dispatcher
     {
         $notFoundFuntion = function (): void {
             $response = $this->getDI()->getShared('response');
+            $response->setStatusCode(404);
             $response->setJsonContent([
                 'error' => 'Not found',
             ]);
@@ -51,10 +60,10 @@ class ServiceDispatcher extends Dispatcher
                 case Dispatcher::EXCEPTION_ACTION_NOT_FOUND:
                     $notFoundFuntion();
 
-                    return false;
+                    return true;
             }
 
-            return false;
+            return true;
         }
     }
 
@@ -63,10 +72,58 @@ class ServiceDispatcher extends Dispatcher
      *
      * @see \Phalcon\Dispatcher::setParams()
      */
-    public function setParams($routeParams)
+    public function setParams($routeParams): void
+    {
+        /**
+         * @var \Eelly\Http\ServiceRequest $request
+         */
+        $request = $this->getDI()->getShared('request');
+        if ($request->isPost()) {
+            $this->setSeviceParams($routeParams);
+        } elseif ($request->isGet()) {
+            $module = $this->getModuleName();
+            $class = parent::getHandlerClass();
+            $method = $this->getActionName();
+            $this->setControllerSuffix('');
+            $this->setControllerName(ApiDoc::class);
+            $this->setActionName('display');
+            parent::setParams([$module, $class, $method]);
+        } else {
+            // Method Not Allowed
+            throw new RequestException(405, null, $this->getDI()->getShared('request'), $this->getDI()->getShared('response'));
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @see \Phalcon\Dispatcher::getHandlerClass()
+     */
+    public function getHandlerClass()
+    {
+        $request = $this->getDI()->getShared('request');
+        if ($request->isGet()) {
+            return ApiDoc::class;
+        } else {
+            return parent::getHandlerClass();
+        }
+    }
+
+    /**
+     * @param array $routeParams
+     */
+    private function setSeviceParams(array $routeParams): void
     {
         $class = $this->getControllerClass();
         $method = $this->getActionName();
+        /**
+         * @var \Eelly\Http\ServiceRequest $request
+         */
+        $request = $this->getDI()->getShared('request');
+        if (!class_exists($class) || !method_exists($class, $method)) {
+            throw new RequestException(404, null, $request, $this->getDI()->getShared('response'));
+        }
+
         $classMethod = new \ReflectionMethod($class, $method);
         $parameters = $classMethod->getParameters();
         $parametersNumber = $classMethod->getNumberOfParameters();
@@ -89,10 +146,11 @@ class ServiceDispatcher extends Dispatcher
      *
      * @throws InvalidArgumentException
      */
-    private function throwInvalidArgumentException($message)
+    private function throwInvalidArgumentException($message): void
     {
         $response = $this->getDI()->getShared('response');
         $response->setStatusCode(400);
+
         throw new InvalidArgumentException($message);
     }
 
@@ -102,9 +160,9 @@ class ServiceDispatcher extends Dispatcher
      * @param array $routeParams
      * @param array $parameters
      */
-    private function filterRouteParams(array &$routeParams, array $parameters)
+    private function filterRouteParams(array &$routeParams, array $parameters): void
     {
-        $functionOfThrowInvalidArgumentException = function ($position, $expectedType, $actualType) {
+        $functionOfThrowInvalidArgumentException = function ($position, $expectedType, $actualType): void {
             $this->throwInvalidArgumentException(sprintf('Argument %d must be of the type %s, %s given', $position, $expectedType, $actualType));
         };
         /**
@@ -123,7 +181,11 @@ class ServiceDispatcher extends Dispatcher
                     unset($routeParams[$paramName]);
                 } elseif ($parameter->isDefaultValueAvailable()) {
                     // 存在默认值参数
-                    $routeParams[$position] = $parameter->getDefaultValue();
+                    if ($expectedType == UidDTO::class) {
+                        $routeParams[$position] = self::$uidDTO = new UidDTO();
+                    } else {
+                        $routeParams[$position] = $parameter->getDefaultValue();
+                    }
                     $checkedParameter = true;
                 } else {
                     $functionOfThrowInvalidArgumentException($position, $expectedType, 'null');

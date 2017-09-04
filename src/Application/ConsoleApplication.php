@@ -55,7 +55,7 @@ class ConsoleApplication extends Injectable
         return $this->application;
     }
 
-    public function run()
+    public function run(): void
     {
         $this->initial()->handle()->run();
     }
