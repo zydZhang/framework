@@ -75,6 +75,9 @@ abstract class Model extends MvcModel
         foreach ($page->items as $key=>$item) {
             $return['items'][$key] = $item->toArray();
         }
+        if(empty($return['items'])){
+            return [];
+        }
         $return['page'] = [
             'first'      => $page->first,
             'before'     => $page->before,
@@ -159,6 +162,9 @@ abstract class Model extends MvcModel
      */
     public static function arrayToHump(array &$data)
     {
+        if(empty($data)){
+            return [];
+        }
         if (is_array($data)) {
             foreach ($data as $key=>$value) {
                 $key = preg_replace_callback('/(_)([a-z])/i', function ($matches) use (&$data,&$key) {
@@ -203,6 +209,9 @@ abstract class Model extends MvcModel
         
         foreach ($page->items as $key=>$item) {
             $return['items'][$key] = $item->toArray();
+        }
+        if(empty($return['items'])){
+            return [];
         }
         $return['page'] = [
             'first'      => $page->first,
