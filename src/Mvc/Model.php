@@ -16,6 +16,7 @@ namespace Eelly\Mvc;
 use Phalcon\Di;
 use Phalcon\Mvc\Model as MvcModel;
 use Phalcon\Paginator\Adapter\Model as PaginatorModel;
+use Phalcon\Paginator\Factory;
 
 /**
  * Class Model.
@@ -173,5 +174,47 @@ abstract class Model extends MvcModel
         }
         return $temp;
 
+    }
+    
+    /**
+     * queryBuilder适配器，返回分页数组.
+     *
+     * @param mixed  $builder Model查找结果集|如 $builder = Bank::createBuilder();
+     * @param int    $page  当前页数
+     * @param int    $limit 分页页数
+     *
+     * @return array
+     *
+     * @author zhangyingdi<zhangyingdi@eelly.net>
+     */
+    public function queryBuilderPagination($builder,int $page = 1, int $limit = 20): array
+    {
+        if (empty($builder)) {
+            return [];
+        }
+        $options = [
+            'builder' => $builder,
+            'limit'   => $limit,
+            'page'    => $page,
+            'adapter' => 'queryBuilder',
+        ];
+        $paginator  = Factory::load($options);
+        $page = $paginator->getPaginate();
+        
+        foreach ($page->items as $key=>$item) {
+            $return['items'][$key] = $item->toArray();
+        }
+        $return['page'] = [
+            'first'      => $page->first,
+            'before'     => $page->before,
+            'current'    => $page->current,
+            'last'       => $page->last,
+            'next'       => $page->next,
+            'total_pages'=> $page->total_pages,
+            'total_items'=> $page->total_items,
+            'limit'      => $page->limit,
+        ];
+        
+        return self::arrayToHump($return);
     }
 }
