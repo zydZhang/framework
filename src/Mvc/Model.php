@@ -217,4 +217,84 @@ abstract class Model extends MvcModel
         
         return self::arrayToHump($return);
     }
+    
+    /**
+     * 封装phalcon model的update函数，实现仅更新数据变更字段，而非所有字段更新
+     * 
+     * @param  array|null $data
+     * @param  null       $whiteList
+     * @return int
+     */
+    public function iupdate(array $data = null, $whiteList = null)
+    {
+        if (count($data) > 0) {
+            //获取当前模型驿应的数据表所有字段
+            $attributes = $this->getModelsMetaData()->getAttributes($this);
+            //取所有字段和需要更新的数据字段的差集，并过滤
+            $this->skipAttributesOnUpdate(array_diff($attributes, array_keys($data)));
+        }
+        
+        return parent::update($data, $whiteList) ? $this->getWriteConnection()->affectedRows() : 0;
+    }
+    
+    /**
+     * 自定义封装，通过传过来的where跟data更新数据
+     *
+     * @param  array $where  更新条件
+     * @param  array $set    更新的数据
+     * 
+     * @requestExample({"where":{"pk_id":10}, "set":{"param_name":"测试编码"}})
+     * @return int
+     */
+    public function arrayUpdate(array $where = [], array $set = [])
+    {
+        if (empty($where) || empty($set)) {
+            return false;
+        }
+        
+        $tableName = get_called_class();
+        $setSql = $whereSql  = '';
+        //拼接条件
+        foreach ($set as $sk=>$sv) {
+            $setSql .= $sk.' = "'.$sv.'",';
+        }
+        foreach ($where as $wk=>$wv) {
+            $whereSql .= $wk.' = "'.$wv.'" AND ';
+        }
+        
+        $setSql   = rtrim($setSql, ',');
+        $whereSql = rtrim($whereSql, ' AND ');
+        $sql = 'UPDATE '.$tableName.' SET '.$setSql.' WHERE '.$whereSql;
+        $this->_modelsManager->executeQuery($sql);
+        
+        return (int)$this->getWriteConnection()->affectedRows();
+    }
+    
+    /**
+     * 自定义封装，通过传过来的where条件删除数据
+     *
+     * @param  array $where  更新条件
+     * 
+     * @requestExample({"where":{"pk_id":10}})
+     * @return int
+     */
+    public function arrayDelete(array $where = [])
+    {
+        if (empty($where)) {
+            return false;
+        }
+        
+        $tableName = get_called_class();
+        $whereSql  = '';
+        //拼接条件
+        foreach ($where as $wk=>$wv) {
+            $whereSql .= $wk.' = "'.$wv.'" AND ';
+        }
+        
+        $whereSql = rtrim($whereSql, ' AND ');
+        $sql = 'DELETE FROM '.$tableName.' WHERE '.$whereSql;
+        $this->_modelsManager->executeQuery($sql);
+        
+        return (int)$this->getWriteConnection()->affectedRows();
+    }
 }
