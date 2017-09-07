@@ -14,17 +14,20 @@ declare(strict_types=1);
 namespace Eelly\Utils;
 
 /**
- * Arrays工具类
+ * Arrays工具类.
  */
 class Arrays
 {
     /**
      * 二维数组 排序
-     * Arrays::multisort($data, 'order', SORT_ASC, 'id', SORT_DESC);
+     * Arrays::multisort($data, 'order', SORT_ASC, 'id', SORT_DESC);.
      *
-     * @param  mixed ...$args
+     * @param mixed ...$args
+     *
      * @return array
+     *
      * @author SpiritTeam
+     *
      * @since  2015年6月6日
      */
     public static function multisort()
@@ -33,10 +36,11 @@ class Arrays
         $data = array_shift($args);
         foreach ($args as $n => $field) {
             if (is_string($field)) {
-                $tmp = array();
-                foreach ($data as $key => $row)
+                $tmp = [];
+                foreach ($data as $key => $row) {
                     $tmp[$key] = $row[$field];
-                    $args[$n] = $tmp;
+                }
+                $args[$n] = $tmp;
             }
         }
         $args[] = &$data;
@@ -46,7 +50,7 @@ class Arrays
     }
 
     /**
-     * 切换数组的下标
+     * 切换数组的下标.
      *
      * @desc    使用示例
      * 示例一：
@@ -79,32 +83,32 @@ class Arrays
      *          'b' => [['id' => 16, 'name' => 'b', 'age' => 13], ['id' => 17, 'name' => 'b', 'age' => 14]],
      *      );
      *
-     * @param   array   $array      需要操作的数组
+     * @param array  $array    需要操作的数组
+     * @param string $field    需要切换的字段 'name'
+     * @param string $multiple 多维数组
      *
-     * @param   string  $field      需要切换的字段 'name'
-     * @param   string  $multiple   多维数组
-     * @return  array
-     *
+     * @return array
      *
      * @author  Heyanwen<heyanwen@eelly.net>
+     *
      * @since   2016-9-21
      */
     public static function switchArrayKey(array $array, $field, $multiple = false)
     {
         // 参数校验
-        if (empty($array) || empty($field)){
-            return array();
+        if (empty($array) || empty($field)) {
+            return [];
         }
 
         // 替换下标
-        $result = array();
+        $result = [];
         $fields = is_array($field) ? $field : [$field];
-        foreach ($array as $k => $v){
-            $keys   = [];
-            foreach ($fields as $key){
+        foreach ($array as $k => $v) {
+            $keys = [];
+            foreach ($fields as $key) {
                 $keys[] = !isset($v[$key]) ? '' : $v[$key];
             }
-            $keys   = implode('_', $keys);
+            $keys = implode('_', $keys);
             $multiple ? $result[$keys][] = $v : $result[$keys] = $v;
         }
 
@@ -112,7 +116,8 @@ class Arrays
     }
 
     /**
-     * 数组降维
+     * 数组降维.
+     *
      *@desc
      * 示例一
      * 参数： $arr = [
@@ -134,22 +139,26 @@ class Arrays
      *      $unique = 1,
      * 结果：$result = [1, 2, 3]
      *
-     * @param array $arr  需处理的数组
-     * @param int $unique 是否去重
+     * @param array $arr    需处理的数组
+     * @param int   $unique 是否去重
+     *
      * @return array
+     *
      * @author wangjiang<wangjiang@eelly.net>
+     *
      * @since  2017年5月22日
      */
     public static function reduceDimension(array $arr, $unique = 1)
     {
         $result = [];
-        foreach($arr as $val){
-            if(is_array($val)){
+        foreach ($arr as $val) {
+            if (is_array($val)) {
                 $result = array_merge($result, self::reduceDimension($val));
-            }else{
+            } else {
                 $result[] = $val;
             }
         }
+
         return 1 === $unique ? array_unique($result) : $result;
     }
 }

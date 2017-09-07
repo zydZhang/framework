@@ -167,27 +167,27 @@ abstract class Model extends MvcModel
                     return ucfirst($matches[2]);
                 }, $key);
                 $temp[$key] = $value;
-                if(is_array($value)) {
+                if (is_array($value)) {
                     $temp[$key] = self::arrayToHump($value);
                 }
             }
         }
-        return $temp;
 
+        return $temp;
     }
-    
+
     /**
      * queryBuilder适配器，返回分页数组.
      *
-     * @param mixed  $builder Model查找结果集|如 $builder = Bank::createBuilder();
-     * @param int    $page  当前页数
-     * @param int    $limit 分页页数
+     * @param mixed $builder Model查找结果集|如 $builder = Bank::createBuilder();
+     * @param int   $page    当前页数
+     * @param int   $limit   分页页数
      *
      * @return array
      *
      * @author zhangyingdi<zhangyingdi@eelly.net>
      */
-    public function queryBuilderPagination($builder,int $page = 1, int $limit = 20): array
+    public function queryBuilderPagination($builder, int $page = 1, int $limit = 20): array
     {
         if (empty($builder)) {
             return [];
@@ -198,9 +198,9 @@ abstract class Model extends MvcModel
             'page'    => $page,
             'adapter' => 'queryBuilder',
         ];
-        $paginator  = Factory::load($options);
+        $paginator = Factory::load($options);
         $page = $paginator->getPaginate();
-        
+
         foreach ($page->items as $key=>$item) {
             $return['items'][$key] = $item->toArray();
         }
@@ -214,7 +214,7 @@ abstract class Model extends MvcModel
             'total_items'=> $page->total_items,
             'limit'      => $page->limit,
         ];
-        
+
         return self::arrayToHump($return);
     }
 }
