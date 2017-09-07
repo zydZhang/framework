@@ -297,4 +297,39 @@ abstract class Model extends MvcModel
         
         return (int)$this->getWriteConnection()->affectedRows();
     }
+    
+    /**
+     * 自定义封装，批量插入
+     *
+     * @param  array $data  需要插入的数据
+     *
+     * @requestExample({"data":[{"code":"test", "paramName":"测试编码","paramDesc":"这个编码是测试数据","status":1,"createdTime":1503560249}]})
+     * @return int
+     */
+    public function batchCreate(array $data = [])
+    {
+        if (empty($data)) {
+            return 0;
+        }
+        
+        $keys = array_keys(reset($data));
+        $keys = array_map(function ($key) {
+            return "`{$key}`";
+        }, $keys);
+        $keys = implode(',', $keys);
+        
+        $sql = 'INSERT INTO ' . $this->getSource() . " ({$keys}) VALUES ";
+        //拼接插入的数据
+        foreach ($data as $v) {
+            $v = array_map(function ($value) {
+                return "'{$value}'";
+            }, $v);
+            $values = implode(',', array_values($v));
+            $sql .= " ({$values}), ";
+        }
+        $sql = rtrim(trim($sql), ',');
+        $this->getDI()->get('dbMaster')->execute($sql);
+        
+        return (int)$this->getWriteConnection()->affectedRows();
+    }
 }
