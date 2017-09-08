@@ -59,7 +59,7 @@ abstract class Model extends MvcModel
      *
      * @author liangxinyi<liangxinyi@eelly.net>
      */
-    public function pagination($data,int $page = 1, int $limit = 10): array
+    public function pagination($data, int $page = 1, int $limit = 10): array
     {
         if (empty($data)) {
             return [];
@@ -103,7 +103,7 @@ abstract class Model extends MvcModel
      *
      * @author liangxinyi<liangxinyi@eelly.net>
      */
-    public function paginationSql(string $sql, int $page = 1,int $limit = 10): array
+    public function paginationSql(string $sql, int $page = 1, int $limit = 10): array
     {
         $start = ($page - 1) * $limit;
         $count = count($this->getReadConnection()->fetchAll($sql));
@@ -173,27 +173,27 @@ abstract class Model extends MvcModel
                     return ucfirst($matches[2]);
                 }, $key);
                 $temp[$key] = $value;
-                if(is_array($value)) {
+                if (is_array($value)) {
                     $temp[$key] = self::arrayToHump($value);
                 }
             }
         }
-        return $temp;
 
+        return $temp;
     }
-    
+
     /**
      * queryBuilder适配器，返回分页数组.
      *
-     * @param mixed  $builder Model查找结果集|如 $builder = Bank::createBuilder();
-     * @param int    $page  当前页数
-     * @param int    $limit 分页页数
+     * @param mixed $builder Model查找结果集|如 $builder = Bank::createBuilder();
+     * @param int   $page    当前页数
+     * @param int   $limit   分页页数
      *
      * @return array
      *
      * @author zhangyingdi<zhangyingdi@eelly.net>
      */
-    public function queryBuilderPagination($builder,int $page = 1, int $limit = 20): array
+    public function queryBuilderPagination($builder, int $page = 1, int $limit = 20): array
     {
         if (empty($builder)) {
             return [];
@@ -204,9 +204,9 @@ abstract class Model extends MvcModel
             'page'    => $page,
             'adapter' => 'queryBuilder',
         ];
-        $paginator  = Factory::load($options);
+        $paginator = Factory::load($options);
         $page = $paginator->getPaginate();
-        
+
         foreach ($page->items as $key=>$item) {
             $return['items'][$key] = $item->toArray();
         }
@@ -223,7 +223,126 @@ abstract class Model extends MvcModel
             'total_items'=> $page->total_items,
             'limit'      => $page->limit,
         ];
-        
+
         return self::arrayToHump($return);
+    }
+
+    /**
+     * 封装phalcon model的update函数，实现仅更新数据变更字段，而非所有字段更新.
+     *
+     * @param array|null $data
+     * @param null       $whiteList
+     *
+     * @return int
+     */
+    public function iupdate(array $data = null, $whiteList = null)
+    {
+        if (count($data) > 0) {
+            //获取当前模型驿应的数据表所有字段
+            $attributes = $this->getModelsMetaData()->getAttributes($this);
+            //取所有字段和需要更新的数据字段的差集，并过滤
+            $this->skipAttributesOnUpdate(array_diff($attributes, array_keys($data)));
+        }
+
+        return parent::update($data, $whiteList) ? $this->getWriteConnection()->affectedRows() : 0;
+    }
+
+    /**
+     * 自定义封装，通过传过来的where跟data更新数据.
+     *
+     * @param array $where 更新条件
+     * @param array $set   更新的数据
+     *
+     * @requestExample({"where":{"pk_id":10}, "set":{"param_name":"测试编码"}})
+     *
+     * @return int
+     */
+    public function arrayUpdate(array $where = [], array $set = [])
+    {
+        if (empty($where) || empty($set)) {
+            return false;
+        }
+
+        $tableName = get_called_class();
+        $setSql = $whereSql = '';
+        //拼接条件
+        foreach ($set as $sk=>$sv) {
+            $setSql .= $sk.' = "'.$sv.'",';
+        }
+        foreach ($where as $wk=>$wv) {
+            $whereSql .= $wk.' = "'.$wv.'" AND ';
+        }
+
+        $setSql = rtrim($setSql, ',');
+        $whereSql = rtrim($whereSql, ' AND ');
+        $sql = 'UPDATE '.$tableName.' SET '.$setSql.' WHERE '.$whereSql;
+        $this->_modelsManager->executeQuery($sql);
+
+        return (int) $this->getWriteConnection()->affectedRows();
+    }
+
+    /**
+     * 自定义封装，通过传过来的where条件删除数据.
+     *
+     * @param array $where 更新条件
+     *
+     * @requestExample({"where":{"pk_id":10}})
+     *
+     * @return int
+     */
+    public function arrayDelete(array $where = [])
+    {
+        if (empty($where)) {
+            return false;
+        }
+
+        $tableName = get_called_class();
+        $whereSql = '';
+        //拼接条件
+        foreach ($where as $wk=>$wv) {
+            $whereSql .= $wk.' = "'.$wv.'" AND ';
+        }
+
+        $whereSql = rtrim($whereSql, ' AND ');
+        $sql = 'DELETE FROM '.$tableName.' WHERE '.$whereSql;
+        $this->_modelsManager->executeQuery($sql);
+
+        return (int) $this->getWriteConnection()->affectedRows();
+    }
+
+    /**
+     * 自定义封装，批量插入.
+     *
+     * @param array $data 需要插入的数据
+     *
+     * @requestExample({"data":[{"code":"test", "paramName":"测试编码","paramDesc":"这个编码是测试数据","status":1,"createdTime":1503560249}]})
+     *
+     * @return int
+     */
+    public function batchCreate(array $data = [])
+    {
+        if (empty($data)) {
+            return 0;
+        }
+
+        $keys = array_keys(reset($data));
+        $keys = array_map(function ($key) {
+            return "`{$key}`";
+        }, $keys);
+        $keys = implode(',', $keys);
+
+        $sql = 'INSERT INTO '.$this->getSource()." ({$keys}) VALUES ";
+        //拼接插入的数据
+        foreach ($data as $v) {
+            $v = array_map(function ($value) {
+                return "'{$value}'";
+            }, $v);
+            $values = implode(',', array_values($v));
+            $sql .= " ({$values}), ";
+        }
+        $sql = rtrim(trim($sql), ',');
+        $this->getDI()->get('dbMaster')->execute($sql);
+
+        return (int) $this->getWriteConnection()->affectedRows();
     }
 }

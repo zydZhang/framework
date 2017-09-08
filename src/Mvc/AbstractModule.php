@@ -133,5 +133,13 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
             static::NAMESPACE.'\\Command' => static::NAMESPACE_DIR.'/Command',
         ]);
         $loader->register();
+        $this->registerUserCommands($app);
     }
+
+    /**
+     * Registers user commands.
+     *
+     * @param \Eelly\Console\Application $app
+     */
+    abstract public function registerUserCommands(\Eelly\Console\Application $app): void;
 }
