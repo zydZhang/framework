@@ -5,7 +5,3 @@
 [![StyleCI](https://styleci.io/repos/94968797/shield?branch=master)](https://styleci.io/repos/94968797)
 
 ## About Eelly framework
-
-
-## 中文文档
-http://runphp.net/eelly-framework/
