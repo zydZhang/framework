@@ -31,10 +31,14 @@ class ServiceDispatcher extends Dispatcher
      */
     public static $uidDTO;
 
-    public function afterServiceResolve(): void
+    public function __construct()
     {
         $this->setControllerSuffix('Logic');
         $this->setActionSuffix('');
+    }
+
+    public function afterServiceResolve(): void
+    {
         $this->getEventsManager()->attach('dispatch', $this);
     }
 
