@@ -66,5 +66,8 @@ class WebApplication extends Injectable
 
     public function initEventsManager(): void
     {
+        $eventsManager = $this->eventsManager;
+        $this->application->setEventsManager($eventsManager);
+        $this->di->setInternalEventsManager($eventsManager);
     }
 }
