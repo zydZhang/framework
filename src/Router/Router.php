@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Mvc;
+namespace Eelly\Router;
 
 use Phalcon\Mvc\Router as MvcRouter;
 

@@ -20,8 +20,7 @@ use Eelly\Logger\ServiceLogger;
 use Eelly\Mvc\Collection\Manager as CollectionManager;
 use Eelly\Mvc\Model\Manager as ModelsManager;
 use Eelly\Mvc\Model\Transaction\Manager as TransactionManager;
-use Eelly\Mvc\ServiceRouter;
-use Monolog\Logger;
+use Eelly\Router\ServiceRouter;
 use Phalcon\Di\Service;
 
 /**
