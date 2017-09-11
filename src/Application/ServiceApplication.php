@@ -67,6 +67,7 @@ class ServiceApplication extends Injectable
         } catch (RequestException $e) {
             $response = $e->getResponse();
         }
+
         return $response;
     }
 
@@ -111,7 +112,6 @@ class ServiceApplication extends Injectable
                     $dispatcher->setReturnedValue($this->response->getContent());
                 }
             }
-
         });
         $this->application->setEventsManager($eventsManager);
         $this->di->setInternalEventsManager($eventsManager);
