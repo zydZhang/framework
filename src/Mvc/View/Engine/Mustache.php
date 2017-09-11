@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Eelly\Mvc\View\Engine;
 
+use Eelly\Mvc\View;
 use Phalcon\DiInterface;
 use Phalcon\Mvc\View\Engine;
 use Phalcon\Mvc\View\EngineInterface;
@@ -35,10 +36,10 @@ class Mustache extends Engine implements EngineInterface
      * @param ViewBaseInterface $view
      * @param DiInterface       $di
      */
-    public function __construct(ViewBaseInterface $view, DiInterface $di = null)
+    public function __construct(View $view, DiInterface $di = null)
     {
         $this->mustache = new \Mustache_Engine([
-            'partials_loader' => new \Mustache_Loader_FilesystemLoader($view->getViewsDir().'/partials'),
+            'partials_loader' => new \Mustache_Loader_FilesystemLoader($view->getViewsDir().'/'.$view->getControllerName()),
         ]);
         parent::__construct($view, $di);
     }

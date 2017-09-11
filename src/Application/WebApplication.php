@@ -67,6 +67,14 @@ class WebApplication extends Injectable
     public function initEventsManager(): void
     {
         $eventsManager = $this->eventsManager;
+        $eventsManager->attach('di:afterServiceResolve', function (\Phalcon\Events\Event $event, \Phalcon\Di $di, array $service): void {
+            if ($service['instance'] instanceof \Phalcon\Events\EventsAwareInterface) {
+                $service['instance']->setEventsManager($di->getEventsManager());
+            }
+            if (method_exists($service['instance'], 'afterServiceResolve')) {
+                $service['instance']->afterServiceResolve();
+            }
+        });
         $this->application->setEventsManager($eventsManager);
         $this->di->setInternalEventsManager($eventsManager);
     }

@@ -26,5 +26,6 @@ class WebDi extends FactoryDefault
         $this->_services['annotations'] = new Service('annotations', 'Phalcon\\Annotations\\Adapter\\Memory', true);
         $this->_services['dispatcher'] = new Service('dispatcher', 'Eelly\\Dispatcher\\WebDispatcher', true);
         $this->_services['response'] = new Service('dispatcher', 'Phalcon\\Http\\Response', true);
+        $this->_services['view'] = new Service('view', 'Eelly\\Mvc\\View', true);
     }
 }
