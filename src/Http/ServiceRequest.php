@@ -29,7 +29,11 @@ class ServiceRequest extends HttpRequest
         if (!$this->isPost()) {
             return [];
         }
-        $params = $this->getPost();
+        if (0 === strpos($this->getHeader('Content-Type'), 'application/json')) {
+            $params = json_decode($this->getRawBody(), true);
+        } else {
+            $params = $this->getPost();
+        }
         $uploadFiles = ServerRequest::normalizeFiles($_FILES);
         $params = array_replace_recursive($params, $uploadFiles);
         $this->sortNestedArrayAssoc($params);
