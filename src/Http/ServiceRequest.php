@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace Eelly\Http;
 
+use Eelly\Exception\RequestException;
 use GuzzleHttp\Psr7\ServerRequest;
+use InvalidArgumentException;
 use Phalcon\Http\Request as HttpRequest;
 
 /**
@@ -30,7 +32,12 @@ class ServiceRequest extends HttpRequest
             return [];
         }
         if (0 === strpos($this->getHeader('Content-Type'), 'application/json')) {
-            $params = json_decode($this->getRawBody(), true);
+            $json = $this->getRawBody();
+            try {
+                $params = \GuzzleHttp\json_decode($json, true);
+            } catch (InvalidArgumentException $e) {
+                throw new RequestException(400, $e->getMessage(), $this, $this->getDI()->getShared('response'));
+            }
         } else {
             $params = $this->getPost();
         }
