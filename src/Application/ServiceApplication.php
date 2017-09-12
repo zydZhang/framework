@@ -81,6 +81,9 @@ class ServiceApplication extends Injectable
 
     private function initEventsManager(): void
     {
+        /**
+         * @var \Phalcon\Events\Manager
+         */
         $eventsManager = $this->eventsManager;
         $eventsManager->attach('di:afterServiceResolve', function (\Phalcon\Events\Event $event, \Phalcon\Di $di, array $service): void {
             if ($service['instance'] instanceof \Phalcon\Events\EventsAwareInterface) {
@@ -102,7 +105,12 @@ class ServiceApplication extends Injectable
                 $this->response->setJsonContent(['data' => $returnedValue, 'returnType' => 'array']);
             } elseif (is_scalar($returnedValue)) {
                 $this->response->setHeader('returnType', gettype($returnedValue));
-                $this->response->setJsonContent(['data' => $returnedValue, 'returnType' => gettype($returnedValue)]);
+                $this->response->setJsonContent(
+                    ['data' => $returnedValue, 'returnType' => gettype($returnedValue)]
+                );
+                if (is_string($returnedValue)) {
+                    $dispatcher->setReturnedValue($this->response->getContent());
+                }
             }
         });
         $this->application->setEventsManager($eventsManager);

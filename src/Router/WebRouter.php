@@ -13,10 +13,12 @@ declare(strict_types=1);
 
 namespace Eelly\Router;
 
+use Phalcon\Mvc\Router\Annotations as RouterAnnotations;
+
 /**
  * @author hehui<hehui@eelly.net>
  */
-class WebRouter extends Router
+class WebRouter extends RouterAnnotations
 {
     /**
      * {@inheritdoc}
