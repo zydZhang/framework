@@ -79,11 +79,6 @@ abstract class Model extends MvcModel
             return [];
         }
         $return['page'] = [
-            'first'      => $page->first,
-            'before'     => $page->before,
-            'current'    => $page->current,
-            'last'       => $page->last,
-            'next'       => $page->next,
             'total_pages'=> $page->total_pages,
             'total_items'=> $page->total_items,
             'limit'      => $page->limit,
@@ -116,11 +111,6 @@ abstract class Model extends MvcModel
         $total_pages = ceil($count / $limit);
         $return['items'] = $data;
         $return['page'] = [
-            'first'      => 1,
-            'before'     => 1,
-            'current'    => $page,
-            'last'       => $page > 1 ? $page : 1,
-            'next'       => $total_pages > $page ? ($page + 1) : $page,
             'total_pages'=> ceil($count / $limit),
             'total_items'=> $count,
             'limit'      => $limit,
@@ -214,11 +204,6 @@ abstract class Model extends MvcModel
             return [];
         }
         $return['page'] = [
-            'first'      => $page->first,
-            'before'     => $page->before,
-            'current'    => $page->current,
-            'last'       => $page->last,
-            'next'       => $page->next,
             'total_pages'=> $page->total_pages,
             'total_items'=> $page->total_items,
             'limit'      => $page->limit,
