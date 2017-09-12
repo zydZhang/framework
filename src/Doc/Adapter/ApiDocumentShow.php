@@ -50,12 +50,27 @@ class ApiDocumentShow extends AbstractDocumentShow implements DocumentShowInterf
         foreach ($docComment['authors'] as $item) {
             $authorsMarkdown .= sprintf("- %s <%s>\n", $item->getAuthorName(), $item->getEmail());
         }
-        $paramsDescriptions = [];
-        foreach ($docComment['params'] as $item) {
-            $paramsDescriptions[$item->getVariableName()] = (string) $item->getDescription();
-        }
-
         $params = [];
+        $paramsDocs = [];
+        foreach ($docComment['params'] as $item) {
+            $varName = $item->getVariableName();
+            $paramsDocs[$varName] = $item;
+            $typeValue = $type = $item->getType();
+            if ($type instanceof \phpDocumentor\Reflection\Types\Compound) {
+                $typeValue = [];
+                foreach ($type->getIterator() as $typeItem) {
+                    $typeValue[] = $typeItem;
+                }
+                $typeValue = implode(' or ', $typeValue);
+            }
+            $params[$varName] = [
+                'name'         => $varName,
+                'type'         => $typeValue,
+                'allowsNull'   => '否',
+                'defaultValue' => ' ',
+                'description'  => $item->getDescription(),
+            ];
+        }
         if (0 == $reflectionMethod->getNumberOfParameters()) {
             $paramsMarkdown = '';
         } else {
@@ -67,24 +82,26 @@ EOF;
         }
         foreach ($reflectionMethod->getParameters() as $key => $value) {
             $name = $value->getName();
-            $params[$key] = [
+            $params[$name] = [
                 'name'         => $name,
-                'type'         => (string) $value->getType(),
+                'type'         => $value->getType(),
                 'allowsNull'   => '否',
                 'defaultValue' => ' ',
-                'description'  => $paramsDescriptions[$name],
+                'description'  => $paramsDocs[$name]->getDescription(),
             ];
             if ($value->isDefaultValueAvailable()) {
-                $params[$key]['defaultValue'] = $value->getDefaultValue();
-                $params[$key]['allowsNull'] = '是';
-                $params[$key]['defaultValue'] = preg_replace("/\s/", '', var_export($params[$key]['defaultValue'], true));
+                $params[$name]['defaultValue'] = $value->getDefaultValue();
+                $params[$name]['allowsNull'] = '是';
+                $params[$name]['defaultValue'] = preg_replace("/\s/", '', var_export($params[$key]['defaultValue'], true));
             }
+        }
+        foreach ($params as $value) {
             $paramsMarkdown .= sprintf("%s|%s|%s|%s|%s\n",
-                $params[$key]['name'],
-                $params[$key]['type'],
-                $params[$key]['allowsNull'],
-                $params[$key]['defaultValue'],
-                $params[$key]['description']);
+                $value['name'],
+                $value['type'],
+                $value['allowsNull'],
+                $value['defaultValue'],
+                $value['description']);
         }
         $methodMarkdown = $this->getFileContent($interface->getFileName(), $reflectionMethod->getStartLine(), 1);
         $methodMarkdown = trim($methodMarkdown);
@@ -102,16 +119,10 @@ EOF;
             if (is_array($arguments)) {
                 $requestExample = <<<EOF
 ### 请求示例
-```\n
+```json\n
 EOF;
-                foreach ($arguments as $key => $value) {
-                    if (is_array($value)) {
-                        $value = json_encode($value, JSON_UNESCAPED_UNICODE);
-                    }
-                    $requestExample .= $key.':'.$value.PHP_EOL;
-                }
-
-                $requestExample .= '```';
+                $requestExample .= \json_encode($arguments, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+                $requestExample .= "\n```";
             }
         }
         $returnExample = '';
