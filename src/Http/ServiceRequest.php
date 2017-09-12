@@ -33,6 +33,7 @@ class ServiceRequest extends HttpRequest
         }
         if (0 === strpos($this->getHeader('Content-Type'), 'application/json')) {
             $json = $this->getRawBody();
+
             try {
                 $params = \GuzzleHttp\json_decode($json, true);
             } catch (InvalidArgumentException $e) {
