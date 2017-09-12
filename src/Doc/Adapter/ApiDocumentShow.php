@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Eelly\Doc\Adapter;
 
 use Eelly\Annotations\Adapter\AdapterInterface;
-use GuzzleHttp\json_encode;
 use ReflectionClass;
 
 /**
@@ -121,20 +120,15 @@ EOF;
 ### 请求示例
 ```json\n
 EOF;
-                $requestExample .= \json_encode($arguments, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+                $requestExample .= json_encode($arguments, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
                 $requestExample .= "\n```";
             }
         }
         $returnExample = '';
         if ($annotations->has('returnExample')) {
             $arguments = $annotations->get('returnExample')->getArgument(0);
-            if (is_array($arguments)) {
-                $returnExample .= "### 返回示例\n```\n";
-                $returnExample .= json_encode(
-                        ['data' => $arguments],
-                        JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
-                    )."\n```";
-            }
+            $returnExample .= "### 返回示例\n```\n";
+            $returnExample .= json_encode(['data' => $arguments], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)."\n```";
         }
         $markdown = <<<EOF
 # {$docComment['summary']}
