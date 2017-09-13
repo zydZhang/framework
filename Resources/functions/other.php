@@ -68,3 +68,19 @@ if (!function_exists('isValidObjectId')) {
         return $isValid;
     }
 }
+
+if (!function_exists('throwIf')) {
+    /**
+     * Throw the given exception if the given boolean is true.
+     *
+     * @param bool              $boolean
+     * @param \Throwable|string $exception
+     * @param array             ...$parameters
+     */
+    function throwIf($boolean, $exception, $message = ''): void
+    {
+        if ($boolean) {
+            throw (is_string($exception) ? new $exception(...$parameters) : $exception);
+        }
+    }
+}
