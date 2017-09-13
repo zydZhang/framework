@@ -79,7 +79,7 @@ class ServiceApplication extends Injectable
         $this->initial()->handle()->send();
     }
 
-    private function initEventsManager(): void
+    private function initEventsManager()
     {
         /**
          * @var \Phalcon\Events\Manager
@@ -115,5 +115,7 @@ class ServiceApplication extends Injectable
         });
         $this->application->setEventsManager($eventsManager);
         $this->di->setInternalEventsManager($eventsManager);
+
+        return $this;
     }
 }

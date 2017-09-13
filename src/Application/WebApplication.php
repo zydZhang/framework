@@ -15,6 +15,7 @@ namespace Eelly\Application;
 
 use Eelly\Di\Injectable;
 use Eelly\Mvc\Application;
+use Eelly\SDK\EellyClient;
 
 /**
  * Class WebApplication.
@@ -34,7 +35,9 @@ class WebApplication extends Injectable
         // TODO WebHandler
         //$errorHandler = $di->getShared(ErrorHandler::class);
         //$errorHandler->register();
-        $this->initEventsManager();
+        $this->initAutoload()
+            ->initEventsManager()
+            ->registerServices();
 
         return $this;
     }
@@ -46,14 +49,6 @@ class WebApplication extends Injectable
      */
     public function handle($uri = null)
     {
-        $this->loader->registerNamespaces([
-            ApplicationConst::$appName => 'src',
-        ])->register();
-        $this->getDI()->set('router', function () {
-            $router = require 'var/config/routes.php';
-
-            return $router;
-        });
         $response = $this->application->handle($uri);
 
         return $response;
@@ -64,7 +59,10 @@ class WebApplication extends Injectable
         $this->initial()->handle()->send();
     }
 
-    public function initEventsManager(): void
+    /**
+     * @return self
+     */
+    private function initEventsManager()
     {
         $eventsManager = $this->eventsManager;
         $eventsManager->attach('di:afterServiceResolve', function (\Phalcon\Events\Event $event, \Phalcon\Di $di, array $service): void {
@@ -77,5 +75,46 @@ class WebApplication extends Injectable
         });
         $this->application->setEventsManager($eventsManager);
         $this->di->setInternalEventsManager($eventsManager);
+
+        return $this;
+    }
+
+    /**
+     * @return self
+     */
+    private function initAutoload()
+    {
+        $this->loader->registerNamespaces([
+            ApplicationConst::$appName => 'src',
+        ])->register();
+
+        return $this;
+    }
+
+    /**
+     * @return self
+     */
+    private function registerServices()
+    {
+        $this->getDI()->setShared('router', $this->config->routes);
+        // eelly client service
+        $this->getDI()->setShared('eellyClient', function () {
+            $options = $this->getConfig()->oauth2Client->eelly->toArray();
+            if (ApplicationConst::ENV_PRODUCTION === ApplicationConst::$env) {
+                $eellyClient = EellyClient::init($options['options']);
+            } else {
+                $collaborators = [
+                    'httpClient' => new \GuzzleHttp\Client(['verify' => false]),
+                ];
+                $eellyClient = EellyClient::init($options['options'], $collaborators, $options['providerUri']);
+            }
+            if ($this->has('cache')) {
+                $eellyClient->getProvider()->setAccessTokenCache($this->getCache());
+            }
+
+            return $eellyClient;
+        });
+
+        return $this;
     }
 }
