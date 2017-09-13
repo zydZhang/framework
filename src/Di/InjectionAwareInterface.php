@@ -21,7 +21,6 @@ use Phalcon\Di\InjectionAwareInterface as DiInjectionAwareInterface;
  * @property \Phalcon\Config $config 系统配置
  * @property \Eelly\SDK\EellyClient $eellyClient
  * @property \Eelly\Dispatcher\EventDispatcher $eventDispatcher
- * @property \Eelly\FastDFS\Client $fastdfs fastdfs
  * @property \Phalcon\Loader $loader
  * @property \Phalcon\Config $moduleConfig 模块配置
  * @property \Psr\Log\LoggerInterface $logger 日志对象
