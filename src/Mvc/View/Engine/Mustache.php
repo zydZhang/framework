@@ -40,7 +40,9 @@ class Mustache extends Engine implements EngineInterface
     {
         $this->mustache = new \Mustache_Engine([
             'partials_loader' => new \Mustache_Loader_FilesystemLoader($view->getViewsDir().'/'.$view->getControllerName()),
-            'escape'          => function ($value) {return $value; },
+            'escape'          => function ($value) {
+                return $value;
+            },
         ]);
         parent::__construct($view, $di);
     }
