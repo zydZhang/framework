@@ -63,7 +63,7 @@ class ApiLoggerListener extends AbstractListener
      * @param Application $application
      * @param Dispatcher  $dispatcher
      */
-    public function beforeHandleRequest(Event $event, Application $application, Dispatcher $dispatcher): void
+    public function beforeHandleRequest(Event $event, Application $application, Dispatcher $dispatcher)
     {
         $controllerName = $dispatcher->getControllerClass();
         if (ApiDoc::class === $controllerName) {
