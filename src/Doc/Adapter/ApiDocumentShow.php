@@ -79,19 +79,19 @@ class ApiDocumentShow extends AbstractDocumentShow implements DocumentShowInterf
 -----|----|-----|-------|---\n
 EOF;
         }
-        foreach ($reflectionMethod->getParameters() as $key => $value) {
+        foreach ($reflectionMethod->getParameters() as $value) {
             $name = $value->getName();
             $params[$name] = [
                 'name'         => $name,
                 'type'         => $value->getType(),
                 'allowsNull'   => '否',
-                'defaultValue' => ' ',
+                'defaultValue' => '无',
                 'description'  => $paramsDocs[$name]->getDescription(),
             ];
             if ($value->isDefaultValueAvailable()) {
                 $params[$name]['defaultValue'] = $value->getDefaultValue();
                 $params[$name]['allowsNull'] = '是';
-                $params[$name]['defaultValue'] = preg_replace("/\s/", '', var_export($params[$key]['defaultValue'], true));
+                $params[$name]['defaultValue'] = preg_replace("/\s/", '', var_export($params[$name]['defaultValue'], true));
             }
         }
         foreach ($params as $value) {
@@ -127,8 +127,13 @@ EOF;
         $returnExample = '';
         if ($annotations->has('returnExample')) {
             $arguments = $annotations->get('returnExample')->getArgument(0);
-            $returnExample .= "### 返回示例\n```\n";
-            $returnExample .= json_encode(['data' => $arguments], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)."\n```";
+            if ($arguments) {
+                $returnExample .= "### 返回示例\n```\n";
+                $returnExample .= json_encode(
+                        ['data' => $arguments],
+                        JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+                    )."\n```";
+            }
         }
         $markdown = <<<EOF
 # {$docComment['summary']}

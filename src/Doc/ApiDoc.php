@@ -32,9 +32,15 @@ class ApiDoc extends Controller
         $this->getDI()->setShared('view', function () {
             $view = new View();
             $view->setViewsDir(__DIR__.'/Resources/views/');
+            $view->setLayoutsDir(__DIR__.'/Resources/views/');
+            $view->setLayout('apidoc/layout');
+            $view->setRenderLevel(
+                View::LEVEL_AFTER_TEMPLATE
+            );
             $view->registerEngines([
                 '.phtml'  => View\Engine\Php::class,
             ]);
+            $view->start();
 
             return $view;
         });
@@ -49,7 +55,6 @@ class ApiDoc extends Controller
     {
         $this->response->setContentType('text/html', 'utf-8');
         $this->renderBody($module, $class, $method);
-        $this->view->render('apidoc', 'layout');
     }
 
     /**

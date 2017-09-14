@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Eelly\Events\Listener;
 
 use Eelly\Application\ApplicationConst;
+use Eelly\Doc\ApiDoc;
 use Eelly\Http\Response;
 use Eelly\SDK\Logger\Api\ApiLogger;
 use MongoDB\BSON\ObjectID;
@@ -64,6 +65,10 @@ class ApiLoggerListener extends AbstractListener
      */
     public function beforeHandleRequest(Event $event, Application $application, Dispatcher $dispatcher): void
     {
+        $controllerName = $dispatcher->getControllerClass();
+        if (ApiDoc::class === $controllerName) {
+            return true;
+        }
         $request = $this->request;
         // 添加跟踪id
         $this->traceId = $request->getHeader('traceId');
