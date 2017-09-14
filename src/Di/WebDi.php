@@ -37,6 +37,7 @@ class WebDi extends FactoryDefault
 
             return $session;
         }, true);
+        $this->_services['url'] = new Service('url', 'Phalcon\\Mvc\\Url', true);
         $this->_services['view'] = new Service('view', 'Eelly\\Mvc\\View', true);
     }
 }
