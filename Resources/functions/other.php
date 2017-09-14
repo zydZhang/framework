@@ -77,7 +77,7 @@ if (!function_exists('throwIf')) {
      * @param \Throwable|string $exception
      * @param array             ...$parameters
      */
-    function throwIf($boolean, $exception, $message = ''): void
+    function throwIf($boolean, $exception, ...$parameters): void
     {
         if ($boolean) {
             throw (is_string($exception) ? new $exception(...$parameters) : $exception);
