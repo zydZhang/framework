@@ -842,4 +842,51 @@ WHERE client_id = :client_id");
 
         return $result['service_id'] ?? false;
     }
+
+    /**
+     * 获取父参数id.
+     *
+     * @param string $parentName
+     *
+     * @return bool|bool|unknown
+     */
+    private function getParentId(string $parentName)
+    {
+        if (empty($parentName)) {
+            return false;
+        }
+
+        $sth = $this->db->prepare("SELECT preq_id FROM {$this->tables['permissionRequest']} WHERE param_name = :param_name AND parent_id = 0 LIMIT 1");
+        $sth->execute([':param_name' => $parentName]);
+        $result = $sth->fetch(Db::FETCH_ASSOC);
+
+        return $result['preq_id'] ?? false;
+    }
+
+    /**
+     * 添加接口请求子参数.
+     *
+     * @param array  $data
+     * @param string $hashName
+     *
+     * @return bool
+     */
+    public function addPermissionRequestSubParam(array $data, string $hashName)
+    {
+        if (empty($data) || empty($hashName) || empty($permId = $this->getPermId($hashName))) {
+            return false;
+        }
+
+        $addData = [];
+        foreach ($data as $parentName => $paramData) {
+            $parentId = $this->getParentId($parentName);
+            foreach($paramData as $param){
+                $param['parent_id'] = $parentId;
+                $param['permission_id'] = $permId;
+                $addData[] = $param;
+            }
+        }
+
+        return $this->commonBatchInsert($this->tables['permissionRequest'], $addData);
+    }
 }
