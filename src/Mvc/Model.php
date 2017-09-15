@@ -253,9 +253,9 @@ abstract class Model extends MvcModel
         if (empty($where) || empty($set)) {
             return false;
         }
-
-        $tableName = get_called_class();
-        $setSql = $whereSql = '';
+        
+        $tableName = $this->getSource();
+        $setSql = $whereSql  = '';
         //拼接条件
         foreach ($set as $sk=>$sv) {
             $setSql .= $sk.' = "'.$sv.'",';
@@ -267,9 +267,9 @@ abstract class Model extends MvcModel
         $setSql = rtrim($setSql, ',');
         $whereSql = rtrim($whereSql, ' AND ');
         $sql = 'UPDATE '.$tableName.' SET '.$setSql.' WHERE '.$whereSql;
-        $this->_modelsManager->executeQuery($sql);
-
-        return (int) $this->getWriteConnection()->affectedRows();
+        $this->getDI()->get('dbMaster')->execute($sql);
+        
+        return (int)$this->getWriteConnection()->affectedRows();
     }
 
     /**
@@ -287,7 +287,7 @@ abstract class Model extends MvcModel
             return false;
         }
 
-        $tableName = get_called_class();
+        $tableName = $this->getSource();
         $whereSql = '';
         //拼接条件
         foreach ($where as $wk=>$wv) {
@@ -296,7 +296,7 @@ abstract class Model extends MvcModel
 
         $whereSql = rtrim($whereSql, ' AND ');
         $sql = 'DELETE FROM '.$tableName.' WHERE '.$whereSql;
-        $this->_modelsManager->executeQuery($sql);
+        $this->getDI()->get('dbMaster')->execute($sql);
 
         return (int) $this->getWriteConnection()->affectedRows();
     }
