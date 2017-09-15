@@ -22,7 +22,12 @@ class HomeDocumentShow extends AbstractDocumentShow implements DocumentShowInter
 {
     public function renderBody(): void
     {
-        $moduleList = '';
+        $moduleList = <<<EOF
+### 已交付的模块列表
+模块名|模块说明
+-----|-------\n
+EOF;
+
         foreach ($this->config->modules as $module => $value) {
             require_once $value->path;
             $reflectionClass = new ReflectionClass($value->className);
@@ -30,7 +35,8 @@ class HomeDocumentShow extends AbstractDocumentShow implements DocumentShowInter
             $factory = \phpDocumentor\Reflection\DocBlockFactory::createInstance();
             $docblock = $factory->create($docComment);
             $summary = $docblock->getSummary();
-            $moduleList .= '- ['.$value->className.'](/'.$module.')  '.$summary.PHP_EOL;
+            $moduleName = substr($value->className,0, -7);
+            $moduleList .= '['.$moduleName.'](/'.$module.')|'.$summary.PHP_EOL;
         }
         $markdown = <<<EOF
 # 衣联网api开放文档
@@ -49,7 +55,6 @@ class HomeDocumentShow extends AbstractDocumentShow implements DocumentShowInter
 
 更详细的说明将在[sdk-php-wiki](https://github.com/EellyDev/eelly-sdk-php/wiki)进行说明
 
-### 已交付的模块列表
 $moduleList
 EOF;
         $this->view->markup = $this->parserMarkdown($markdown);
