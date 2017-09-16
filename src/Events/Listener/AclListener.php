@@ -15,13 +15,14 @@ namespace Eelly\Events\Listener;
 
 use Eelly\Application\ApplicationConst;
 use Eelly\Dispatcher\ServiceDispatcher;
-use Eelly\Doc\ApiDoc;
 use Eelly\OAuth2\Client\Provider\EellyProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;
 
 /**
+ * @property \Phalcon\Config $moduleConfig
+ *
  * @author hehui<hehui@eelly.net>
  */
 class AclListener extends AbstractListener
@@ -29,7 +30,7 @@ class AclListener extends AbstractListener
     public function beforeExecuteRoute(Event $event, Dispatcher $dispatcher)
     {
         $controllerName = $dispatcher->getControllerClass();
-        if (ApiDoc::class === $controllerName) {
+        if (isset($this->moduleConfig['aclWhiteList']) && in_array($controllerName, $this->moduleConfig['aclWhiteList'])) {
             return true;
         }
         $header = $this->request->getHeader('authorization');
