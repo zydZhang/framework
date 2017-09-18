@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Eelly\Router;
 
+use Phalcon\Text;
+
 /**
  * @author hehui<hehui@eelly.net>
  */
@@ -32,21 +34,12 @@ class ServiceRouter extends Router
         $application = $this->getDi()->getApplication();
         foreach ($application->getModules()as $moduleName => $value) {
             $namespace = str_replace('Module', 'Logic', $value['className']);
-            $router->addGet('/'.$moduleName, [
-                'namespace'  => $namespace,
-                'module'     => $moduleName,
-            ]);
-            $router->addGet('/'.$moduleName.'/:controller', [
-                'namespace'  => $namespace,
-                'module'     => $moduleName,
-                'controller' => 1,
-            ]);
-            $router->add('/'.$moduleName.'/:controller/:action', [
+            $router->addPost('/'.$moduleName.'/:controller/:action', [
                 'namespace'  => $namespace,
                 'module'     => $moduleName,
                 'controller' => 1,
                 'action'     => 2,
-            ], ['GET', 'POST'])->setName($moduleName);
+            ])->setName($moduleName);
         }
     }
 
@@ -57,6 +50,11 @@ class ServiceRouter extends Router
          */
         $request = $this->getDI()->getShared('request');
         $router->setParams($request->getRouteParams());
+    }
+
+    public function getControllerName()
+    {
+        return Text::uncamelize(parent::getControllerName());
     }
 
     /**

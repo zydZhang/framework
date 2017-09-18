@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Eelly\Dispatcher;
 
-use Eelly\Doc\ApiDoc;
 use Eelly\DTO\UidDTO;
 use Eelly\Exception\InvalidArgumentException;
 use Eelly\Exception\RequestException;
@@ -72,51 +71,9 @@ class ServiceDispatcher extends Dispatcher
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @see \Phalcon\Dispatcher::setParams()
-     */
-    public function setParams($routeParams): void
-    {
-        /**
-         * @var \Eelly\Http\ServiceRequest $request
-         */
-        $request = $this->getDI()->getShared('request');
-        if ($request->isPost()) {
-            $this->setSeviceParams($routeParams);
-        } elseif ($request->isGet()) {
-            $module = $this->getModuleName();
-            $class = parent::getHandlerClass();
-            $method = $this->getActionName();
-            $this->setControllerSuffix('');
-            $this->setControllerName(ApiDoc::class);
-            $this->setActionName('display');
-            parent::setParams([$module, $class, $method]);
-        } else {
-            // Method Not Allowed
-            throw new RequestException(405, null, $this->getDI()->getShared('request'), $this->getDI()->getShared('response'));
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @see \Phalcon\Dispatcher::getHandlerClass()
-     */
-    public function getHandlerClass()
-    {
-        $request = $this->getDI()->getShared('request');
-        if ($request->isGet()) {
-            return ApiDoc::class;
-        } else {
-            return parent::getHandlerClass();
-        }
-    }
-
-    /**
      * @param array $routeParams
      */
-    private function setSeviceParams(array $routeParams): void
+    public function setParams($routeParams): void
     {
         $class = $this->getControllerClass();
         $method = $this->getActionName();

@@ -253,9 +253,9 @@ abstract class Model extends MvcModel
         if (empty($where) || empty($set)) {
             return false;
         }
-        
+
         $tableName = $this->getSource();
-        $setSql = $whereSql  = '';
+        $setSql = $whereSql = '';
         //拼接条件
         foreach ($set as $sk=>$sv) {
             $setSql .= $sk.' = "'.$sv.'",';
@@ -268,8 +268,8 @@ abstract class Model extends MvcModel
         $whereSql = rtrim($whereSql, ' AND ');
         $sql = 'UPDATE '.$tableName.' SET '.$setSql.' WHERE '.$whereSql;
         $this->getDI()->get('dbMaster')->execute($sql);
-        
-        return (int)$this->getWriteConnection()->affectedRows();
+
+        return (int) $this->getWriteConnection()->affectedRows();
     }
 
     /**
