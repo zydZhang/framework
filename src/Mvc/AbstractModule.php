@@ -15,7 +15,6 @@ namespace Eelly\Mvc;
 
 use Eelly\Application\ApplicationConst;
 use Eelly\Di\Injectable;
-use Eelly\Events\Listener\ApiLoggerListener;
 use Eelly\Events\Listener\ValidateAccessTokenListener;
 use Eelly\SDK\EellyClient;
 use Phalcon\Config;

@@ -70,7 +70,7 @@ abstract class Injectable extends DiInjectable implements InjectionAwareInterfac
         $this->getDI()->setShared('queueFactory', function () {
             $connectionOptions = $this->getModuleConfig()->amqp->toArray();
 
-            return new AMQPFactory($connectionOptions, 'default', 'default');
+            return new AMQPFactory($connectionOptions);
         });
     }
 }

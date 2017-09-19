@@ -17,8 +17,6 @@ use Eelly\Queue\QueueFactoryInterface;
 use Phalcon\Di\Injectable;
 use PhpAmqpLib\Connection\AMQPLazyConnection;
 use Thumper\ConnectionRegistry;
-use Thumper\Consumer;
-use Thumper\Producer;
 
 /**
  * AMQP队列工厂实现.
@@ -74,7 +72,7 @@ class AMQPFactory extends Injectable implements QueueFactoryInterface
      * @param string $defaultProducer   默认生产者
      * @param string $defaultConsumer   默认消费者
      */
-    public function __construct(array $connectionOptions, string $defaultProducer, string $defaultConsumer)
+    public function __construct(array $connectionOptions, string $defaultProducer = 'default', string $defaultConsumer = 'default')
     {
         $this->connectionOptions = $connectionOptions;
         $this->defaultProducer = $defaultProducer;
