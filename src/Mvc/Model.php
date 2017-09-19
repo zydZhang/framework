@@ -35,8 +35,9 @@ abstract class Model extends MvcModel
     /**
      * create builder.
      *
-     * @param mixed $models
+     * @param mixed  $models
      * @param string $alias  设置别名，用于连表别名
+     *
      * @return \Eelly\Mvc\Model\Query\Builder
      */
     public static function createBuilder($models = null, $alias = null)
@@ -44,9 +45,10 @@ abstract class Model extends MvcModel
         if (null === $models) {
             $models = static::class;
         }
-        if($alias){
-            return Di::getDefault()->getShared('modelsManager')->createBuilder()->addFrom($models,$alias);
+        if ($alias) {
+            return Di::getDefault()->getShared('modelsManager')->createBuilder()->addFrom($models, $alias);
         }
+
         return Di::getDefault()->getShared('modelsManager')->createBuilder()->from($models);
     }
 
@@ -77,7 +79,7 @@ abstract class Model extends MvcModel
         foreach ($page->items as $key=>$item) {
             $return['items'][$key] = $item->toArray();
         }
-        if(empty($return['items'])){
+        if (empty($return['items'])) {
             return [];
         }
         $return['page'] = [
@@ -125,7 +127,8 @@ abstract class Model extends MvcModel
      * 获取字段.
      *
      * @param string $field
-     * @param string $alias  设置别名，用于连表别名
+     * @param string $alias 设置别名，用于连表别名
+     *
      * @return string
      * @requestExample(base)
      * @returnExample([role_id,role_name,default_permission,created_time,update_time])
@@ -134,16 +137,17 @@ abstract class Model extends MvcModel
      *
      * @since 2017-7-27
      */
-    public static function getField(string $field = 'base',string $alias = null): string
+    public static function getField(string $field = 'base', string $alias = null): string
     {
         $stringField = get_called_class()::FIELD_SCOPE[$field] ?? $field;
-        if($stringField && $alias){
-            $data = explode(',',$stringField);
-            foreach ($data as $key=>$val){
+        if ($stringField && $alias) {
+            $data = explode(',', $stringField);
+            foreach ($data as $key=> $val) {
                 $data[$key] = "$alias.$val";
             }
-            $stringField= implode(',',$data);
+            $stringField = implode(',', $data);
         }
+
         return $stringField;
     }
 
@@ -162,7 +166,7 @@ abstract class Model extends MvcModel
      */
     public static function arrayToHump(array &$data)
     {
-        if(empty($data)){
+        if (empty($data)) {
             return [];
         }
         if (is_array($data)) {
@@ -210,7 +214,7 @@ abstract class Model extends MvcModel
         foreach ($page->items as $key=>$item) {
             $return['items'][$key] = $item->toArray();
         }
-        if(empty($return['items'])){
+        if (empty($return['items'])) {
             return [];
         }
         $return['page'] = [
