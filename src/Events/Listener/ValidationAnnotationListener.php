@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Eelly\Events\Listener;
 
 use Eelly\Validation\Validation;
-use InvalidArgumentException;
+use Eelly\Exception\InvalidArgumentException;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;
 use RuntimeException;
