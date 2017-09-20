@@ -1,15 +1,18 @@
 build:
     environment:
+        selenium: false
+        memcached: false
+        postgresql: false
         php:
             version: 7.1.9
 
     cache:
         directories:
-            - ~/cphalcon
+            - ~/eelly
 
     dependencies:
         override:
             - composer install --prefer-source --no-interaction
         after:
-            - bin/install-phalcon.sh 3.2.x
+            - vendor/bin/install-phalcon.sh 3.2.x
             - php -r "echo \Phalcon\Version::get();"
