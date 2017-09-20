@@ -22,7 +22,6 @@ class ServiceResponse extends Response
 {
     public function afterServiceResolve(): void
     {
-        $this->setContentType('application/json');
         $this->setHeader('Access-Control-Allow-Origin', '*');
         $this->setHeader('Server', ApplicationConst::APP_NAME.'/'.ApplicationConst::APP_VERSION);
         $this->setStatusCode(200);
