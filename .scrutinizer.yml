@@ -1,0 +1,14 @@
+build:
+    environment:
+        php:
+            version: 7.1.9
+
+    cache:
+        directories:
+            - ~/cphalcon
+
+    dependencies:
+        override:
+            - composer install --prefer-source --no-interaction
+        after:
+            - vendor/bin/install-phalcon.sh 3.2.2
