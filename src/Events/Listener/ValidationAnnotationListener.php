@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Eelly\Events\Listener;
 
-use Eelly\Validation\Validation;
 use Eelly\Exception\InvalidArgumentException;
+use Eelly\Validation\Validation;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;
 use RuntimeException;
