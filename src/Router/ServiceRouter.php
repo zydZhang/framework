@@ -23,6 +23,7 @@ class ServiceRouter extends Router
     public function afterServiceResolve(): void
     {
         $this->clear();
+        $this->setUriSource(Router::URI_SOURCE_SERVER_REQUEST_URI);
         $this->getEventsManager()->attach('router', $this);
     }
 
@@ -57,21 +58,5 @@ class ServiceRouter extends Router
     public function getControllerName()
     {
         return Text::uncamelize(parent::getControllerName());
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @see \Phalcon\Mvc\Router::getRewriteUri()
-     */
-    public function getRewriteUri()
-    {
-        $url = $_SERVER['REQUEST_URI'];
-        $urlParts = explode('?', $url);
-        if (!empty($urlParts[0])) {
-            return $urlParts[0];
-        }
-
-        return '/';
     }
 }
