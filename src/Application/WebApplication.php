@@ -33,7 +33,7 @@ class WebApplication extends Injectable
         $this->setDI($di);
     }
 
-    public function initial()
+    public function initialize()
     {
         $di = $this->getDI();
         $di->setShared('application', new Application($di));
@@ -65,7 +65,7 @@ class WebApplication extends Injectable
 
     public function run(): void
     {
-        $this->initial()->handle()->send();
+        $this->initialize()->handle()->send();
     }
 
     /**

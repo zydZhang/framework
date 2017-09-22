@@ -41,7 +41,7 @@ class ConsoleApplication extends Injectable
         $this->setDI($di);
     }
 
-    public function initial()
+    public function initialize()
     {
         $di = $this->getDI();
         $di->setShared('application', function () {
@@ -71,7 +71,7 @@ class ConsoleApplication extends Injectable
 
     public function run(): void
     {
-        $this->initial()->handle()->run();
+        $this->initialize()->handle()->run();
     }
 
     private function initEventsManager(): void
