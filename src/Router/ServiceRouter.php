@@ -49,7 +49,9 @@ class ServiceRouter extends Router
          * @var \Eelly\Http\ServiceRequest $request
          */
         $request = $this->getDI()->getShared('request');
-        $router->setParams($request->getRouteParams());
+        if ($request->isPost()) {
+            $router->setParams($request->getRouteParams());
+        }
     }
 
     public function getControllerName()

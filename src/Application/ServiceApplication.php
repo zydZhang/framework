@@ -14,11 +14,13 @@ declare(strict_types=1);
 namespace Eelly\Application;
 
 use Eelly\Di\Injectable;
+use Eelly\Di\ServiceDi;
 use Eelly\Error\Handler as ErrorHandler;
 use Eelly\Exception\LogicException;
 use Eelly\Exception\RequestException;
 use Eelly\Mvc\Application;
 use League\OAuth2\Server\Exception\OAuthServerException;
+use Phalcon\Config;
 use Phalcon\Di;
 
 /**
@@ -29,6 +31,18 @@ use Phalcon\Di;
 class ServiceApplication extends Injectable
 {
     /**
+     * ServiceApplication constructor.
+     *
+     * @param array $config
+     */
+    public function __construct(array $config)
+    {
+        $di = new ServiceDi();
+        $di->setShared('config', new Config($config));
+        $this->setDI($di);
+    }
+
+    /**
      * initial.
      */
     public function initial()
@@ -38,11 +52,12 @@ class ServiceApplication extends Injectable
         $config = $this->config;
         ApplicationConst::$env = $config->env;
         date_default_timezone_set($config->defaultTimezone);
-
         $errorHandler = $di->getShared(ErrorHandler::class);
         $errorHandler->register();
-
         $this->initEventsManager();
+        foreach ($config->appBundles as $bundle) {
+            $di->getShared($bundle->class, $bundle->params)->register();
+        }
 
         return $this;
     }

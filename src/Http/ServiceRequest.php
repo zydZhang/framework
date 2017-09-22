@@ -28,9 +28,6 @@ class ServiceRequest extends HttpRequest
      */
     public function getRouteParams(): array
     {
-        if (!$this->isPost()) {
-            throw new RequestException(405, null, $this, $this->getDI()->getShared('response'));
-        }
         if (0 === strpos($this->getHeader('Content-Type'), 'application/json')) {
             $json = $this->getRawBody();
 
