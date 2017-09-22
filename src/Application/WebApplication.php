@@ -14,8 +14,10 @@ declare(strict_types=1);
 namespace Eelly\Application;
 
 use Eelly\Di\Injectable;
+use Eelly\Di\WebDi;
 use Eelly\Mvc\Application;
 use Eelly\SDK\EellyClient;
+use Phalcon\Config;
 
 /**
  * Class WebApplication.
@@ -24,6 +26,13 @@ use Eelly\SDK\EellyClient;
  */
 class WebApplication extends Injectable
 {
+    public function __construct(array $config)
+    {
+        $di = new WebDi();
+        $di->setShared('config', new Config($config));
+        $this->setDI($di);
+    }
+
     public function initial()
     {
         $di = $this->getDI();

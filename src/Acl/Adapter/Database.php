@@ -652,7 +652,7 @@ WHERE client_id = :client_id");
      */
     public function addPermissionRequestSubParam(array $data, string $hashName)
     {
-        if (empty($data) || empty($hashName) || empty($permId = (int)$this->getPermId($hashName))) {
+        if (empty($data) || empty($hashName) || empty($permId = (int) $this->getPermId($hashName))) {
             return false;
         }
 
@@ -874,10 +874,11 @@ WHERE client_id = :client_id");
      * 获取父参数id.
      *
      * @param string $parentName
-     * @param int $permId
+     * @param int    $permId
+     *
      * @return bool|bool|unknown
      */
-    private function getParentId(string $parentName,int $permId)
+    private function getParentId(string $parentName, int $permId)
     {
         if (empty($parentName) || empty($permId)) {
             return false;
@@ -886,7 +887,7 @@ WHERE client_id = :client_id");
         $sth = $this->db->prepare("SELECT preq_id FROM {$this->tables['permissionRequest']} WHERE param_name = :param_name AND permission_id = :permId AND parent_id = 0 LIMIT 1");
         $sth->execute([
             ':param_name' => $parentName,
-            ':permId' => $permId,
+            ':permId'     => $permId,
         ]);
         $result = $sth->fetch(Db::FETCH_ASSOC);
 
