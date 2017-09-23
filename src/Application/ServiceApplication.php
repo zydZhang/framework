@@ -45,7 +45,7 @@ class ServiceApplication extends Injectable
     /**
      * initial.
      */
-    public function initial()
+    public function initialize()
     {
         $di = $this->getDI();
         $di->setShared('application', new Application($di));
@@ -101,7 +101,7 @@ class ServiceApplication extends Injectable
      */
     public function run(): void
     {
-        $this->initial()->handle()->send();
+        $this->initialize()->handle()->send();
     }
 
     private function initEventsManager()
