@@ -15,11 +15,11 @@ namespace Eelly\Events\Listener;
 
 use Eelly\Application\ApplicationConst;
 use Eelly\Di\ServiceDi;
+use Eelly\Error\Handler as ErrorHandler;
 use Eelly\Exception\LogicException;
 use Eelly\Exception\RequestException;
 use Eelly\Http\Server;
 use Eelly\Mvc\Application;
-use Eelly\Error\Handler as ErrorHandler;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Phalcon\Di;
 use swoole_http_request as HttpRequest;
@@ -30,7 +30,6 @@ class HttpServerListener extends AbstractListener
     public function onStart(): void
     {
         dump(__FUNCTION__);
-
     }
 
     public function onShutdown(): void
@@ -70,6 +69,7 @@ class HttpServerListener extends AbstractListener
     {
         dump(__FUNCTION__);
         $_SERVER['REQUEST_URI'] = $httpRequest->server['request_uri'];
+
         try {
             $response = $this->application->handle();
         } catch (LogicException $e) {
