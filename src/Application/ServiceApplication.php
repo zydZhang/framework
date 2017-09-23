@@ -58,7 +58,8 @@ class ServiceApplication extends Injectable
         foreach ($config->appBundles as $bundle) {
             $di->getShared($bundle->class, $bundle->params)->register();
         }
-
+        $this->application->useImplicitView(false);
+        $this->application->registerModules($this->config->modules->toArray());
         return $this;
     }
 
@@ -69,9 +70,6 @@ class ServiceApplication extends Injectable
      */
     public function handle($uri = null)
     {
-        $this->application->useImplicitView(false);
-        $this->application->registerModules($this->config->modules->toArray());
-
         try {
             $response = $this->application->handle($uri);
         } catch (LogicException $e) {

@@ -18,6 +18,7 @@ use Eelly\Di\Traits\InjectableTrait;
 use Eelly\Http\Server as HttpServer;
 use Phalcon\Events\EventsAwareInterface;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -31,7 +32,7 @@ class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterfac
         $this->setName('httpserver')
             ->setDescription('Http server')
             ->setHelp('Builtin http server powered by swoole.');
-
+        $this->addArgument('module', InputArgument::REQUIRED, 'Module name.');
         $this->addOption('port', '-p', InputOption::VALUE_OPTIONAL, 'listener port', 9501);
     }
 
