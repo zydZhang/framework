@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Eelly\Application;
 
 use Eelly\Console\Application;
-use Eelly\Console\Command\HttpServerCommand;
 use Eelly\Di\ConsoleDi;
 use Eelly\Di\Injectable;
 use Eelly\Error\Handler as ErrorHandler;

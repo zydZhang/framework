@@ -14,15 +14,16 @@ declare(strict_types=1);
 namespace Eelly\Events\Listener;
 
 use Eelly\Application\ApplicationConst;
-use Eelly\Di\ServiceDi;
+use Eelly\Error\Handler as ErrorHandler;
 use Eelly\Exception\LogicException;
 use Eelly\Exception\RequestException;
 use Eelly\Http\Response;
 use Eelly\Http\Server;
 use Eelly\Http\ServiceRequest;
 use Eelly\Http\ServiceResponse;
+use Eelly\Http\Traits\RequestTrait;
+use Eelly\Http\Traits\ResponseTrait;
 use Eelly\Mvc\Application as MvcApplication;
-use Eelly\Error\Handler as ErrorHandler;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Phalcon\Di;
 use swoole_http_request as HttpRequest;
@@ -30,6 +31,9 @@ use swoole_http_response as HttpResponse;
 
 class HttpServerListener extends AbstractListener
 {
+    use RequestTrait;
+    use ResponseTrait;
+
     public function onStart(Server $server): void
     {
         dump(__FUNCTION__);
@@ -63,19 +67,21 @@ class HttpServerListener extends AbstractListener
         dump(__FUNCTION__);
     }
 
-    public function onRequest(HttpRequest $httpRequest, HttpResponse $httpResponse)
+    public function onRequest(HttpRequest $httpRequest, HttpResponse $httpResponse): void
     {
         dump(__FUNCTION__.$httpRequest->fd);
-        if ($httpRequest->server['request_uri'] == '/favicon.ico')
-        {
+        if ($httpRequest->server['request_uri'] == '/favicon.ico') {
             $httpResponse->header('Content-Type', 'image/x-icon');
             $httpResponse->sendfile('public/favicon.ico');
+
             return;
         }
 
         $_SERVER['REQUEST_URI'] = $httpRequest->server['request_uri'];
-        $this->di->set('request', ServiceRequest::class);
+        $request = new ServiceRequest();
+        $this->di->set('request', $request);
         $this->di->set('response', ServiceResponse::class);
+        $this->convertSwooleRequestToPhalconRequest($httpRequest, $request);
         try {
             $response = $this->application->handle();
         } catch (LogicException $e) {
@@ -96,6 +102,8 @@ class HttpServerListener extends AbstractListener
                 'hint'    => $e->getHint(),
             ]);
         }
+
+        $this->convertPhalconResponseToSwooleResponse($response, $httpResponse);
         $content = $this->response->getContent();
         $httpResponse->end($content);
     }

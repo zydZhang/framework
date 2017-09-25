@@ -13,19 +13,13 @@ declare(strict_types=1);
 
 namespace Eelly\Application;
 
+use Eelly\Console\Application as ConsoleApplication;
 use Eelly\Console\Command\HttpServerCommand;
 use Eelly\Di\Injectable;
 use Eelly\Di\SwooleDi;
-use Eelly\Error\Handler as ErrorHandler;
-use Eelly\Exception\LogicException;
-use Eelly\Exception\RequestException;
-use Eelly\Console\Application as ConsoleApplication;
-use League\OAuth2\Server\Exception\OAuthServerException;
 use Phalcon\Config;
-use Phalcon\Di;
 
 /**
- *
  * @author hehui<hehui@eelly.net>
  */
 class SwooleApplication extends Injectable
@@ -41,6 +35,7 @@ class SwooleApplication extends Injectable
         $di->setShared('config', new Config($config));
         $this->setDI($di);
     }
+
     /**
      * run.
      */

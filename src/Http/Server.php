@@ -53,10 +53,10 @@ class Server extends HttpServer implements InjectionAwareInterface, EventsAwareI
     {
         $listener = $this->di->getShared(HttpServerListener::class);
         $this->set([
-            'document_root' => 'var/assets',
+            'document_root'         => 'var/assets',
             'enable_static_handler' => true,
-            'http_parse_post' => true,
-            'upload_tmp_dir' => '/tmp'
+            'http_parse_post'       => true,
+            'upload_tmp_dir'        => '/tmp',
         ]);
         foreach ($this->events as $event) {
             $this->on($event, [$listener, 'on'.$event]);

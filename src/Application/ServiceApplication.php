@@ -60,6 +60,7 @@ class ServiceApplication extends Injectable
         }
         $this->application->useImplicitView(false);
         $this->application->registerModules($this->config->modules->toArray());
+
         return $this;
     }
 
