@@ -65,7 +65,6 @@ class ConsoleApplication extends Injectable
 
     public function handle()
     {
-        $this->application->add($this->di->getShared(HttpServerCommand::class));
         $this->application->registerModules($this->config->modules->toArray());
 
         return $this->application;

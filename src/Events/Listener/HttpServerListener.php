@@ -17,8 +17,11 @@ use Eelly\Application\ApplicationConst;
 use Eelly\Di\ServiceDi;
 use Eelly\Exception\LogicException;
 use Eelly\Exception\RequestException;
+use Eelly\Http\Response;
 use Eelly\Http\Server;
-use Eelly\Mvc\Application;
+use Eelly\Http\ServiceRequest;
+use Eelly\Http\ServiceResponse;
+use Eelly\Mvc\Application as MvcApplication;
 use Eelly\Error\Handler as ErrorHandler;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Phalcon\Di;
@@ -27,10 +30,9 @@ use swoole_http_response as HttpResponse;
 
 class HttpServerListener extends AbstractListener
 {
-    public function onStart(): void
+    public function onStart(Server $server): void
     {
         dump(__FUNCTION__);
-
     }
 
     public function onShutdown(): void
@@ -41,13 +43,8 @@ class HttpServerListener extends AbstractListener
     public function onWorkerStart(Server $server, int $workerId): void
     {
         dump(__FUNCTION__.$workerId);
-
-        $config = $this->config;
-        Di::reset();
-        $di = new ServiceDi();
-        $di->setShared('config', $config);
-        $this->setDI($di);
-        $di->setShared('application', new Application($di));
+        $di = $this->getDI();
+        $di->setShared('application', new MvcApplication($di));
         $config = $this->config;
         ApplicationConst::$env = $config->env;
         date_default_timezone_set($config->defaultTimezone);
@@ -68,8 +65,17 @@ class HttpServerListener extends AbstractListener
 
     public function onRequest(HttpRequest $httpRequest, HttpResponse $httpResponse)
     {
-        dump(__FUNCTION__);
+        dump(__FUNCTION__.$httpRequest->fd);
+        if ($httpRequest->server['request_uri'] == '/favicon.ico')
+        {
+            $httpResponse->header('Content-Type', 'image/x-icon');
+            $httpResponse->sendfile('public/favicon.ico');
+            return;
+        }
+
         $_SERVER['REQUEST_URI'] = $httpRequest->server['request_uri'];
+        $this->di->set('request', ServiceRequest::class);
+        $this->di->set('response', ServiceResponse::class);
         try {
             $response = $this->application->handle();
         } catch (LogicException $e) {
@@ -90,15 +96,17 @@ class HttpServerListener extends AbstractListener
                 'hint'    => $e->getHint(),
             ]);
         }
-        $httpResponse->end($response->getContent());
+        $content = $this->response->getContent();
+        $httpResponse->end($content);
     }
 
     public function onPacket(): void
     {
     }
 
-    public function onClose(): void
+    public function onClose(Server $server, int $fd, int $reactorId): void
     {
+        dump(__FUNCTION__.$fd.'_'.$reactorId);
     }
 
     public function onBufferFull(): void

@@ -15,7 +15,7 @@ namespace Eelly\Http;
 
 use Eelly\Di\InjectionAwareInterface;
 use Eelly\Di\Traits\InjectableTrait;
-use Eelly\Events\Listener\httpServerListener;
+use Eelly\Events\Listener\HttpServerListener;
 use Phalcon\Events\EventsAwareInterface;
 use Swoole\Http\Server as HttpServer;
 
@@ -51,7 +51,13 @@ class Server extends HttpServer implements InjectionAwareInterface, EventsAwareI
 
     public function initialize(): void
     {
-        $listener = $this->di->getShared(httpServerListener::class);
+        $listener = $this->di->getShared(HttpServerListener::class);
+        $this->set([
+            'document_root' => 'var/assets',
+            'enable_static_handler' => true,
+            'http_parse_post' => true,
+            'upload_tmp_dir' => '/tmp'
+        ]);
         foreach ($this->events as $event) {
             $this->on($event, [$listener, 'on'.$event]);
         }
