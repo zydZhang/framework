@@ -37,9 +37,7 @@
 			"Eelly\\": "src"
 		},
 		"files": [
-			"Resources/functions/image.php",
-			"Resources/functions/other.php",
-			"Resources/functions/debug.php"
+			"Resources/functions/functions_include.php",
 		]
 	},
 	"extra": {

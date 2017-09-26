@@ -84,3 +84,21 @@ if (!function_exists('throwIf')) {
         }
     }
 }
+
+if (!function_exists('errorexit')) {
+    /**
+     * 错误退出.
+     *
+     * 此函数用于兼容swoole禁止使用exit/die的场景
+     *
+     * @param int|string $status
+     */
+    function errorexit($status): void
+    {
+        if ('swoole' == APP['env']) {
+            throw new \Error($status);
+        } else {
+            exit($status);
+        }
+    }
+}
