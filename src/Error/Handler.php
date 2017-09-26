@@ -131,7 +131,7 @@ class Handler extends Injectable
             ]);
         }
 
-        exit(255);
+        errorexit(255);
     }
 
     public function handleException(\Throwable $e): void
@@ -147,7 +147,7 @@ class Handler extends Injectable
             'traceAsString' => $e->getTraceAsString(),
         ]);
 
-        exit(255);
+        errorexit(255);
     }
 
     public function handleFatalError($currPath): void

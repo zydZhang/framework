@@ -37,7 +37,7 @@
 			"Eelly\\": "src"
 		},
 		"files": [
-			"Resources/functions/functions_include.php",
+			"Resources/functions/functions_include.php"
 		]
 	},
 	"extra": {
