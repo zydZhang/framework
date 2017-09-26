@@ -15,6 +15,7 @@ namespace Eelly\Error;
 
 use Eelly\Application\ApplicationConst;
 use Eelly\Error\Handler\ServiceHandler;
+use ErrorException;
 use Monolog\Handler\AbstractHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -87,7 +88,7 @@ class Handler extends Injectable
         if (null === $this->logger) {
             $di = $this->getDI();
             $this->logger = $di->getLogger();
-            if (PHP_SAPI == 'cli') {
+            if ('php' == APP['env']) {
                 $streamHandler = new StreamHandler('php://stdout');
                 $this->logger->pushHandler($streamHandler);
             } else {
@@ -106,7 +107,9 @@ class Handler extends Injectable
 
     public function registerExceptionHandler(): void
     {
-        set_exception_handler([$this, 'handleException']);
+        if ('swoole' != APP['env']) {
+            set_exception_handler([$this, 'handleException']);
+        }
     }
 
     public function registerFatalHandler($reservedMemorySize = 20): void
@@ -130,8 +133,7 @@ class Handler extends Injectable
                 'line'    => $line,
             ]);
         }
-
-        errorexit(255);
+        throw new ErrorException($message, 0, $code, $file, $line);
     }
 
     public function handleException(\Throwable $e): void
@@ -146,8 +148,6 @@ class Handler extends Injectable
             'line'          => $e->getLine(),
             'traceAsString' => $e->getTraceAsString(),
         ]);
-
-        errorexit(255);
     }
 
     public function handleFatalError($currPath): void

@@ -95,6 +95,7 @@ if (!function_exists('errorexit')) {
      */
     function errorexit($status): void
     {
+        $status = (string) $status;
         if ('swoole' == APP['env']) {
             throw new \Error($status);
         } else {

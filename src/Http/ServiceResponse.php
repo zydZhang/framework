@@ -20,8 +20,9 @@ use Eelly\Application\ApplicationConst;
  */
 class ServiceResponse extends Response
 {
-    public function afterServiceResolve(): void
+    public function __construct($content = null, $code = null, $status = null)
     {
+        parent::__construct($content, $code, $status);
         $this->setHeader('Access-Control-Allow-Origin', '*');
         $this->setHeader('Server', ApplicationConst::APP_NAME.'/'.ApplicationConst::APP_VERSION);
         $this->setStatusCode(200);

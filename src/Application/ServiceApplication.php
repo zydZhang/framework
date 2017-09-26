@@ -19,6 +19,7 @@ use Eelly\Error\Handler as ErrorHandler;
 use Eelly\Exception\LogicException;
 use Eelly\Exception\RequestException;
 use Eelly\Mvc\Application;
+use ErrorException;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Phalcon\Config;
 use Phalcon\Di;
@@ -72,17 +73,15 @@ class ServiceApplication extends Injectable
     public function handle($uri = null)
     {
         try {
-            $response = $this->application->handle($uri);
+            $this->application->handle($uri);
         } catch (LogicException $e) {
-            $response = $this->response;
-            $response->setHeader('returnType', get_class($e));
+            $this->response->setHeader('returnType', get_class($e));
             $content = ['error' => $e->getMessage(), 'returnType' => get_class($e)];
             $content['context'] = $e->getContext();
-            $response->setJsonContent($content);
+            $this->response->setJsonContent($content);
         } catch (RequestException $e) {
             $response = $e->getResponse();
         } catch (OAuthServerException $e) {
-            $response = $this->response;
             $this->response->setStatusCode($e->getHttpStatusCode());
             // TODO RFC 6749, section 5.2 Add "WWW-Authenticate" header
             $this->response->setJsonContent([
@@ -90,9 +89,11 @@ class ServiceApplication extends Injectable
                 'message' => $e->getMessage(),
                 'hint'    => $e->getHint(),
             ]);
+        } catch (ErrorException $e) {
+            //...
         }
 
-        return $response;
+        return $this->response;
     }
 
     /**
