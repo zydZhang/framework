@@ -64,5 +64,8 @@ class ServiceHandler extends AbstractProcessingHandler implements InjectionAware
         $response = $this->getDI()->getResponse();
         $response->setStatusCode(500, $record['level_name']);
         $response->setJsonContent($content);
+        if ('swoole' != APP['env']) {
+            $response->send();
+        }
     }
 }

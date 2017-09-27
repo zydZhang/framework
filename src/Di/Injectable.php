@@ -32,7 +32,10 @@ abstract class Injectable extends DiInjectable implements InjectionAwareInterfac
         $di->setShared('dbMaster', function () {
             $config = $this->getModuleConfig()->mysql->master;
 
-            return new Connection($config->toArray());
+            $connection = new Connection($config->toArray());
+            $connection->setEventsManager($this->get('eventsManager'));
+
+            return $connection;
         });
 
         // mysql slave connection service
@@ -40,7 +43,10 @@ abstract class Injectable extends DiInjectable implements InjectionAwareInterfac
             $config = $this->getModuleConfig()->mysql->slave->toArray();
             shuffle($config);
 
-            return new Connection(current($config));
+            $connection = new Connection(current($config));
+            $connection->setEventsManager($this->get('eventsManager'));
+
+            return $connection;
         });
 
         // register modelsMetadata service

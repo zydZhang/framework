@@ -15,6 +15,7 @@ namespace Eelly\Console\Command;
 
 use Eelly\Di\InjectionAwareInterface;
 use Eelly\Di\Traits\InjectableTrait;
+use Eelly\Events\Listener\HttpServerListener;
 use Eelly\Http\Server as HttpServer;
 use Phalcon\Events\EventsAwareInterface;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
@@ -22,6 +23,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterface, EventsAwareInterface
 {
@@ -39,8 +41,12 @@ class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterfac
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $port = $input->getOption('port');
-        $httpServer = $this->di->getShared(HttpServer::class, ['0.0.0.0', $port]);
-        $httpServer->initialize();
+        $io = new SymfonyStyle($input, $output);
+        $listener = $this->di->getShared(HttpServerListener::class, [$io]);
+        $module = $input->getArgument('module');
+        $env = $this->config->env;
+        $options = require 'var/config/'.$env.'/'.$module.'/swoole.php';
+        $httpServer = new HttpServer('0.0.0.0', $port, $listener, $options);
         $httpServer->start();
     }
 }

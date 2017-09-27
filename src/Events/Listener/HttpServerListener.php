@@ -24,19 +24,36 @@ use Eelly\Http\ServiceResponse;
 use Eelly\Http\Traits\RequestTrait;
 use Eelly\Http\Traits\ResponseTrait;
 use Eelly\Mvc\Application as MvcApplication;
+use ErrorException;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Phalcon\Di;
 use swoole_http_request as HttpRequest;
 use swoole_http_response as HttpResponse;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class HttpServerListener extends AbstractListener
 {
     use RequestTrait;
     use ResponseTrait;
+    private $io;
+
+    public function __construct(SymfonyStyle $io)
+    {
+        $this->io = $io;
+    }
 
     public function onStart(Server $server): void
     {
-        dump(__FUNCTION__);
+        $info = $this->sprintf('start on %s:%d', $server->host, $server->port);
+        $this->io->writeln($info);
+        $masterPid = $server->master_pid;
+        $managerPid = $server->manager_pid;
+        \Swoole\Async::writeFile('var/master.pid', (string) $masterPid);
+        \Swoole\Async::writeFile('var/manager.pid', (string) $managerPid);
+        $this->io->table(['name', 'pid', 'file'], [
+            ['master', $masterPid, 'var/master.pid'],
+            ['manager', $managerPid, 'var/manager.pid'],
+        ]);
     }
 
     public function onShutdown(): void
@@ -46,7 +63,6 @@ class HttpServerListener extends AbstractListener
 
     public function onWorkerStart(Server $server, int $workerId): void
     {
-        dump(__FUNCTION__.$workerId);
         $di = $this->getDI();
         $di->setShared('application', new MvcApplication($di));
         $config = $this->config;
@@ -80,32 +96,32 @@ class HttpServerListener extends AbstractListener
         $_SERVER['REQUEST_URI'] = $httpRequest->server['request_uri'];
         $request = new ServiceRequest();
         $this->di->set('request', $request);
-        $this->di->set('response', ServiceResponse::class);
+        $response = new ServiceResponse();
+        $this->di->set('response', $response);
         $this->convertSwooleRequestToPhalconRequest($httpRequest, $request);
 
         try {
             $response = $this->application->handle();
         } catch (LogicException $e) {
-            $response = $this->response;
             $response->setHeader('returnType', get_class($e));
             $content = ['error' => $e->getMessage(), 'returnType' => get_class($e)];
             $content['context'] = $e->getContext();
             $response->setJsonContent($content);
         } catch (RequestException $e) {
-            $response = $e->getResponse();
+            // ...
         } catch (OAuthServerException $e) {
-            $response = $this->response;
-            $this->response->setStatusCode($e->getHttpStatusCode());
+            $response->setStatusCode($e->getHttpStatusCode());
             // TODO RFC 6749, section 5.2 Add "WWW-Authenticate" header
-            $this->response->setJsonContent([
+            $response->setJsonContent([
                 'error'   => $e->getErrorType(),
                 'message' => $e->getMessage(),
                 'hint'    => $e->getHint(),
             ]);
+        } catch (ErrorException $e) {
+            //...
         }
-
         $this->convertPhalconResponseToSwooleResponse($response, $httpResponse);
-        $content = $this->response->getContent();
+        $content = $response->getContent();
         $httpResponse->end($content);
     }
 
@@ -150,6 +166,16 @@ class HttpServerListener extends AbstractListener
     public function onManagerStop(): void
     {
         dump(__FUNCTION__);
+    }
+
+    private function sprintf(string $format, ...$args)
+    {
+        $dateTime = \DateTime::createFromFormat('U.u', sprintf('%.6F', microtime(true)));
+        $time = $dateTime->format('[Y-m-d H:i:s.u] ');
+
+        array_unshift($args, $format);
+
+        return $time.call_user_func_array('sprintf', $args);
     }
 
     private function initEventsManager()

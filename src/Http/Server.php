@@ -13,19 +13,14 @@ declare(strict_types=1);
 
 namespace Eelly\Http;
 
-use Eelly\Di\InjectionAwareInterface;
-use Eelly\Di\Traits\InjectableTrait;
 use Eelly\Events\Listener\HttpServerListener;
-use Phalcon\Events\EventsAwareInterface;
 use Swoole\Http\Server as HttpServer;
 
 /**
  * Class Server.
  */
-class Server extends HttpServer implements InjectionAwareInterface, EventsAwareInterface
+class Server extends HttpServer
 {
-    use InjectableTrait;
-
     /**
      * 事件列表.
      *
@@ -49,17 +44,18 @@ class Server extends HttpServer implements InjectionAwareInterface, EventsAwareI
         'ManagerStop',
     ];
 
-    public function initialize(): void
+    public function __construct(
+        string $host,
+        int $port,
+        HttpServerListener $httpServerListener,
+        array $options,
+        int $mode = SWOOLE_PROCESS,
+        int $sockType = SWOOLE_SOCK_TCP)
     {
-        $listener = $this->di->getShared(HttpServerListener::class);
-        $this->set([
-            'document_root'         => 'var/assets',
-            'enable_static_handler' => true,
-            'http_parse_post'       => true,
-            'upload_tmp_dir'        => '/tmp',
-        ]);
+        parent::__construct($host, $port, $mode, $sockType);
+        $this->set($options);
         foreach ($this->events as $event) {
-            $this->on($event, [$listener, 'on'.$event]);
+            $this->on($event, [$httpServerListener, 'on'.$event]);
         }
     }
 }
