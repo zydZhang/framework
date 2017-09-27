@@ -29,17 +29,23 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use Phalcon\Di;
 use swoole_http_request as HttpRequest;
 use swoole_http_response as HttpResponse;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class HttpServerListener extends AbstractListener
 {
     use RequestTrait;
     use ResponseTrait;
+    private $input;
+    private $output;
     private $io;
 
-    public function __construct(SymfonyStyle $io)
+    public function __construct(InputInterface $input, OutputInterface $output)
     {
-        $this->io = $io;
+        $this->input = $input;
+        $this->output = $output;
+        $this->io = new SymfonyStyle($input, $output);
     }
 
     public function onStart(Server $server): void
@@ -58,11 +64,21 @@ class HttpServerListener extends AbstractListener
 
     public function onShutdown(): void
     {
-        dump(__FUNCTION__);
     }
 
     public function onWorkerStart(Server $server, int $workerId): void
     {
+        $module = $this->input->getArgument('module');
+        if ($workerId >= $server->setting['worker_num']) {
+            $processName = "php httpserver task worker #{$workerId}";
+            swoole_set_process_name($processName);
+        } else {
+            $processName = "php httpserver {$module} event worker #{$workerId}";
+            swoole_set_process_name($processName);
+        }
+        $info = $this->sprintf('<info>worker start</info> %s', $processName);
+        $this->io->writeln($info);
+
         $di = $this->getDI();
         $di->setShared('application', new MvcApplication($di));
         $config = $this->config;
@@ -80,12 +96,10 @@ class HttpServerListener extends AbstractListener
 
     public function onWorkerStop(): void
     {
-        dump(__FUNCTION__);
     }
 
     public function onRequest(HttpRequest $httpRequest, HttpResponse $httpResponse): void
     {
-        dump(__FUNCTION__.$httpRequest->fd);
         if ($httpRequest->server['request_uri'] == '/favicon.ico') {
             $httpResponse->header('Content-Type', 'image/x-icon');
             $httpResponse->sendfile('public/favicon.ico');
@@ -123,6 +137,13 @@ class HttpServerListener extends AbstractListener
         $this->convertPhalconResponseToSwooleResponse($response, $httpResponse);
         $content = $response->getContent();
         $httpResponse->end($content);
+        $info = $this->sprintf(
+            '"%s %s %d"',
+            $httpRequest->server['request_method'],
+            $httpRequest->server['request_uri'],
+            $response->getStatusCode()
+        );
+        $this->io->writeln($info);
     }
 
     public function onPacket(): void
@@ -131,7 +152,6 @@ class HttpServerListener extends AbstractListener
 
     public function onClose(Server $server, int $fd, int $reactorId): void
     {
-        dump(__FUNCTION__.$fd.'_'.$reactorId);
     }
 
     public function onBufferFull(): void
@@ -160,12 +180,10 @@ class HttpServerListener extends AbstractListener
 
     public function onManagerStart(): void
     {
-        dump(__FUNCTION__);
     }
 
     public function onManagerStop(): void
     {
-        dump(__FUNCTION__);
     }
 
     private function sprintf(string $format, ...$args)

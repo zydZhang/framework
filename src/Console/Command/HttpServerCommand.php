@@ -23,7 +23,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterface, EventsAwareInterface
 {
@@ -41,8 +40,7 @@ class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterfac
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $port = $input->getOption('port');
-        $io = new SymfonyStyle($input, $output);
-        $listener = $this->di->getShared(HttpServerListener::class, [$io]);
+        $listener = $this->di->getShared(HttpServerListener::class, [$input, $output]);
         $module = $input->getArgument('module');
         $env = $this->config->env;
         $options = require 'var/config/'.$env.'/'.$module.'/swoole.php';
