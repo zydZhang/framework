@@ -103,3 +103,23 @@ if (!function_exists('errorexit')) {
         }
     }
 }
+if (!function_exists('formatTime')) {
+    /**
+     * 获取当前时间.
+     *
+     * @param string $timezone 时区
+     * @param string $format   日期格式
+     *
+     * @return string
+     */
+    function formatTime(string $timezone = null, string $format = DateTime::ISO8601)
+    {
+        $dateTime = \DateTime::createFromFormat('U.u', sprintf('%.6F', microtime(true)));
+        if (null !== $timezone) {
+            $dateTime->setTimezone(new \DateTimeZone($timezone));
+        }
+        $time = $dateTime->format($format);
+
+        return $time;
+    }
+}

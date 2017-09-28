@@ -40,17 +40,19 @@ class HttpServerListener extends AbstractListener
     private $input;
     private $output;
     private $io;
+    private $defaultTimezone;
 
     public function __construct(InputInterface $input, OutputInterface $output)
     {
         $this->input = $input;
         $this->output = $output;
         $this->io = new SymfonyStyle($input, $output);
+        $this->defaultTimezone = $this->config->defaultTimezone;
     }
 
     public function onStart(Server $server): void
     {
-        $info = $this->sprintf('start on %s:%d', $server->host, $server->port);
+        $info = sprintf('%s start on %s:%d', formatTime($this->defaultTimezone), $server->host, $server->port);
         $this->io->writeln($info);
         $masterPid = $server->master_pid;
         $managerPid = $server->manager_pid;
@@ -76,7 +78,7 @@ class HttpServerListener extends AbstractListener
             $processName = "php httpserver {$module} event worker #{$workerId}";
             swoole_set_process_name($processName);
         }
-        $info = $this->sprintf('<info>worker start</info> %s', $processName);
+        $info = sprintf('%s <info>worker start</info> %s', formatTime($this->defaultTimezone), $processName);
         $this->io->writeln($info);
 
         $di = $this->getDI();
@@ -124,7 +126,6 @@ class HttpServerListener extends AbstractListener
         } catch (RequestException $e) {
             // ...
         } catch (OAuthServerException $e) {
-            $response->setStatusCode($e->getHttpStatusCode());
             // TODO RFC 6749, section 5.2 Add "WWW-Authenticate" header
             $response->setJsonContent([
                 'error'   => $e->getErrorType(),
@@ -137,8 +138,9 @@ class HttpServerListener extends AbstractListener
         $this->convertPhalconResponseToSwooleResponse($response, $httpResponse);
         $content = $response->getContent();
         $httpResponse->end($content);
-        $info = $this->sprintf(
-            '"%s %s %d"',
+        $info = sprintf(
+            '[%s] "%s %s %d"',
+            formatTime($this->defaultTimezone),
             $httpRequest->server['request_method'],
             $httpRequest->server['request_uri'],
             $response->getStatusCode()
@@ -184,16 +186,6 @@ class HttpServerListener extends AbstractListener
 
     public function onManagerStop(): void
     {
-    }
-
-    private function sprintf(string $format, ...$args)
-    {
-        $dateTime = \DateTime::createFromFormat('U.u', sprintf('%.6F', microtime(true)));
-        $time = $dateTime->format('[Y-m-d H:i:s.u] ');
-
-        array_unshift($args, $format);
-
-        return $time.call_user_func_array('sprintf', $args);
     }
 
     private function initEventsManager()

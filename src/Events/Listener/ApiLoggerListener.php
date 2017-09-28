@@ -107,8 +107,8 @@ class ApiLoggerListener extends AbstractListener
         $this->requestData['oauth'] = ApplicationConst::$oauth;
         $this->responseData['responseTime'] = microtime(true);
         $this->responseData['statusCode'] = $response->getStatusCode();
-        $this->responseData['content'] = $response->getContent();
-        $this->responseData['headers'] = $response->getHeaders()->toArray();
+        $this->responseData['content'] = (string) $response->getBody();
+        $this->responseData['headers'] = $response->getHeaders();
         $this->extrasData['usedTime'] = $this->responseData['responseTime'] - $this->requestData['requestTime'];
         $this->extrasData['usedMemory'] = memory_get_peak_usage(true);
         (new ApiLogger())->log($this->traceId, $this->requestData, $this->responseData, $this->extrasData);

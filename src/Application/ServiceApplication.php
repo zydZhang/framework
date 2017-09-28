@@ -75,16 +75,16 @@ class ServiceApplication extends Injectable
         try {
             $this->application->handle($uri);
         } catch (LogicException $e) {
-            $this->response->setHeader('returnType', get_class($e));
+            $this->response = $this->response->withHeader('returnType', get_class($e));
             $content = ['error' => $e->getMessage(), 'returnType' => get_class($e)];
             $content['context'] = $e->getContext();
-            $this->response->setJsonContent($content);
+            $this->response = $this->response->setJsonContent($content);
         } catch (RequestException $e) {
             $response = $e->getResponse();
         } catch (OAuthServerException $e) {
-            $this->response->setStatusCode($e->getHttpStatusCode());
+            $this->response = $this->response->withStatus($e->getHttpStatusCode());
             // TODO RFC 6749, section 5.2 Add "WWW-Authenticate" header
-            $this->response->setJsonContent([
+            $this->response = $this->response->withJsonContent([
                 'error'   => $e->getErrorType(),
                 'message' => $e->getMessage(),
                 'hint'    => $e->getHint(),
@@ -129,12 +129,12 @@ class ServiceApplication extends Injectable
                 $this->response->setHeader('returnType', 'array');
                 $this->response->setJsonContent(['data' => $returnedValue, 'returnType' => 'array']);
             } elseif (is_scalar($returnedValue)) {
-                $this->response->setHeader('returnType', gettype($returnedValue));
-                $this->response->setJsonContent(
+                $this->response = $this->response->withHeader('returnType', gettype($returnedValue));
+                $this->response = $this->response->withJsonContent(
                     ['data' => $returnedValue, 'returnType' => gettype($returnedValue)]
                 );
                 if (is_string($returnedValue)) {
-                    $dispatcher->setReturnedValue($this->response->getContent());
+                    $dispatcher->setReturnedValue($this->response->getBody());
                 }
             }
         });
