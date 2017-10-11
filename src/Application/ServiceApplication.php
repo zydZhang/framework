@@ -129,8 +129,8 @@ class ServiceApplication extends Injectable
                 $this->response->setHeader('returnType', 'array');
                 $this->response->setJsonContent(['data' => $returnedValue, 'returnType' => 'array']);
             } elseif (is_scalar($returnedValue)) {
-                $this->response = $this->response->withHeader('returnType', gettype($returnedValue));
-                $this->response = $this->response->withJsonContent(
+                $this->response = $this->response->setHeader('returnType', gettype($returnedValue));
+                $this->response = $this->response->setJsonContent(
                     ['data' => $returnedValue, 'returnType' => gettype($returnedValue)]
                 );
                 if (is_string($returnedValue)) {

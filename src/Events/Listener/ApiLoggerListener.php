@@ -14,10 +14,10 @@ declare(strict_types=1);
 namespace Eelly\Events\Listener;
 
 use Eelly\Application\ApplicationConst;
-use Eelly\Http\Response;
 use Eelly\SDK\Logger\Api\ApiLogger;
 use MongoDB\BSON\ObjectID;
 use Phalcon\Events\Event;
+use Phalcon\Http\Response;
 use Phalcon\Http\Response\Headers;
 use Phalcon\Mvc\Application;
 use Phalcon\Mvc\Dispatcher;
@@ -107,8 +107,8 @@ class ApiLoggerListener extends AbstractListener
         $this->requestData['oauth'] = ApplicationConst::$oauth;
         $this->responseData['responseTime'] = microtime(true);
         $this->responseData['statusCode'] = $response->getStatusCode();
-        $this->responseData['content'] = (string) $response->getBody();
-        $this->responseData['headers'] = $response->getHeaders();
+        $this->responseData['content'] = $response->getContent();
+        $this->responseData['headers'] = $response->getHeaders()->toArray();
         $this->extrasData['usedTime'] = $this->responseData['responseTime'] - $this->requestData['requestTime'];
         $this->extrasData['usedMemory'] = memory_get_peak_usage(true);
         (new ApiLogger())->log($this->traceId, $this->requestData, $this->responseData, $this->extrasData);
