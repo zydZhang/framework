@@ -14,10 +14,10 @@ declare(strict_types=1);
 namespace Eelly\Events\Listener;
 
 use Eelly\Application\ApplicationConst;
-use Eelly\Http\Response;
 use Eelly\SDK\Logger\Api\ApiLogger;
 use MongoDB\BSON\ObjectID;
 use Phalcon\Events\Event;
+use Phalcon\Http\Response;
 use Phalcon\Http\Response\Headers;
 use Phalcon\Mvc\Application;
 use Phalcon\Mvc\Dispatcher;
@@ -64,6 +64,7 @@ class ApiLoggerListener extends AbstractListener
      */
     public function beforeHandleRequest(Event $event, Application $application, Dispatcher $dispatcher): void
     {
+        $controllerName = $dispatcher->getControllerClass();
         $request = $this->request;
         // 添加跟踪id
         $this->traceId = $request->getHeader('traceId');
@@ -100,6 +101,9 @@ class ApiLoggerListener extends AbstractListener
      */
     public function beforeSendResponse(Event $event, Application $application, Response $response): void
     {
+        if (null == $this->requestData) {
+            return;
+        }
         $this->requestData['oauth'] = ApplicationConst::$oauth;
         $this->responseData['responseTime'] = microtime(true);
         $this->responseData['statusCode'] = $response->getStatusCode();

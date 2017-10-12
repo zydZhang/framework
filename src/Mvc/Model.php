@@ -35,14 +35,18 @@ abstract class Model extends MvcModel
     /**
      * create builder.
      *
-     * @param mixed $models
+     * @param mixed  $models
+     * @param string $alias  设置别名，用于连表别名
      *
      * @return \Eelly\Mvc\Model\Query\Builder
      */
-    public static function createBuilder($models = null)
+    public static function createBuilder($models = null, $alias = null)
     {
         if (null === $models) {
             $models = static::class;
+        }
+        if ($alias) {
+            return Di::getDefault()->getShared('modelsManager')->createBuilder()->addFrom($models, $alias);
         }
 
         return Di::getDefault()->getShared('modelsManager')->createBuilder()->from($models);
@@ -75,12 +79,10 @@ abstract class Model extends MvcModel
         foreach ($page->items as $key=>$item) {
             $return['items'][$key] = $item->toArray();
         }
+        if (empty($return['items'])) {
+            return [];
+        }
         $return['page'] = [
-            'first'      => $page->first,
-            'before'     => $page->before,
-            'current'    => $page->current,
-            'last'       => $page->last,
-            'next'       => $page->next,
             'total_pages'=> $page->total_pages,
             'total_items'=> $page->total_items,
             'limit'      => $page->limit,
@@ -113,11 +115,6 @@ abstract class Model extends MvcModel
         $total_pages = ceil($count / $limit);
         $return['items'] = $data;
         $return['page'] = [
-            'first'      => 1,
-            'before'     => 1,
-            'current'    => $page,
-            'last'       => $page > 1 ? $page : 1,
-            'next'       => $total_pages > $page ? ($page + 1) : $page,
             'total_pages'=> ceil($count / $limit),
             'total_items'=> $count,
             'limit'      => $limit,
@@ -130,6 +127,7 @@ abstract class Model extends MvcModel
      * 获取字段.
      *
      * @param string $field
+     * @param string $alias 设置别名，用于连表别名
      *
      * @return string
      * @requestExample(base)
@@ -139,9 +137,18 @@ abstract class Model extends MvcModel
      *
      * @since 2017-7-27
      */
-    public static function getField(string $field = 'base'): string
+    public static function getField(string $field = 'base', string $alias = null): string
     {
-        return get_called_class()::FIELD_SCOPE[$field] ?? $field;
+        $stringField = get_called_class()::FIELD_SCOPE[$field] ?? $field;
+        if ($stringField && $alias) {
+            $data = explode(',', $stringField);
+            foreach ($data as $key=> $val) {
+                $data[$key] = "$alias.$val";
+            }
+            $stringField = implode(',', $data);
+        }
+
+        return $stringField;
     }
 
     /**
@@ -159,6 +166,9 @@ abstract class Model extends MvcModel
      */
     public static function arrayToHump(array &$data)
     {
+        if (empty($data)) {
+            return [];
+        }
         if (is_array($data)) {
             foreach ($data as $key=>$value) {
                 $key = preg_replace_callback('/(_)([a-z])/i', function ($matches) use (&$data,&$key) {
@@ -204,12 +214,10 @@ abstract class Model extends MvcModel
         foreach ($page->items as $key=>$item) {
             $return['items'][$key] = $item->toArray();
         }
+        if (empty($return['items'])) {
+            return [];
+        }
         $return['page'] = [
-            'first'      => $page->first,
-            'before'     => $page->before,
-            'current'    => $page->current,
-            'last'       => $page->last,
-            'next'       => $page->next,
             'total_pages'=> $page->total_pages,
             'total_items'=> $page->total_items,
             'limit'      => $page->limit,
@@ -254,7 +262,7 @@ abstract class Model extends MvcModel
             return false;
         }
 
-        $tableName = get_called_class();
+        $tableName = $this->getSource();
         $setSql = $whereSql = '';
         //拼接条件
         foreach ($set as $sk=>$sv) {
@@ -267,7 +275,7 @@ abstract class Model extends MvcModel
         $setSql = rtrim($setSql, ',');
         $whereSql = rtrim($whereSql, ' AND ');
         $sql = 'UPDATE '.$tableName.' SET '.$setSql.' WHERE '.$whereSql;
-        $this->_modelsManager->executeQuery($sql);
+        $this->getDI()->get('dbMaster')->execute($sql);
 
         return (int) $this->getWriteConnection()->affectedRows();
     }
@@ -287,7 +295,7 @@ abstract class Model extends MvcModel
             return false;
         }
 
-        $tableName = get_called_class();
+        $tableName = $this->getSource();
         $whereSql = '';
         //拼接条件
         foreach ($where as $wk=>$wv) {
@@ -296,7 +304,7 @@ abstract class Model extends MvcModel
 
         $whereSql = rtrim($whereSql, ' AND ');
         $sql = 'DELETE FROM '.$tableName.' WHERE '.$whereSql;
-        $this->_modelsManager->executeQuery($sql);
+        $this->getDI()->get('dbMaster')->execute($sql);
 
         return (int) $this->getWriteConnection()->affectedRows();
     }

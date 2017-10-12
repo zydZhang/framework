@@ -14,10 +14,14 @@ declare(strict_types=1);
 namespace Eelly\Application;
 
 use Eelly\Di\Injectable;
+use Eelly\Di\ServiceDi;
 use Eelly\Error\Handler as ErrorHandler;
 use Eelly\Exception\LogicException;
 use Eelly\Exception\RequestException;
 use Eelly\Mvc\Application;
+use ErrorException;
+use League\OAuth2\Server\Exception\OAuthServerException;
+use Phalcon\Config;
 use Phalcon\Di;
 
 /**
@@ -28,20 +32,35 @@ use Phalcon\Di;
 class ServiceApplication extends Injectable
 {
     /**
+     * ServiceApplication constructor.
+     *
+     * @param array $config
+     */
+    public function __construct(array $config)
+    {
+        $di = new ServiceDi();
+        $di->setShared('config', new Config($config));
+        $this->setDI($di);
+    }
+
+    /**
      * initial.
      */
-    public function initial()
+    public function initialize()
     {
         $di = $this->getDI();
         $di->setShared('application', new Application($di));
         $config = $this->config;
         ApplicationConst::$env = $config->env;
         date_default_timezone_set($config->defaultTimezone);
-
         $errorHandler = $di->getShared(ErrorHandler::class);
         $errorHandler->register();
-
         $this->initEventsManager();
+        foreach ($config->appBundles as $bundle) {
+            $di->getShared($bundle->class, $bundle->params)->register();
+        }
+        $this->application->useImplicitView(false);
+        $this->application->registerModules($this->config->modules->toArray());
 
         return $this;
     }
@@ -53,22 +72,28 @@ class ServiceApplication extends Injectable
      */
     public function handle($uri = null)
     {
-        $this->application->useImplicitView(false);
-        $this->application->registerModules($this->config->modules->toArray());
-
         try {
-            $response = $this->application->handle($uri);
+            $this->application->handle($uri);
         } catch (LogicException $e) {
-            $response = $this->response;
-            $response->setHeader('returnType', get_class($e));
+            $this->response = $this->response->withHeader('returnType', get_class($e));
             $content = ['error' => $e->getMessage(), 'returnType' => get_class($e)];
             $content['context'] = $e->getContext();
-            $response->setJsonContent($content);
+            $this->response = $this->response->setJsonContent($content);
         } catch (RequestException $e) {
             $response = $e->getResponse();
+        } catch (OAuthServerException $e) {
+            $this->response = $this->response->withStatus($e->getHttpStatusCode());
+            // TODO RFC 6749, section 5.2 Add "WWW-Authenticate" header
+            $this->response = $this->response->withJsonContent([
+                'error'   => $e->getErrorType(),
+                'message' => $e->getMessage(),
+                'hint'    => $e->getHint(),
+            ]);
+        } catch (ErrorException $e) {
+            //...
         }
 
-        return $response;
+        return $this->response;
     }
 
     /**
@@ -76,10 +101,10 @@ class ServiceApplication extends Injectable
      */
     public function run(): void
     {
-        $this->initial()->handle()->send();
+        $this->initialize()->handle()->send();
     }
 
-    private function initEventsManager(): void
+    private function initEventsManager()
     {
         /**
          * @var \Phalcon\Events\Manager
@@ -104,16 +129,18 @@ class ServiceApplication extends Injectable
                 $this->response->setHeader('returnType', 'array');
                 $this->response->setJsonContent(['data' => $returnedValue, 'returnType' => 'array']);
             } elseif (is_scalar($returnedValue)) {
-                $this->response->setHeader('returnType', gettype($returnedValue));
-                $this->response->setJsonContent(
+                $this->response = $this->response->setHeader('returnType', gettype($returnedValue));
+                $this->response = $this->response->setJsonContent(
                     ['data' => $returnedValue, 'returnType' => gettype($returnedValue)]
                 );
                 if (is_string($returnedValue)) {
-                    $dispatcher->setReturnedValue($this->response->getContent());
+                    $dispatcher->setReturnedValue($this->response->getBody());
                 }
             }
         });
         $this->application->setEventsManager($eventsManager);
         $this->di->setInternalEventsManager($eventsManager);
+
+        return $this;
     }
 }

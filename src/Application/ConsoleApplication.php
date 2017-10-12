@@ -14,8 +14,10 @@ declare(strict_types=1);
 namespace Eelly\Application;
 
 use Eelly\Console\Application;
+use Eelly\Di\ConsoleDi;
 use Eelly\Di\Injectable;
 use Eelly\Error\Handler as ErrorHandler;
+use Phalcon\Config;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -27,7 +29,19 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  */
 class ConsoleApplication extends Injectable
 {
-    public function initial()
+    /**
+     * ConsoleApplication constructor.
+     *
+     * @param array $config
+     */
+    public function __construct(array $config)
+    {
+        $di = new ConsoleDi();
+        $di->setShared('config', new Config($config));
+        $this->setDI($di);
+    }
+
+    public function initialize()
     {
         $di = $this->getDI();
         $di->setShared('application', function () {
@@ -57,7 +71,7 @@ class ConsoleApplication extends Injectable
 
     public function run(): void
     {
-        $this->initial()->handle()->run();
+        $this->initialize()->handle()->run();
     }
 
     private function initEventsManager(): void

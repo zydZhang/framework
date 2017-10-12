@@ -68,3 +68,58 @@ if (!function_exists('isValidObjectId')) {
         return $isValid;
     }
 }
+
+if (!function_exists('throwIf')) {
+    /**
+     * Throw the given exception if the given boolean is true.
+     *
+     * @param bool              $boolean
+     * @param \Throwable|string $exception
+     * @param array             ...$parameters
+     */
+    function throwIf($boolean, $exception, ...$parameters): void
+    {
+        if ($boolean) {
+            throw (is_string($exception) ? new $exception(...$parameters) : $exception);
+        }
+    }
+}
+
+if (!function_exists('errorexit')) {
+    /**
+     * 错误退出.
+     *
+     * 此函数用于兼容swoole禁止使用exit/die的场景
+     *
+     * @param int|string $status
+     */
+    function errorexit($status): void
+    {
+        $status = (string) $status;
+        if ('swoole' == APP['env']) {
+            throw new \Error($status);
+        } else {
+            exit($status);
+        }
+    }
+}
+if (!function_exists('formatTime')) {
+    /**
+     * 获取当前时间.
+     *
+     * @param string $timezone 时区
+     * @param string $format   日期格式
+     *
+     * @return string
+     */
+    function formatTime(string $timezone = null, string $format = DateTime::ISO8601)
+    {
+        $dateTime = \DateTime::createFromFormat('U.u', sprintf('%.6F', microtime(true)));
+        if (null !== $timezone) {
+            $dateTime->setTimezone(new \DateTimeZone($timezone));
+        }
+        $time = $dateTime->format($format);
+
+        return $time;
+    }
+}

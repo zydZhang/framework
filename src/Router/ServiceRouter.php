@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Eelly\Router;
 
+use Phalcon\Text;
+
 /**
  * @author hehui<hehui@eelly.net>
  */
@@ -21,6 +23,7 @@ class ServiceRouter extends Router
     public function afterServiceResolve(): void
     {
         $this->clear();
+        $this->setUriSource(Router::URI_SOURCE_SERVER_REQUEST_URI);
         $this->getEventsManager()->attach('router', $this);
     }
 
@@ -32,21 +35,12 @@ class ServiceRouter extends Router
         $application = $this->getDi()->getApplication();
         foreach ($application->getModules()as $moduleName => $value) {
             $namespace = str_replace('Module', 'Logic', $value['className']);
-            $router->addGet('/'.$moduleName, [
-                'namespace'  => $namespace,
-                'module'     => $moduleName,
-            ]);
-            $router->addGet('/'.$moduleName.'/:controller', [
-                'namespace'  => $namespace,
-                'module'     => $moduleName,
-                'controller' => 1,
-            ]);
-            $router->add('/'.$moduleName.'/:controller/:action', [
+            $router->addPost('/'.$moduleName.'/:controller/:action', [
                 'namespace'  => $namespace,
                 'module'     => $moduleName,
                 'controller' => 1,
                 'action'     => 2,
-            ], ['GET', 'POST'])->setName($moduleName);
+            ])->setName($moduleName);
         }
     }
 
@@ -56,22 +50,13 @@ class ServiceRouter extends Router
          * @var \Eelly\Http\ServiceRequest $request
          */
         $request = $this->getDI()->getShared('request');
-        $router->setParams($request->getRouteParams());
+        if ($request->isPost()) {
+            $router->setParams($request->getRouteParams());
+        }
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @see \Phalcon\Mvc\Router::getRewriteUri()
-     */
-    public function getRewriteUri()
+    public function getControllerName()
     {
-        $url = $_SERVER['REQUEST_URI'];
-        $urlParts = explode('?', $url);
-        if (!empty($urlParts[0])) {
-            return $urlParts[0];
-        }
-
-        return '/';
+        return Text::uncamelize(parent::getControllerName());
     }
 }

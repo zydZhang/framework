@@ -14,10 +14,8 @@ declare(strict_types=1);
 namespace Eelly\Console\Command;
 
 use Eelly\Di\InjectionAwareInterface;
-use Eelly\Di\Traits\MagicGetTrait;
-use Phalcon\DiInterface;
+use Eelly\Di\Traits\InjectableTrait;
 use Phalcon\Events\EventsAwareInterface;
-use Phalcon\Events\ManagerInterface;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -27,57 +25,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Command extends SymfonyCommand implements InjectionAwareInterface, EventsAwareInterface
 {
-    use MagicGetTrait;
-
-    /**
-     * @var DiInterface
-     */
-    protected $di;
-
-    /**
-     * @var ManagerInterface
-     */
-    protected $eventsManager;
-
-    /**
-     * {@inheritdoc}
-     *
-     * @see \Phalcon\Di\InjectionAwareInterface::setDI()
-     */
-    public function setDI(DiInterface $di): void
-    {
-        $this->di = $di;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @see \Phalcon\Di\InjectionAwareInterface::getDI()
-     */
-    public function getDI()
-    {
-        return $this->di;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @see \Phalcon\Events\EventsAwareInterface::setEventsManager()
-     */
-    public function setEventsManager(ManagerInterface $eventsManager): void
-    {
-        $this->eventsManager = $eventsManager;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @see \Phalcon\Events\EventsAwareInterface::getEventsManager()
-     */
-    public function getEventsManager()
-    {
-        return $this->eventsManager;
-    }
+    use InjectableTrait;
 
     /**
      * {@inheritdoc}

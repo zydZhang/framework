@@ -15,6 +15,7 @@ namespace Eelly\Mvc;
 
 use Eelly\Application\ApplicationConst;
 use Eelly\Di\Injectable;
+use Eelly\Events\Listener\ValidateAccessTokenListener;
 use Eelly\SDK\EellyClient;
 use Phalcon\Config;
 use Phalcon\DiInterface as Di;
@@ -105,6 +106,10 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
         });
         // register user services
         $this->registerUserServices($di);
+        $eventsManager = $this->eventsManager;
+        $eventsManager->enablePriorities(true);
+        // token 校验
+        $eventsManager->attach('dispatch', $di->getShared(ValidateAccessTokenListener::class), 10000);
         // attach events
         $this->attachUserEvents($di);
     }

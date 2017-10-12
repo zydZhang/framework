@@ -52,8 +52,8 @@ class AsyncAnnotationListener extends AbstractListener
                 'time'    => microtime(true),
             ];
             $producer = $this->queueFactory->createProducer();
-            $producer->setExchangeOptions(['name' => '_PHEX_'.$dispatcher->getModuleName(), 'type' => 'direct']);
-            $routingKey = $annotation->getNamedParameter('route') ?? $dispatcher->getModuleName();
+            $producer->setExchangeOptions(['name' => $dispatcher->getModuleName(), 'type' => 'topic']);
+            $routingKey = $annotation->getNamedParameter('route') ?? 'default';
             $producer->publish(json_encode($msgBody), $routingKey);
             if ($event->isCancelable()) {
                 $event->stop();

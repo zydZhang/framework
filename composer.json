@@ -16,7 +16,6 @@
 	],
 	"require": {
 		"php": "^7.1.3",
-		"ext-phalcon": "^3.2.1",
 		"aliyuncs/oss-sdk-php": "^2.2",
 		"erusev/parsedown": "^1.6",
 		"guzzlehttp/guzzle": "^6.2.3",
@@ -31,20 +30,14 @@
 		"vlucas/phpdotenv": "^2.4"
 	},
 	"require-dev": {
-		"friendsofphp/php-cs-fixer": "2.4.x-dev",
-		"jetbrains/phpstorm-stubs": "dev-master",
-		"phpunit/phpunit": "6.2.1",
-		"phalcon/devtools": "3.1.2",
-		"symfony/var-dumper": "3.3.2"
+		"techpivot/phalcon-ci-installer": "~1.0"
 	},
 	"autoload": {
 		"psr-4": {
 			"Eelly\\": "src"
 		},
 		"files": [
-			"Resources/functions/image.php",
-			"Resources/functions/other.php",
-			"Resources/functions/debug.php"
+			"Resources/functions/functions_include.php"
 		]
 	},
 	"extra": {

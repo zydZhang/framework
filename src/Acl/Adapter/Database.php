@@ -643,6 +643,33 @@ WHERE client_id = :client_id");
     }
 
     /**
+     * 添加接口请求子参数.
+     *
+     * @param array  $data
+     * @param string $hashName
+     *
+     * @return bool
+     */
+    public function addPermissionRequestSubParam(array $data, string $hashName)
+    {
+        if (empty($data) || empty($hashName) || empty($permId = (int) $this->getPermId($hashName))) {
+            return false;
+        }
+
+        $addData = [];
+        foreach ($data as $parentName => $paramData) {
+            $parentId = $this->getParentId($parentName, $permId);
+            foreach ($paramData as $param) {
+                $param['parent_id'] = $parentId;
+                $param['permission_id'] = $permId;
+                $addData[] = $param;
+            }
+        }
+
+        return $this->commonBatchInsert($this->tables['permissionRequest'], $addData);
+    }
+
+    /**
      * 验证是否存在.
      *
      * @param string $tableName
@@ -841,5 +868,29 @@ WHERE client_id = :client_id");
         $result = $sth->fetch(Db::FETCH_ASSOC);
 
         return $result['service_id'] ?? false;
+    }
+
+    /**
+     * 获取父参数id.
+     *
+     * @param string $parentName
+     * @param int    $permId
+     *
+     * @return bool|bool|unknown
+     */
+    private function getParentId(string $parentName, int $permId)
+    {
+        if (empty($parentName) || empty($permId)) {
+            return false;
+        }
+
+        $sth = $this->db->prepare("SELECT preq_id FROM {$this->tables['permissionRequest']} WHERE param_name = :param_name AND permission_id = :permId AND parent_id = 0 LIMIT 1");
+        $sth->execute([
+            ':param_name' => $parentName,
+            ':permId'     => $permId,
+        ]);
+        $result = $sth->fetch(Db::FETCH_ASSOC);
+
+        return $result['preq_id'] ?? false;
     }
 }

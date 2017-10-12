@@ -20,11 +20,20 @@ use Eelly\Application\ApplicationConst;
  */
 class ServiceResponse extends Response
 {
-    public function afterServiceResolve(): void
-    {
-        $this->setContentType('application/json');
-        $this->setHeader('Access-Control-Allow-Origin', '*');
-        $this->setHeader('Server', ApplicationConst::APP_NAME.'/'.ApplicationConst::APP_VERSION);
-        $this->setStatusCode(200);
+    public function __construct(
+        $status = 200,
+        array $headers = [],
+        $body = null,
+        $version = '1.1',
+        $reason = null
+    ) {
+        if (empty($headers)) {
+            $headers = [
+                'Content-Type'               => 'application/json',
+                'Access-Control-Allow-Origin'=> '*',
+                'Server'                     => ApplicationConst::APP_NAME.'/'.ApplicationConst::APP_VERSION,
+            ];
+        }
+        parent::__construct($status, $headers, $body, $version, $reason);
     }
 }

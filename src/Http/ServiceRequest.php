@@ -28,11 +28,9 @@ class ServiceRequest extends HttpRequest
      */
     public function getRouteParams(): array
     {
-        if (!$this->isPost()) {
-            return [];
-        }
         if (0 === strpos($this->getHeader('Content-Type'), 'application/json')) {
             $json = $this->getRawBody();
+
             try {
                 $params = \GuzzleHttp\json_decode($json, true);
             } catch (InvalidArgumentException $e) {
