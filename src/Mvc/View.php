@@ -27,6 +27,7 @@ class View extends MvcView
             [
                 //'.phtml'   => 'Phalcon\Mvc\View\Engine\Php',
                 '.mustache' => 'Eelly\Mvc\View\Engine\Mustache',
+                '.hbs'      => 'Eelly\Mvc\View\Engine\Handlebars',
             ]
         );
     }
