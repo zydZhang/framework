@@ -49,7 +49,7 @@ class WebController extends Controller
             }
             $this->eellyClient->setAccessToken($accessToken);
             $user = new User();
-            $this->view->user = $this->user = $user->info();
+            $this->view->user = $this->user = $user->getInfo();
         }
     }
 }

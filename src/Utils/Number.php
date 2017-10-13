@@ -16,11 +16,9 @@ namespace Eelly\Utils;
 /**
  * 数字扩展类.
  *
- * @author    SpiritTeam
+ * @author 李伟权 <liweiquan@eelly.net>
  *
  * @since     2015年5月8日
- *
- * @version   1.0
  */
 class Number
 {
@@ -31,8 +29,6 @@ class Number
      * @param float $rightValue
      *
      * @return number 1:>; 0:==; -1:<
-     *
-     * @author 陈淡华<chendanhua@eelly.net>
      *
      * @since  2015-5-8
      */
@@ -56,8 +52,6 @@ class Number
      *
      * @return int
      *
-     * @author 骆毅夫<luoyifu@eelly.net>
-     *
      * @since  2016-1-21
      */
     public static function calculateNumber(array $numbers)
@@ -80,17 +74,15 @@ class Number
      *
      * @return array
      *
-     * @author 陈淡华<chendanhua@eelly.net>
-     *
      * @since  2015-8-9
      */
     public static function getGroupsByPosition($value, $level = 4)
     {
-        $value = intval($value);
+        $value = (int) $value;
 
         $data = [];
-        $level = pow(2, $level);
-        for ($i = 1; $i < $level; $i++) {
+        $level = 2 ** $level;
+        for ($i = 1; $i < $level; ++$i) {
             $i & $value && $data[] = $i;
         }
 
@@ -105,17 +97,15 @@ class Number
      *
      * @return array
      *
-     * @author 陈淡华<chendanhua@eelly.net>
-     *
      * @since  2015-8-9
      */
     public static function getChildrenByPosition($value, $level = 4)
     {
-        $value = intval($value);
+        $value = (int) $value;
 
         $data = [];
-        for ($i = 0; $i < $level; $i++) {
-            $j = pow(2, $i);
+        for ($i = 0; $i < $level; ++$i) {
+            $j = 2 ** $i;
             $value & $j && $data[] = $j;
         }
 
@@ -130,8 +120,6 @@ class Number
      * 1~10W之间,   以W为单位，保留两位小数.
      *
      * @param int $number 数字
-     *
-     * @author 郑志明<zhengzhiming@eelly.net>
      *
      * @since  2016年9月20日
      */

@@ -17,18 +17,18 @@ use Eelly\Application\ApplicationConst;
 use Eelly\Error\Handler as ErrorHandler;
 use Eelly\Exception\LogicException;
 use Eelly\Exception\RequestException;
+use Eelly\Http\PhalconServiceResponse;
 use Eelly\Http\Response;
 use Eelly\Http\Server;
-use Eelly\Http\ServiceRequest;
-use Eelly\Http\ServiceResponse;
+use Eelly\Http\SwoolePhalconRequest;
 use Eelly\Http\Traits\RequestTrait;
 use Eelly\Http\Traits\ResponseTrait;
 use Eelly\Mvc\Application as MvcApplication;
 use ErrorException;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Phalcon\Di;
-use swoole_http_request as HttpRequest;
-use swoole_http_response as HttpResponse;
+use swoole_http_request as SwooleHttpRequest;
+use swoole_http_response as SwooleHttpResponse;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -93,26 +93,32 @@ class HttpServerListener extends AbstractListener
             $di->getShared($bundle->class, $bundle->params)->register();
         }
         $this->application->useImplicitView(false);
-        $this->application->registerModules($this->config->modules->toArray());
+        $modules = [
+            $module => [
+                'className' => ucfirst($module).'\\Module',
+                'path'      => 'src/'.ucfirst($module).'/Module.php',
+            ],
+        ];
+        $this->application->registerModules($modules);
     }
 
     public function onWorkerStop(): void
     {
     }
 
-    public function onRequest(HttpRequest $httpRequest, HttpResponse $httpResponse): void
+    public function onRequest(SwooleHttpRequest $swooleHttpRequest, SwooleHttpResponse $swooleHttpResponse): void
     {
-        if ($httpRequest->server['request_uri'] == '/favicon.ico') {
-            $httpResponse->header('Content-Type', 'image/x-icon');
-            $httpResponse->sendfile('public/favicon.ico');
+        if ($swooleHttpRequest->server['request_uri'] == '/favicon.ico') {
+            $swooleHttpResponse->header('Content-Type', 'image/x-icon');
+            $swooleHttpResponse->sendfile('public/favicon.ico');
 
             return;
         }
-
-        $_SERVER['REQUEST_URI'] = $httpRequest->server['request_uri'];
-        $request = new ServiceRequest();
-        $this->di->set('request', $request);
-        $response = new ServiceResponse();
+        /* @var SwoolePhalconRequest  $phalconHttpRequest */
+        $phalconHttpRequest = $this->di->get('request');
+        $phalconHttpRequest->initialWithSwooleHttpRequest($swooleHttpRequest);
+        // TODO
+        $response = new PhalconServiceResponse();
         $this->di->set('response', $response);
         $this->convertSwooleRequestToPhalconRequest($httpRequest, $request);
 
@@ -137,14 +143,18 @@ class HttpServerListener extends AbstractListener
         }
         $this->convertPhalconResponseToSwooleResponse($response, $httpResponse);
         $content = $response->getContent();
+
         $httpResponse->end($content);
         $info = sprintf(
-            '[%s] "%s %s %d"',
+            '[%s] %d "%s %s %d"',
             formatTime($this->defaultTimezone),
+            $httpResponse->fd,
             $httpRequest->server['request_method'],
             $httpRequest->server['request_uri'],
             $response->getStatusCode()
         );
+        $this->di->remove('response');
+        $response = null;
         $this->io->writeln($info);
     }
 

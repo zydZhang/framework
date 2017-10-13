@@ -18,7 +18,7 @@ use Eelly\Application\ApplicationConst;
 /**
  * @author hehui<hehui@eelly.net>
  */
-class ServiceResponse extends Response
+class Psr7ServiceResponse extends Response
 {
     public function __construct(
         $status = 200,
