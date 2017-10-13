@@ -75,16 +75,16 @@ class ServiceApplication extends Injectable
         try {
             $this->application->handle($uri);
         } catch (LogicException $e) {
-            $this->response = $this->response->withHeader('returnType', get_class($e));
+            $this->response = $this->response->setHeader('returnType', get_class($e));
             $content = ['error' => $e->getMessage(), 'returnType' => get_class($e)];
             $content['context'] = $e->getContext();
             $this->response = $this->response->setJsonContent($content);
         } catch (RequestException $e) {
             $response = $e->getResponse();
         } catch (OAuthServerException $e) {
-            $this->response = $this->response->withStatus($e->getHttpStatusCode());
+            $this->response = $this->response->setStatusCode($e->getHttpStatusCode());
             // TODO RFC 6749, section 5.2 Add "WWW-Authenticate" header
-            $this->response = $this->response->withJsonContent([
+            $this->response = $this->response->setJsonContent([
                 'error'   => $e->getErrorType(),
                 'message' => $e->getMessage(),
                 'hint'    => $e->getHint(),
