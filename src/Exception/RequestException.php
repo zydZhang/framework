@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Eelly\Exception;
 
+use Eelly\Application\ApplicationConst;
 use Phalcon\Http\RequestInterface;
 use Phalcon\Http\ResponseInterface;
 
@@ -115,11 +116,18 @@ class RequestException extends \RuntimeException
             $message = self::STATUSCODES[$code];
         }
         parent::__construct($message, $code, $previous);
-        $response->setStatusCode($code);
-        $response->setJsonContent(['error' => $message]);
         $this->request = $request;
-        $this->response = $response;
         $this->handlerContext = $handlerContext;
+        $response->setStatusCode($code);
+        $content = ['error' => $message];
+        switch (ApplicationConst::$env) {
+            case ApplicationConst::ENV_TEST:
+            case ApplicationConst::ENV_DEVELOPMENT:
+                $content['context'] = $handlerContext;
+                break;
+        }
+        $response->setJsonContent($content);
+        $this->response = $response;
     }
 
     public function getResponse()

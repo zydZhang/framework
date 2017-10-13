@@ -73,18 +73,18 @@ class ServiceApplication extends Injectable
     public function handle($uri = null)
     {
         try {
-            $this->application->handle($uri);
+            $response = $this->application->handle($uri);
         } catch (LogicException $e) {
-            $this->response = $this->response->setHeader('returnType', get_class($e));
+            $response = $this->response->setHeader('returnType', get_class($e));
             $content = ['error' => $e->getMessage(), 'returnType' => get_class($e)];
             $content['context'] = $e->getContext();
-            $this->response = $this->response->setJsonContent($content);
+            $response = $response->setJsonContent($content);
         } catch (RequestException $e) {
             $response = $e->getResponse();
         } catch (OAuthServerException $e) {
-            $this->response = $this->response->setStatusCode($e->getHttpStatusCode());
+            $response = $this->response->setStatusCode($e->getHttpStatusCode());
             // TODO RFC 6749, section 5.2 Add "WWW-Authenticate" header
-            $this->response = $this->response->setJsonContent([
+            $response->setJsonContent([
                 'error'   => $e->getErrorType(),
                 'message' => $e->getMessage(),
                 'hint'    => $e->getHint(),
@@ -92,8 +92,7 @@ class ServiceApplication extends Injectable
         } catch (ErrorException $e) {
             //...
         }
-
-        return $this->response;
+        return $response;
     }
 
     /**
@@ -134,7 +133,7 @@ class ServiceApplication extends Injectable
                     ['data' => $returnedValue, 'returnType' => gettype($returnedValue)]
                 );
                 if (is_string($returnedValue)) {
-                    $dispatcher->setReturnedValue($this->response->getBody());
+                    $dispatcher->setReturnedValue($this->response->getContent());
                 }
             }
         });
