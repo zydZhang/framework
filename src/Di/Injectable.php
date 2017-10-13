@@ -69,6 +69,34 @@ abstract class Injectable extends DiInjectable implements InjectionAwareInterfac
     }
 
     /**
+     * Register mongo service.
+     */
+    public function registerMongoService(): void
+    {
+        $di = $this->getDI();
+        $mongodbConfig = $di->getModuleConfig()['mongodb'];
+        foreach ($mongodbConfig as $key => $value) {
+            $di->setShared('mongo_'.$key, [
+                'className' => \MongoDB\Client::class,
+                'arguments' => [
+                    [
+                        'type'  => 'parameter',
+                        'value' => $value['uri'],
+                    ],
+                    [
+                        'type'  => 'parameter',
+                        'value' => $value['uriOptions']->toArray(),
+                    ],
+                    [
+                        'type'  => 'parameter',
+                        'value' => $value['driverOptions']->toArray(),
+                    ],
+                ],
+            ]);
+        }
+    }
+
+    /**
      * Register queue service.
      */
     public function registerQueueService(): void
