@@ -54,40 +54,40 @@ class Handlebars extends Engine implements EngineInterface
         if (!isset($params['content'])) {
             $params['content'] = $this->_view->getContent();
         }
-        
+
         //编译文件命名
         $compiledFile = $path.'.php';
-        
+
         //判断文件是否存在
         if (!file_exists($compiledFile)) {
             //获取模板文件的内容，然后处理
             $phpStr = LightnCandy::compile(file_get_contents($path), [
-                'flags' => LightnCandy::FLAG_HANDLEBARSJS,
+                'flags'   => LightnCandy::FLAG_HANDLEBARSJS,
                 'helpers' => [
                     'list' => function ($context, $options) {
                         $out = '';
                         $data = $options['data'];
-                
+
                         foreach ($context as $idx => $cx) {
                             $data['index'] = $idx;
-                            $out .= $options['fn']($cx, Array('data' => $data));
+                            $out .= $options['fn']($cx, ['data' => $data]);
                         }
-                
+
                         return $out;
                     },
                     'addIndex' => function ($num) {
-                        return $num*1 + 1;
-                    }
-                ]
+                        return $num * 1 + 1;
+                    },
+                ],
             ]);
-            
+
             //生成编译文件
-            file_put_contents($compiledFile, '<?php ' . $phpStr . '?>');
+            file_put_contents($compiledFile, '<?php '.$phpStr.'?>');
         }
-        
+
         //引进编译文件
-        $renderer = include($compiledFile);
-        
+        $renderer = include $compiledFile;
+
         if ($mustClean) {
             $this->_view->setContent($renderer($params));
         } else {
