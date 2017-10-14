@@ -59,7 +59,6 @@ class ServiceApplication extends Injectable
         foreach ($config->appBundles as $bundle) {
             $di->getShared($bundle->class, $bundle->params)->register();
         }
-        $this->application->useImplicitView(false);
         $this->application->registerModules($this->config->modules->toArray());
 
         return $this;

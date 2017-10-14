@@ -17,8 +17,6 @@ use Eelly\Application\ApplicationConst;
 use Eelly\Error\Handler as ErrorHandler;
 use Eelly\Exception\LogicException;
 use Eelly\Exception\RequestException;
-use Eelly\Http\PhalconServiceResponse;
-use Eelly\Http\Response;
 use Eelly\Http\Server;
 use Eelly\Http\SwoolePhalconRequest;
 use Eelly\Http\Traits\RequestTrait;
@@ -52,7 +50,7 @@ class HttpServerListener extends AbstractListener
 
     public function onStart(Server $server): void
     {
-        $info = sprintf('%s start on %s:%d', formatTime($this->defaultTimezone), $server->host, $server->port);
+        $info = sprintf('%s start on <info>%s:%d</info>', formatTime($this->defaultTimezone), $server->host, $server->port);
         $this->io->writeln($info);
         $masterPid = $server->master_pid;
         $managerPid = $server->manager_pid;
@@ -92,7 +90,6 @@ class HttpServerListener extends AbstractListener
         foreach ($config->appBundles as $bundle) {
             $di->getShared($bundle->class, $bundle->params)->register();
         }
-        $this->application->useImplicitView(false);
         $modules = [
             $module => [
                 'className' => ucfirst($module).'\\Module',
@@ -118,9 +115,9 @@ class HttpServerListener extends AbstractListener
         $phalconHttpRequest = $this->di->get('request');
         $phalconHttpRequest->initialWithSwooleHttpRequest($swooleHttpRequest);
         // TODO
-        $response = new PhalconServiceResponse();
-        $this->di->set('response', $response);
-        $this->convertSwooleRequestToPhalconRequest($httpRequest, $request);
+        $response = $this->application->handle();
+
+        return;
 
         try {
             $response = $this->application->handle();
@@ -141,20 +138,16 @@ class HttpServerListener extends AbstractListener
         } catch (ErrorException $e) {
             //...
         }
-        $this->convertPhalconResponseToSwooleResponse($response, $httpResponse);
         $content = $response->getContent();
-
-        $httpResponse->end($content);
+        $swooleHttpResponse->end($content);
         $info = sprintf(
             '[%s] %d "%s %s %d"',
             formatTime($this->defaultTimezone),
-            $httpResponse->fd,
-            $httpRequest->server['request_method'],
-            $httpRequest->server['request_uri'],
+            $swooleHttpResponse->fd,
+            $swooleHttpRequest->server['request_method'],
+            $swooleHttpRequest->server['request_uri'],
             $response->getStatusCode()
         );
-        $this->di->remove('response');
-        $response = null;
         $this->io->writeln($info);
     }
 
