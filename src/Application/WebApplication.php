@@ -58,6 +58,7 @@ class WebApplication extends Injectable
      */
     public function handle($uri = null)
     {
+        $this->application->useImplicitView(true);
         $response = $this->application->handle($uri);
 
         return $response;
