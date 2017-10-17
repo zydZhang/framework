@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Eelly\Mvc\View\Engine;
 
 use Eelly\Mvc\View;
+use Handlebars\Loader\FilesystemLoader;
 use LightnCandy\LightnCandy;
 use Phalcon\DiInterface;
 use Phalcon\Mvc\View\Engine;
@@ -29,7 +30,7 @@ class Handlebars extends Engine implements EngineInterface
     /**
      * @var \Handlebars_Engine
      */
-    protected $mustache;
+    protected $handlebars;
 
     /**
      * {@inheritdoc}
@@ -39,6 +40,15 @@ class Handlebars extends Engine implements EngineInterface
      */
     public function __construct(View $view, DiInterface $di = null)
     {
+        
+        $this->handlebars = new \Handlebars\Handlebars([
+            'loader' => new FilesystemLoader('', ['extension' => 'hbs']),
+            'partials_loader' => new FilesystemLoader($view->getViewsDir().'/',['extension' => 'hbs'])
+        ]);
+        
+        $this->handlebars->addHelper('startInexd', new View\Engine\Handlebars\Helper\StartInexdHelper());
+        $this->handlebars->addHelper('isEven', new View\Engine\Handlebars\Helper\IsEvenHelper());
+        
         parent::__construct($view, $di);
     }
 
@@ -54,44 +64,12 @@ class Handlebars extends Engine implements EngineInterface
         if (!isset($params['content'])) {
             $params['content'] = $this->_view->getContent();
         }
-
-        //编译文件命名
-        $compiledFile = $path.'.php';
-
-        //判断文件是否存在
-        if (!file_exists($compiledFile)) {
-            //获取模板文件的内容，然后处理
-            $phpStr = LightnCandy::compile(file_get_contents($path), [
-                'flags'   => LightnCandy::FLAG_HANDLEBARSJS,
-                'helpers' => [
-                    'list' => function ($context, $options) {
-                        $out = '';
-                        $data = $options['data'];
-
-                        foreach ($context as $idx => $cx) {
-                            $data['index'] = $idx;
-                            $out .= $options['fn']($cx, ['data' => $data]);
-                        }
-
-                        return $out;
-                    },
-                    'addIndex' => function ($num) {
-                        return $num * 1 + 1;
-                    },
-                ],
-            ]);
-
-            //生成编译文件
-            file_put_contents($compiledFile, '<?php '.$phpStr.'?>');
-        }
-
-        //引进编译文件
-        $renderer = include $compiledFile;
+        $content = $this->handlebars->render($path, $params);
 
         if ($mustClean) {
-            $this->_view->setContent($renderer($params));
+            $this->_view->setContent($content);
         } else {
-            echo $renderer($params);
+            echo $content;
         }
     }
 }
