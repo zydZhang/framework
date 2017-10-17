@@ -109,7 +109,7 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
         $eventsManager = $this->eventsManager;
         $eventsManager->enablePriorities(true);
         // token 校验
-        $eventsManager->attach('dispatch', $di->getShared(ValidateAccessTokenListener::class), 10000);
+        //$eventsManager->attach('dispatch', $di->getShared(ValidateAccessTokenListener::class), 10000);
         // attach events
         $this->attachUserEvents($di);
     }

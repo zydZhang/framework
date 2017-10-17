@@ -27,4 +27,20 @@ class Router extends MvcRouter
     {
         $this->_params = $params;
     }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @see \Phalcon\Mvc\Router::getRewriteUri()
+     */
+    public function getRewriteUri()
+    {
+        $url = $_SERVER['REQUEST_URI'];
+        $urlParts = explode('?', $url);
+        if (!empty($urlParts[0])) {
+            return $urlParts[0];
+        }
+
+        return '/';
+    }
 }

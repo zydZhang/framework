@@ -15,15 +15,11 @@ namespace Eelly\Events\Listener;
 
 use Eelly\Application\ApplicationConst;
 use Eelly\Error\Handler as ErrorHandler;
-use Eelly\Exception\LogicException;
-use Eelly\Exception\RequestException;
 use Eelly\Http\Server;
 use Eelly\Http\SwoolePhalconRequest;
 use Eelly\Http\Traits\RequestTrait;
 use Eelly\Http\Traits\ResponseTrait;
 use Eelly\Mvc\Application as MvcApplication;
-use ErrorException;
-use League\OAuth2\Server\Exception\OAuthServerException;
 use Phalcon\Di;
 use swoole_http_request as SwooleHttpRequest;
 use swoole_http_response as SwooleHttpResponse;
@@ -97,6 +93,14 @@ class HttpServerListener extends AbstractListener
             ],
         ];
         $this->application->registerModules($modules);
+        // start module
+        require $modules[$module]['path'];
+        $moduleObject = $di->get($modules[$module]['className']);
+        /*
+         * 'registerAutoloaders' and 'registerServices' are automatically called
+         */
+        $moduleObject->registerAutoloaders($di);
+        $moduleObject->registerServices($di);
     }
 
     public function onWorkerStop(): void
@@ -114,30 +118,7 @@ class HttpServerListener extends AbstractListener
         /* @var SwoolePhalconRequest  $phalconHttpRequest */
         $phalconHttpRequest = $this->di->get('request');
         $phalconHttpRequest->initialWithSwooleHttpRequest($swooleHttpRequest);
-        // TODO
         $response = $this->application->handle();
-
-        return;
-
-        try {
-            $response = $this->application->handle();
-        } catch (LogicException $e) {
-            $response->setHeader('returnType', get_class($e));
-            $content = ['error' => $e->getMessage(), 'returnType' => get_class($e)];
-            $content['context'] = $e->getContext();
-            $response->setJsonContent($content);
-        } catch (RequestException $e) {
-            // ...
-        } catch (OAuthServerException $e) {
-            // TODO RFC 6749, section 5.2 Add "WWW-Authenticate" header
-            $response->setJsonContent([
-                'error'   => $e->getErrorType(),
-                'message' => $e->getMessage(),
-                'hint'    => $e->getHint(),
-            ]);
-        } catch (ErrorException $e) {
-            //...
-        }
         $content = $response->getContent();
         $swooleHttpResponse->end($content);
         $info = sprintf(
