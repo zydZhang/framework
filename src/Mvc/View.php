@@ -22,7 +22,7 @@ class View extends MvcView
 {
     public function afterServiceResolve(): void
     {
-        $this->setViewsDir('resource/views');
+        $this->setViewsDir('var/views');
         $this->registerEngines(
             [
                 //'.phtml'   => 'Phalcon\Mvc\View\Engine\Php',
