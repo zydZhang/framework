@@ -15,7 +15,6 @@ namespace Eelly\Mvc\View\Engine;
 
 use Eelly\Mvc\View;
 use Handlebars\Loader\FilesystemLoader;
-use LightnCandy\LightnCandy;
 use Phalcon\DiInterface;
 use Phalcon\Mvc\View\Engine;
 use Phalcon\Mvc\View\EngineInterface;
@@ -40,15 +39,14 @@ class Handlebars extends Engine implements EngineInterface
      */
     public function __construct(View $view, DiInterface $di = null)
     {
-        
         $this->handlebars = new \Handlebars\Handlebars([
-            'loader' => new FilesystemLoader('', ['extension' => 'hbs']),
-            'partials_loader' => new FilesystemLoader($view->getViewsDir().'/',['extension' => 'hbs'])
+            'loader'          => new FilesystemLoader('', ['extension' => 'hbs']),
+            'partials_loader' => new FilesystemLoader($view->getViewsDir().'/', ['extension' => 'hbs']),
         ]);
-        
+
         $this->handlebars->addHelper('startInexd', new View\Engine\Handlebars\Helper\StartInexdHelper());
         $this->handlebars->addHelper('isEven', new View\Engine\Handlebars\Helper\IsEvenHelper());
-        
+
         parent::__construct($view, $di);
     }
 
