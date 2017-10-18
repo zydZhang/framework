@@ -84,7 +84,6 @@ class ValidateAccessTokenListener extends AbstractListener
             // Ensure access token hasn't expired
             $data = new ValidationData();
             $data->setCurrentTime(time());
-
             if ($token->validate($data) === false) {
                 throw OAuthServerException::accessDenied('Access token is invalid');
             }

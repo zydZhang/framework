@@ -20,7 +20,6 @@ use Eelly\Http\SwoolePhalconRequest;
 use Eelly\Http\Traits\RequestTrait;
 use Eelly\Http\Traits\ResponseTrait;
 use Eelly\Mvc\Application as MvcApplication;
-use Phalcon\Di;
 use swoole_http_request as SwooleHttpRequest;
 use swoole_http_response as SwooleHttpResponse;
 use Symfony\Component\Console\Input\InputInterface;
@@ -178,14 +177,6 @@ class HttpServerListener extends AbstractListener
          * @var \Phalcon\Events\Manager
          */
         $eventsManager = $this->eventsManager;
-        $eventsManager->attach('di:afterServiceResolve', function (\Phalcon\Events\Event $event, \Phalcon\Di $di, array $service): void {
-            if ($service['instance'] instanceof \Phalcon\Events\EventsAwareInterface) {
-                $service['instance']->setEventsManager($di->getEventsManager());
-            }
-            if (method_exists($service['instance'], 'afterServiceResolve')) {
-                $service['instance']->afterServiceResolve();
-            }
-        });
         $eventsManager->attach('dispatch:afterDispatchLoop', function (\Phalcon\Events\Event $event, \Phalcon\Mvc\Dispatcher $dispatcher): void {
             $returnedValue = $dispatcher->getReturnedValue();
             if (is_object($returnedValue)) {
@@ -207,7 +198,6 @@ class HttpServerListener extends AbstractListener
             }
         });
         $this->application->setEventsManager($eventsManager);
-        $this->di->setInternalEventsManager($eventsManager);
 
         return $this;
     }
