@@ -22,7 +22,6 @@ use Eelly\Mvc\Application;
 use ErrorException;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Phalcon\Config;
-use Phalcon\Di;
 
 /**
  * @property \Eelly\Mvc\Application $application
@@ -109,14 +108,6 @@ class ServiceApplication extends Injectable
          * @var \Phalcon\Events\Manager
          */
         $eventsManager = $this->eventsManager;
-        $eventsManager->attach('di:afterServiceResolve', function (\Phalcon\Events\Event $event, \Phalcon\Di $di, array $service): void {
-            if ($service['instance'] instanceof \Phalcon\Events\EventsAwareInterface) {
-                $service['instance']->setEventsManager($di->getEventsManager());
-            }
-            if (method_exists($service['instance'], 'afterServiceResolve')) {
-                $service['instance']->afterServiceResolve();
-            }
-        });
         $eventsManager->attach('dispatch:afterDispatchLoop', function (\Phalcon\Events\Event $event, \Phalcon\Mvc\Dispatcher $dispatcher): void {
             $returnedValue = $dispatcher->getReturnedValue();
             if (is_object($returnedValue)) {
@@ -138,7 +129,6 @@ class ServiceApplication extends Injectable
             }
         });
         $this->application->setEventsManager($eventsManager);
-        $this->di->setInternalEventsManager($eventsManager);
 
         return $this;
     }

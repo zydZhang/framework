@@ -57,8 +57,6 @@ class ConsoleApplication extends Injectable
         $errorHandler = $di->getShared(ErrorHandler::class);
         $errorHandler->register();
 
-        $this->initEventsManager();
-
         return $this;
     }
 
@@ -72,24 +70,5 @@ class ConsoleApplication extends Injectable
     public function run(): void
     {
         $this->initialize()->handle()->run();
-    }
-
-    private function initEventsManager(): void
-    {
-        /**
-         * @var \Phalcon\Events\Manager $eventsManager
-         */
-        $eventsManager = $this->di->getEventsManager();
-        $eventsManager->attach('di:afterServiceResolve', function (\Phalcon\Events\Event $event, \Phalcon\Di $di, array $service): void {
-            if ($service['instance'] instanceof \Phalcon\Events\EventsAwareInterface) {
-                $service['instance']->setEventsManager($di->getEventsManager());
-            }
-            if (method_exists($service['instance'], 'afterServiceResolve')) {
-                $service['instance']->afterServiceResolve();
-            }
-        });
-
-        $this->di->setInternalEventsManager($eventsManager);
-        $eventDispatcher = new EventDispatcher();
     }
 }
