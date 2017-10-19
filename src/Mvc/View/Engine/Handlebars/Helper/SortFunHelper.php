@@ -1,19 +1,14 @@
 <?php
-/**
- * This file is part of Handlebars-php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of eelly package.
  *
- * PHP version 5.3
+ * (c) eelly.com
  *
- * @category  Xamin
- * @package   Handlebars
- * @author    fzerorubigd <fzerorubigd@gmail.com>
- * @author    Behrooz Shabani <everplays@gmail.com>
- * @author    Dmitriy Simushev <simushevds@gmail.com>
- * @author    Jeff Turcotte <jeff.turcotte@gmail.com>
- * @copyright 2014 Authors
- * @license   MIT <http://opensource.org/licenses/MIT>
- * @version   GIT: $Id$
- * @link      http://xamin.ir
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Eelly\Mvc\View\Engine\Handlebars\Helper;
@@ -23,23 +18,24 @@ use Handlebars\Helper;
 use Handlebars\Template;
 
 /**
- * Handlebars halper interface
+ * Handlebars halper interface.
  *
  * @category  Xamin
- * @package   Handlebars
+ *
  * @author    fzerorubigd <fzerorubigd@gmail.com>
  * @author    Behrooz Shabani <everplays@gmail.com>
  * @author    Dmitriy Simushev <simushevds@gmail.com>
  * @author    Jeff Turcotte <jeff.turcotte@gmail.com>
  * @copyright 2014 Authors
  * @license   MIT <http://opensource.org/licenses/MIT>
+ *
  * @version   Release: @package_version@
  * @link      http://xamin.ir*/
- 
+
 class SortFunHelper implements Helper
 {
     /**
-     * Execute the helper
+     * Execute the helper.
      *
      * @param \Handlebars\Template  $template The template instance
      * @param \Handlebars\Context   $context  The current context
@@ -53,9 +49,9 @@ class SortFunHelper implements Helper
         $buffer = '';
         $parsedArgs = $template->parseArguments($args);
         $firstArg = $context->get($parsedArgs[0]);
-        $secondArg = (string)$parsedArgs[1];  //要排序的字段
-        $thirdArg = (string)$parsedArgs[2] ? (string)$parsedArgs[2] : 'asc';
-        
+        $secondArg = (string) $parsedArgs[1];  //要排序的字段
+        $thirdArg = (string) $parsedArgs[2] ? (string) $parsedArgs[2] : 'asc';
+
         if (is_array($firstArg) && !empty($firstArg)) {
             $newData = $listData = [];
             foreach ($firstArg as $fkey => $fval) {
@@ -78,7 +74,7 @@ class SortFunHelper implements Helper
                     }
                 }
             }
-            
+
             //生成标签
             foreach ($listData as $lkey => $lval) {
                 $lval['indexNum'] = $lkey;
@@ -89,14 +85,13 @@ class SortFunHelper implements Helper
                 $context->pop();
                 $context->popSpecialVariables();
             }
-            
         } else {
             $template->setStopToken('else');
             $template->discard();
             $template->setStopToken(false);
             $buffer = $template->render($context);
         }
-        
+
         return $buffer;
     }
 }
