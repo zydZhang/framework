@@ -46,7 +46,10 @@ class Handlebars extends Engine implements EngineInterface
 
         $this->handlebars->addHelper('startInexd', new View\Engine\Handlebars\Helper\StartInexdHelper());
         $this->handlebars->addHelper('isEven', new View\Engine\Handlebars\Helper\IsEvenHelper());
-
+        $this->handlebars->addHelper('compare', new View\Engine\Handlebars\Helper\CompareHelper());
+        $this->handlebars->addHelper('formatTime', new View\Engine\Handlebars\Helper\FormatTimeHelper());
+        $this->handlebars->addHelper('sortFun', new View\Engine\Handlebars\Helper\SortFunHelper());
+        
         parent::__construct($view, $di);
     }
 
