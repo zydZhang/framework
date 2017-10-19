@@ -1,19 +1,14 @@
 <?php
-/**
- * This file is part of Handlebars-php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of eelly package.
  *
- * PHP version 5.3
+ * (c) eelly.com
  *
- * @category  Xamin
- * @package   Handlebars
- * @author    fzerorubigd <fzerorubigd@gmail.com>
- * @author    Behrooz Shabani <everplays@gmail.com>
- * @author    Dmitriy Simushev <simushevds@gmail.com>
- * @author    Jeff Turcotte <jeff.turcotte@gmail.com>
- * @copyright 2014 Authors
- * @license   MIT <http://opensource.org/licenses/MIT>
- * @version   GIT: $Id$
- * @link      http://xamin.ir
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Eelly\Mvc\View\Engine\Handlebars\Helper;
@@ -23,23 +18,24 @@ use Handlebars\Helper;
 use Handlebars\Template;
 
 /**
- * Handlebars halper interface
+ * Handlebars halper interface.
  *
  * @category  Xamin
- * @package   Handlebars
+ *
  * @author    fzerorubigd <fzerorubigd@gmail.com>
  * @author    Behrooz Shabani <everplays@gmail.com>
  * @author    Dmitriy Simushev <simushevds@gmail.com>
  * @author    Jeff Turcotte <jeff.turcotte@gmail.com>
  * @copyright 2014 Authors
  * @license   MIT <http://opensource.org/licenses/MIT>
+ *
  * @version   Release: @package_version@
  * @link      http://xamin.ir*/
- 
+
 class FormatTimeHelper implements Helper
 {
     /**
-     * Execute the helper
+     * Execute the helper.
      *
      * @param \Handlebars\Template  $template The template instance
      * @param \Handlebars\Context   $context  The current context
@@ -53,29 +49,29 @@ class FormatTimeHelper implements Helper
         $parsedArgs = $template->parseArguments($args);
         $first = $context->get($parsedArgs[0]);
         $second = $context->get($parsedArgs[1]);
-        $time = $second == '' ? time() : (int)$second;
-    
-        $stringTime = (string)$time;
+        $time = $second == '' ? time() : (int) $second;
+
+        $stringTime = (string) $time;
         if (strlen($stringTime) >= 13) {
-            $time = (int)$time/1000;
+            $time = (int) $time / 1000;
         }
         $typeArr = [
-            'yyyy-MM-dd hh:mm:ss' => 'Y-m-d H:i:s',
-            'yyyy-MM-dd hh:mm' => 'Y-m-d H:i',
-            'yyyy-MM-dd hh' => 'Y-m-d H',
-            'yyyy-MM-dd' => 'Y-m-d',
-            'yyyy-MM' => 'Y-m',
-            'yyyy' => 'Y',
+            'yyyy-MM-dd hh:mm:ss'  => 'Y-m-d H:i:s',
+            'yyyy-MM-dd hh:mm'     => 'Y-m-d H:i',
+            'yyyy-MM-dd hh'        => 'Y-m-d H',
+            'yyyy-MM-dd'           => 'Y-m-d',
+            'yyyy-MM'              => 'Y-m',
+            'yyyy'                 => 'Y',
             'yyyy年MM月dd日 hh:mm:ss' => 'Y年-m月-d日 H:i:s',
-            'yyyy年MM月dd日 hh:mm' => 'Y年-m月-d日 H:i',
-            'yyyy年MM月dd日 hh' => 'Y年-m月-d日 H',
-            'yyyy年MM月dd日' => 'Y年-m月-d日',
-            'yyyy年MM月' => 'Y年-m月',
-            'yyyy年' => 'Y年',
+            'yyyy年MM月dd日 hh:mm'    => 'Y年-m月-d日 H:i',
+            'yyyy年MM月dd日 hh'       => 'Y年-m月-d日 H',
+            'yyyy年MM月dd日'          => 'Y年-m月-d日',
+            'yyyy年MM月'             => 'Y年-m月',
+            'yyyy年'                => 'Y年',
         ];
-    
-        $formatChar =  isset($typeArr[$first]) ? $typeArr[$first] : 'Y-m-d H:i:s';
-    
+
+        $formatChar = isset($typeArr[$first]) ? $typeArr[$first] : 'Y-m-d H:i:s';
+
         return date($formatChar, $time);
     }
 }

@@ -1,19 +1,14 @@
 <?php
-/**
- * This file is part of Handlebars-php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of eelly package.
  *
- * PHP version 5.3
+ * (c) eelly.com
  *
- * @category  Xamin
- * @package   Handlebars
- * @author    fzerorubigd <fzerorubigd@gmail.com>
- * @author    Behrooz Shabani <everplays@gmail.com>
- * @author    Dmitriy Simushev <simushevds@gmail.com>
- * @author    Jeff Turcotte <jeff.turcotte@gmail.com>
- * @copyright 2014 Authors
- * @license   MIT <http://opensource.org/licenses/MIT>
- * @version   GIT: $Id$
- * @link      http://xamin.ir
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Eelly\Mvc\View\Engine\Handlebars\Helper;
@@ -23,23 +18,24 @@ use Handlebars\Helper;
 use Handlebars\Template;
 
 /**
- * Handlebars halper interface
+ * Handlebars halper interface.
  *
  * @category  Xamin
- * @package   Handlebars
+ *
  * @author    fzerorubigd <fzerorubigd@gmail.com>
  * @author    Behrooz Shabani <everplays@gmail.com>
  * @author    Dmitriy Simushev <simushevds@gmail.com>
  * @author    Jeff Turcotte <jeff.turcotte@gmail.com>
  * @copyright 2014 Authors
  * @license   MIT <http://opensource.org/licenses/MIT>
+ *
  * @version   Release: @package_version@
  * @link      http://xamin.ir*/
- 
+
 class CompareHelper implements Helper
 {
     /**
-     * Execute the helper
+     * Execute the helper.
      *
      * @param \Handlebars\Template  $template The template instance
      * @param \Handlebars\Context   $context  The current context
@@ -51,32 +47,32 @@ class CompareHelper implements Helper
     public function execute(Template $template, Context $context, $args, $source)
     {
         $parsedArgs = $template->parseArguments($args);
-        $firstArgs = $context->get($parsedArgs[0]) === '' ? (int)$parsedArgs[0] : (int)$context->get($parsedArgs[0]);
-        $secondArgs = (string)$parsedArgs[1];
-        $thirdArgs = (string)$parsedArgs[2];
+        $firstArgs = $context->get($parsedArgs[0]) === '' ? (int) $parsedArgs[0] : (int) $context->get($parsedArgs[0]);
+        $secondArgs = (string) $parsedArgs[1];
+        $thirdArgs = (string) $parsedArgs[2];
         $result = $buffer = '';
-        
+
         switch ($secondArgs) {
-            case '>' :
+            case '>':
                 $result = $firstArgs > $thirdArgs ? true : false;
                 break;
-            case '>=' :
+            case '>=':
                 $result = $firstArgs >= $thirdArgs ? true : false;
                 break;
-            case '<' :
+            case '<':
                 $result = $firstArgs < $thirdArgs ? true : false;
                 break;
-            case '<=' :
+            case '<=':
                 $result = $firstArgs <= $thirdArgs ? true : false;
                 break;
-            case '==' :
+            case '==':
                 $result = $firstArgs == $thirdArgs ? true : false;
                 break;
-            default :
+            default:
                 $result = false;
                 break;
         }
-    
+
         if ($result) {
             $template->setStopToken('else');
             $buffer = $template->render($context);
@@ -88,7 +84,7 @@ class CompareHelper implements Helper
             $template->setStopToken(false);
             $buffer = $template->render($context);
         }
-        
+
         return $buffer;
     }
 }
