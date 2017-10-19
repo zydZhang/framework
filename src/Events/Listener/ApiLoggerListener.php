@@ -70,27 +70,19 @@ class ApiLoggerListener extends AbstractListener
     }
 
     /**
-     * 添加白名单.
-     *
-     * @param string $whiteName
-     */
-    public function pushWhiteName(string $whiteName): void
-    {
-        array_push($this->whiteNameList, $whiteName);
-    }
-
-    /**
      * @param Event       $event
      * @param Application $application
      * @param Dispatcher  $dispatcher
      */
     public function beforeHandleRequest(Event $event, Application $application, Dispatcher $dispatcher): void
     {
-        $needle = $dispatcher->getControllerClass().'::'.$dispatcher->getActionName();
+        $controllerClass = $dispatcher->getControllerClass();
+        $actionName = $dispatcher->getActionName();
+        $needle = $controllerClass.'::'.$actionName;
         if (in_array($needle, $this->whiteNameList)) {
             return;
         }
-        $controllerName = $dispatcher->getControllerClass();
+
         $request = $this->request;
         // 添加跟踪id
         $this->traceId = $request->getHeader('traceId');
@@ -113,8 +105,8 @@ class ApiLoggerListener extends AbstractListener
         $this->requestData['method'] = $request->getMethod();
         $this->requestData['post'] = $request->getPost();
         $this->requestData['moduleName'] = $dispatcher->getModuleName();
-        $this->requestData['controllerClass'] = $dispatcher->getControllerClass();
-        $this->requestData['actionName'] = $dispatcher->getActionName();
+        $this->requestData['controllerClass'] = $controllerClass;
+        $this->requestData['actionName'] = $actionName;
         $this->requestData['params'] = $this->router->getParams();
         $this->requestData['appEnv'] = ApplicationConst::$env;
     }
