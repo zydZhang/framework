@@ -58,12 +58,38 @@ class ApiLoggerListener extends AbstractListener
     private $extrasData;
 
     /**
+     * 白名单.
+     *
+     * @var array
+     */
+    private $whiteNameList;
+
+    public function __construct(array $whiteNameList = [])
+    {
+        $this->whiteNameList = $whiteNameList;
+    }
+
+    /**
+     * 添加白名单.
+     *
+     * @param string $whiteName
+     */
+    public function pushWhiteName(string $whiteName): void
+    {
+        array_push($this->whiteNameList, $whiteName);
+    }
+
+    /**
      * @param Event       $event
      * @param Application $application
      * @param Dispatcher  $dispatcher
      */
     public function beforeHandleRequest(Event $event, Application $application, Dispatcher $dispatcher): void
     {
+        $needle = $dispatcher->getControllerClass().'::'.$dispatcher->getActionName();
+        if (in_array($needle, $this->whiteNameList)) {
+            return;
+        }
         $controllerName = $dispatcher->getControllerClass();
         $request = $this->request;
         // 添加跟踪id
@@ -78,7 +104,6 @@ class ApiLoggerListener extends AbstractListener
             }
         }
         $this->eellyClient->setTraceId($this->traceId);
-
         $this->requestData = [];
         $this->requestData['requestTime'] = $this->config->requestTime;
         $this->requestData['clientAddress'] = $request->getClientAddress(true);
