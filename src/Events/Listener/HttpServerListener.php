@@ -15,11 +15,14 @@ namespace Eelly\Events\Listener;
 
 use Eelly\Application\ApplicationConst;
 use Eelly\Error\Handler as ErrorHandler;
+use Eelly\Exception\RequestException;
 use Eelly\Http\Server;
 use Eelly\Http\SwoolePhalconRequest;
 use Eelly\Http\Traits\RequestTrait;
 use Eelly\Http\Traits\ResponseTrait;
 use Eelly\Mvc\Application as MvcApplication;
+use ErrorException;
+use League\OAuth2\Server\Exception\OAuthServerException;
 use swoole_http_request as SwooleHttpRequest;
 use swoole_http_response as SwooleHttpResponse;
 use Symfony\Component\Console\Input\InputInterface;
@@ -117,8 +120,35 @@ class HttpServerListener extends AbstractListener
         /* @var SwoolePhalconRequest  $phalconHttpRequest */
         $phalconHttpRequest = $this->di->get('request');
         $phalconHttpRequest->initialWithSwooleHttpRequest($swooleHttpRequest);
-        $response = $this->application->handle();
+
+        try {
+            /* @var \Phalcon\Http\Response $response */
+            $response = $this->application->handle();
+        } catch (LogicException $e) {
+            $response = $this->response->setHeader('returnType', get_class($e));
+            $content = ['error' => $e->getMessage(), 'returnType' => get_class($e)];
+            $content['context'] = $e->getContext();
+            $response = $response->setJsonContent($content);
+        } catch (RequestException $e) {
+            $response = $e->getResponse();
+        } catch (OAuthServerException $e) {
+            $response = $this->response->setStatusCode($e->getHttpStatusCode());
+            // TODO RFC 6749, section 5.2 Add "WWW-Authenticate" header
+            $response->setJsonContent([
+                'error'   => $e->getErrorType(),
+                'message' => $e->getMessage(),
+                'hint'    => $e->getHint(),
+            ]);
+        } catch (ErrorException $e) {
+            //...
+            $response = $this->response;
+        }
         $content = $response->getContent();
+        $headers = $response->getHeaders();
+        $swooleHttpResponse->status($response->getStatusCode());
+        foreach ($headers->toArray() as $key => $value) {
+            $swooleHttpResponse->header($key, (string) $value);
+        }
         $swooleHttpResponse->end($content);
         $info = sprintf(
             '[%s] %d "%s %s %d"',

@@ -22,16 +22,9 @@ use Handlebars\Template;
  *
  * @category  Xamin
  *
- * @author    fzerorubigd <fzerorubigd@gmail.com>
- * @author    Behrooz Shabani <everplays@gmail.com>
- * @author    Dmitriy Simushev <simushevds@gmail.com>
- * @author    Jeff Turcotte <jeff.turcotte@gmail.com>
- * @copyright 2014 Authors
- * @license   MIT <http://opensource.org/licenses/MIT>
- *
- * @version   Release: @package_version@
- * @link      http://xamin.ir*/
-
+ * @author    zhangyingdi <zhangyingdi@eelly.net>
+ * @copyright 2017 Authors
+ **/
 class FormatTimeHelper implements Helper
 {
     /**

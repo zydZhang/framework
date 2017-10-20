@@ -52,4 +52,19 @@ class WebController extends Controller
             $this->view->user = $this->user = $user->getInfo();
         }
     }
+
+    /**
+     * display other template.
+     *
+     * @param string $controller template name
+     * @param string $action     action name
+     */
+    public function sendTemplateRender($controller, $action)
+    {
+        $this->view->render(
+            $controller,
+            $action
+        );
+        $this->response->setContent($this->view->getContent());
+    }
 }
