@@ -24,7 +24,6 @@ use Handlebars\Template;
  *
  * @author    zhangyingdi <zhangyingdi@eelly.net>
  * @copyright 2017 Authors
- *
  **/
 class IsEvenHelper implements Helper
 {
