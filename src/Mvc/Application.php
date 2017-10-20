@@ -93,18 +93,19 @@ class Application extends MvcApplication
                 $returnedResponse = (('object' == gettype($possibleResponse)) && ($possibleResponse instanceof ResponseInterface));
 
                 $eventsManager->fire('application:afterHandleRequest', $this, $controller);
-                $return = $view->render(
+                $view->render(
                     $dispatcher->getControllerName(),
                     $dispatcher->getActionName(),
                     $dispatcher->getParams()
                 );
-                $view->setContent(ob_get_contents());
                 $response = $di->getShared('response');
+                //$content  = $view->getContent();
+                $content = ob_get_contents();
+                $view->finish();
+                $response->setContent($content);
             }
         }
-        $content = $view->getContent();
-        $view->finish();
-        $response->setContent($content);
+        $eventsManager->fire('application:beforeSendResponse', $this, $response);
 
         return $response;
     }
