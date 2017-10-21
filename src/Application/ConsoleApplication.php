@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Eelly\Application;
 
 use Eelly\Console\Application;
+use Eelly\Console\Command\FlushCacheCommand;
 use Eelly\Di\ConsoleDi;
 use Eelly\Di\Injectable;
 use Eelly\Error\Handler as ErrorHandler;
@@ -56,6 +57,10 @@ class ConsoleApplication extends Injectable
 
         $errorHandler = $di->getShared(ErrorHandler::class);
         $errorHandler->register();
+
+        $this->application->addCommands([
+            $di->get(FlushCacheCommand::class),
+        ]);
 
         return $this;
     }
