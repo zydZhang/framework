@@ -215,17 +215,18 @@ abstract class MongoCollection extends PhalconCollection implements Unserializab
     }
 
     /**
-     * {@inheritdoc}
+     * insert many data.
+     *
+     * ```
+     * $data = [
+     *     ['username' => 'admin','email' => 'admin@example.com','name' => 'Admin User'],
+     *     ['username' => 'test','email' => 'test@example.com','name' => 'Test User']
+     * ];
+     * $robot = new Robots();
+     * $robot->insertMany($data);
+     * ```
      *
      * @throws Exception
-     *                   <code>
-     *                   $data = [
-     *                   ['username' => 'admin','email' => 'admin@example.com','name' => 'Admin User'],
-     *                   ['username' => 'test','email' => 'test@example.com','name' => 'Test User']
-     *                   ];
-     *                   $robot = new Robots();
-     *                   $robot->insertMany($data);
-     *                   </code>
      *
      * @return bool
      */
@@ -290,14 +291,14 @@ abstract class MongoCollection extends PhalconCollection implements Unserializab
     /**
      * {@inheritdoc}
      *
-     * <code>
-     *    $robot = Robots::findFirst();
-     *    $robot->delete();
+     * ```
+     * $robot = Robots::findFirst();
+     * $robot->delete();
      *
-     *    foreach (Robots::find() as $robot) {
-     *        $robot->delete();
-     *    }
-     * </code>
+     * foreach (Robots::find() as $robot) {
+     *     $robot->delete();
+     * }
+     * ```
      */
     public function delete()
     {
