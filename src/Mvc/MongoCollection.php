@@ -214,6 +214,80 @@ abstract class MongoCollection extends PhalconCollection implements Unserializab
         return static::_getResultset($parameters, $collection, $connection, true);
     }
 
+
+    /**
+     * {@inheritdoc}
+     *
+     * @throws Exception
+     * <code>
+     * $data = [
+     * ['username' => 'admin','email' => 'admin@example.com','name' => 'Admin User'],
+     * ['username' => 'test','email' => 'test@example.com','name' => 'Test User']
+     * ];
+     * $robot = new Robots();
+     * $robot->insertMany($data);
+     * </code>
+     *
+     * @return bool
+     */
+    public function insertMany(array $data)
+    {
+        $collection = $this->prepareCU();
+        $exists = $this->_exists($collection);
+        if (!$data) {
+            throw new Exception("The document cannot be insertData because it doesn't exist");
+        }
+        $disableEvents = self::$_disableEvents;
+
+        if (!$disableEvents) {
+            if (false === $this->fireEventCancel('beforeInsertMany')) {
+                return false;
+            }
+        }
+        $connection = $this->getConnection();
+
+        $source = $this->getSource();
+        if (empty($source)) {
+            throw new Exception('Method getSource() returns empty string');
+        }
+        $inserData = $this->toArray();
+
+        $tempData = $inserData;
+        if (isset($tempData['created'])) {
+            unset($tempData['created']);
+        }
+        $inserKey = array_keys($tempData);
+        //过滤存在的字段，并且添加时间函数
+        $data = collect($data)->flatMap(function ($item) use ($inserKey,$inserData) {
+            return [collect($item)->only($inserKey)->put('created',$inserData['created'] ?: '')->toArray()];
+        })->toArray();
+
+        /**
+         * Get the Collection.
+         *
+         * @var AdapterCollection
+         */
+        $collection = $connection->selectCollection($source);
+
+        $success = false;
+        /**
+         * insertMany the instance.
+         */
+        $status = $collection->insertMany($data);
+
+        if ($status->isAcknowledged()) {
+            $success = true;
+
+            if (false === $exists) {
+                $this->_dirtyState = self::DIRTY_STATE_PERSISTENT;
+            }
+        }
+        /*
+         * Call the postSave hooks
+         */
+        return $this->_postSave($disableEvents, $success, $exists);
+    }
+
     /**
      * {@inheritdoc}
      *
