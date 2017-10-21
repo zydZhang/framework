@@ -39,6 +39,8 @@ class HttpServerListener extends AbstractListener
 
     private $lock;
 
+    private $server;
+
     public function __construct(InputInterface $input, OutputInterface $output)
     {
         $this->input = $input;
@@ -46,6 +48,11 @@ class HttpServerListener extends AbstractListener
         $this->io = new SymfonyStyle($input, $output);
         $this->defaultTimezone = $this->config->defaultTimezone;
         $this->lock = new \swoole_lock(SWOOLE_MUTEX);
+    }
+
+    public function setServer(Server $server): void
+    {
+        $this->server = $server;
     }
 
     public function onStart(Server $server): void
@@ -165,7 +172,7 @@ class HttpServerListener extends AbstractListener
             $response->getStatusCode(),
             $swooleHttpRequest->header['user-agent']
         );
-        $this->io->writeln($info);
+        $this->server->task($info);
     }
 
     public function onPacket(): void
@@ -184,9 +191,9 @@ class HttpServerListener extends AbstractListener
     {
     }
 
-    public function onTask(): void
+    public function onTask(Server $server, int $taskId, int $workId, $data): void
     {
-        $this->io->writeln(__FUNCTION__);
+        $this->io->writeln($data);
     }
 
     public function onFinish(): void
