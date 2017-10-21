@@ -98,10 +98,13 @@ class Application extends MvcApplication
                     $dispatcher->getActionName(),
                     $dispatcher->getParams()
                 );
+                /* @var \Phalcon\Http\Response $response */
                 $response = $di->getShared('response');
                 //$content  = $view->getContent();
                 $content = ob_get_contents();
                 $view->finish();
+                $response->setStatusCode(200);
+                $response->setContentType('text/html');
                 $response->setContent($content);
             }
         }

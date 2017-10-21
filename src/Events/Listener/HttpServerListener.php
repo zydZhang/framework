@@ -18,8 +18,6 @@ use Eelly\Error\Handler as ErrorHandler;
 use Eelly\Exception\RequestException;
 use Eelly\Http\Server;
 use Eelly\Http\SwoolePhalconRequest;
-use Eelly\Http\Traits\RequestTrait;
-use Eelly\Http\Traits\ResponseTrait;
 use Eelly\Mvc\Application as MvcApplication;
 use ErrorException;
 use League\OAuth2\Server\Exception\OAuthServerException;
@@ -31,12 +29,15 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class HttpServerListener extends AbstractListener
 {
-    use RequestTrait;
-    use ResponseTrait;
     private $input;
+
     private $output;
+
     private $io;
+
     private $defaultTimezone;
+
+    private $lock;
 
     public function __construct(InputInterface $input, OutputInterface $output)
     {
@@ -44,11 +45,12 @@ class HttpServerListener extends AbstractListener
         $this->output = $output;
         $this->io = new SymfonyStyle($input, $output);
         $this->defaultTimezone = $this->config->defaultTimezone;
+        $this->lock = new \swoole_lock(SWOOLE_MUTEX);
     }
 
     public function onStart(Server $server): void
     {
-        $info = sprintf('%s start on <info>%s:%d</info>', formatTime($this->defaultTimezone), $server->host, $server->port);
+        $info = sprintf('%s "swoole http server start" %s:%d', formatTime($this->defaultTimezone), $server->host, $server->port);
         $this->io->writeln($info);
         $masterPid = $server->master_pid;
         $managerPid = $server->manager_pid;
@@ -68,14 +70,16 @@ class HttpServerListener extends AbstractListener
     {
         $module = $this->input->getArgument('module');
         if ($workerId >= $server->setting['worker_num']) {
-            $processName = "php httpserver task worker #{$workerId}";
+            $processName = "php httpserver {$module} task worker #{$workerId}";
             swoole_set_process_name($processName);
         } else {
             $processName = "php httpserver {$module} event worker #{$workerId}";
             swoole_set_process_name($processName);
         }
-        $info = sprintf('%s <info>worker start</info> %s', formatTime($this->defaultTimezone), $processName);
+        $info = sprintf('%s "%s" %d', formatTime($this->defaultTimezone), $processName, getmypid());
+        $this->lock->lock();
         $this->io->writeln($info);
+        $this->lock->unlock();
 
         $di = $this->getDI();
         $di->setShared('application', new MvcApplication($di));
@@ -123,6 +127,7 @@ class HttpServerListener extends AbstractListener
         try {
             /* @var \Phalcon\Http\Response $response */
             $response = $this->application->handle();
+            $response->setStatusCode(200);
         } catch (LogicException $e) {
             $response = $this->response->setHeader('returnType', get_class($e));
             $content = ['error' => $e->getMessage(), 'returnType' => get_class($e)];
@@ -150,12 +155,14 @@ class HttpServerListener extends AbstractListener
         }
         $swooleHttpResponse->end($content);
         $info = sprintf(
-            '[%s] %d "%s %s %d"',
+            '%s - %s %d "%s %s" %d "%s"',
+            $swooleHttpRequest->server['remote_addr'],
             formatTime($this->defaultTimezone),
             $swooleHttpResponse->fd,
             $swooleHttpRequest->server['request_method'],
             $swooleHttpRequest->server['request_uri'],
-            $response->getStatusCode()
+            $response->getStatusCode(),
+            $swooleHttpRequest->header['user-agent']
         );
         $this->io->writeln($info);
     }
@@ -178,6 +185,7 @@ class HttpServerListener extends AbstractListener
 
     public function onTask(): void
     {
+        $this->io->writeln(__FUNCTION__);
     }
 
     public function onFinish(): void

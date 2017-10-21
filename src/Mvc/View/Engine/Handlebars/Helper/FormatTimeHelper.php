@@ -24,9 +24,7 @@ use Handlebars\Template;
  *
  * @author    zhangyingdi <zhangyingdi@eelly.net>
  * @copyright 2017 Authors
- *
  **/
-
 class FormatTimeHelper implements Helper
 {
     /**
@@ -65,7 +63,7 @@ class FormatTimeHelper implements Helper
             'yyyy年'                => 'Y年',
         ];
 
-        $formatChar = isset($typeArr[$first]) ? $typeArr[$first] : 'Y-m-d H:i:s';
+        $formatChar = $typeArr[$first] ?? 'Y-m-d H:i:s';
 
         return date($formatChar, $time);
     }
