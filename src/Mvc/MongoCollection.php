@@ -214,19 +214,18 @@ abstract class MongoCollection extends PhalconCollection implements Unserializab
         return static::_getResultset($parameters, $collection, $connection, true);
     }
 
-
     /**
      * {@inheritdoc}
      *
      * @throws Exception
-     * <code>
-     * $data = [
-     * ['username' => 'admin','email' => 'admin@example.com','name' => 'Admin User'],
-     * ['username' => 'test','email' => 'test@example.com','name' => 'Test User']
-     * ];
-     * $robot = new Robots();
-     * $robot->insertMany($data);
-     * </code>
+     *                   <code>
+     *                   $data = [
+     *                   ['username' => 'admin','email' => 'admin@example.com','name' => 'Admin User'],
+     *                   ['username' => 'test','email' => 'test@example.com','name' => 'Test User']
+     *                   ];
+     *                   $robot = new Robots();
+     *                   $robot->insertMany($data);
+     *                   </code>
      *
      * @return bool
      */
@@ -259,7 +258,7 @@ abstract class MongoCollection extends PhalconCollection implements Unserializab
         $inserKey = array_keys($tempData);
         //过滤存在的字段，并且添加时间函数
         $data = collect($data)->flatMap(function ($item) use ($inserKey,$inserData) {
-            return [collect($item)->only($inserKey)->put('created',$inserData['created'] ?: '')->toArray()];
+            return [collect($item)->only($inserKey)->put('created', $inserData['created'] ?: '')->toArray()];
         })->toArray();
 
         /**
