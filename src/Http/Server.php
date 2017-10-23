@@ -54,6 +54,7 @@ class Server extends HttpServer
     {
         parent::__construct($host, $port, $mode, $sockType);
         $this->set($options);
+        $httpServerListener->setServer($this);
         foreach ($this->events as $event) {
             $this->on($event, [$httpServerListener, 'on'.$event]);
         }

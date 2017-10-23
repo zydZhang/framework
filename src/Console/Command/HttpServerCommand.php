@@ -39,14 +39,14 @@ class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterfac
 
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
-        $port = (int)$input->getOption('port');
+        $port = (int) $input->getOption('port');
         /* @var HttpServerListener $listener */
         $listener = $this->di->getShared(HttpServerListener::class, [$input, $output]);
         $module = $input->getArgument('module');
         $env = $this->config->env;
         $options = require 'var/config/'.$env.'/'.$module.'/swoole.php';
         $httpServer = new HttpServer('0.0.0.0', $port, $listener, $options);
-        $listener->setServer($httpServer);
+        $this->di->setShared('swooleServer', $httpServer);
         $httpServer->start();
     }
 }

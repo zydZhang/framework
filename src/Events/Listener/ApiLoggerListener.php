@@ -70,6 +70,16 @@ class ApiLoggerListener extends AbstractListener
     }
 
     /**
+     * 添加白名单.
+     *
+     * @param string $whiteName
+     */
+    public function pushWhiteName(string $whiteName): void
+    {
+        array_push($this->whiteNameList, $whiteName);
+    }
+
+    /**
      * @param Event       $event
      * @param Application $application
      * @param Dispatcher  $dispatcher
