@@ -83,29 +83,28 @@ class Application extends MvcApplication
         }
         $controller = $dispatcher->dispatch();
         $possibleResponse = $dispatcher->getReturnedValue();
-        if ('boolean' == gettype($possibleResponse) && false === $possibleResponse) {
-            $response = $di->getShared('response');
-        } else {
+        /* @var \Phalcon\Http\Response $response */
+        $response = $di->getShared('response');
+        if ('boolean' != gettype($possibleResponse) || false !== $possibleResponse) {
             if ('string' == gettype($possibleResponse)) {
-                $response = $di->getShared('response');
                 $response->setContent($possibleResponse);
             } else {
                 $returnedResponse = (('object' == gettype($possibleResponse)) && ($possibleResponse instanceof ResponseInterface));
-
                 $eventsManager->fire('application:afterHandleRequest', $this, $controller);
-                $view->render(
-                    $dispatcher->getControllerName(),
-                    $dispatcher->getActionName(),
-                    $dispatcher->getParams()
-                );
-                /* @var \Phalcon\Http\Response $response */
-                $response = $di->getShared('response');
-                //$content  = $view->getContent();
-                $content = ob_get_contents();
-                $view->finish();
-                $response->setStatusCode(200);
-                $response->setContentType('text/html');
-                $response->setContent($content);
+                if (false === $returnedResponse && true === $this->isImplicitView()) {
+                    $view->render(
+                        $dispatcher->getControllerName(),
+                        $dispatcher->getActionName(),
+                        $dispatcher->getParams()
+                    );
+
+                    //$content  = $view->getContent();
+                    $content = ob_get_contents();
+                    $view->finish();
+                    $response->setStatusCode(200);
+                    $response->setContentType('text/html');
+                    $response->setContent($content);
+                }
             }
         }
         $eventsManager->fire('application:beforeSendResponse', $this, $response);
