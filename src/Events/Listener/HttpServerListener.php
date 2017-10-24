@@ -172,7 +172,11 @@ class HttpServerListener extends AbstractListener
             $response->getStatusCode(),
             $swooleHttpRequest->header['user-agent']
         );
-        $this->server->task($info);
+        $this->server->task([
+            'method'  => 'accessLog',
+            'params'  => [$info],
+            ]
+        );
     }
 
     public function onPacket(): void
@@ -193,7 +197,16 @@ class HttpServerListener extends AbstractListener
 
     public function onTask(Server $server, int $taskId, int $workId, $data): void
     {
-        $this->io->writeln($data);
+        if (isset($data['class'])) {
+            $object = new $data['class']();
+        } elseif (isset($data['method'])) {
+            $object = $this;
+        }
+        if (isset($object)) {
+            call_user_func_array([$object, $data['method']], $data['params']);
+        } else {
+            $this->io->writeln('task data error:'.json_encode($data));
+        }
     }
 
     public function onFinish(): void
@@ -214,6 +227,14 @@ class HttpServerListener extends AbstractListener
 
     public function onManagerStop(): void
     {
+    }
+
+    /**
+     * @param string|array $info
+     */
+    public function accessLog($info): void
+    {
+        $this->io->writeln($info);
     }
 
     private function initEventsManager()
