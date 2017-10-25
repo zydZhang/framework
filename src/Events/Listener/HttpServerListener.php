@@ -41,6 +41,8 @@ class HttpServerListener extends AbstractListener
 
     private $server;
 
+    private $module;
+
     public function __construct(InputInterface $input, OutputInterface $output)
     {
         $this->input = $input;
@@ -48,6 +50,7 @@ class HttpServerListener extends AbstractListener
         $this->io = new SymfonyStyle($input, $output);
         $this->defaultTimezone = $this->config->defaultTimezone;
         $this->lock = new \swoole_lock(SWOOLE_MUTEX);
+        $this->module = $input->getArgument('module');
     }
 
     public function setServer(Server $server): void
@@ -57,6 +60,7 @@ class HttpServerListener extends AbstractListener
 
     public function onStart(Server $server): void
     {
+        swoole_set_process_name("php httpserver master {$this->module}");
         $info = sprintf('%s "swoole http server start" %s:%d', formatTime($this->defaultTimezone), $server->host, $server->port);
         $this->io->writeln($info);
         $masterPid = $server->master_pid;
@@ -75,7 +79,7 @@ class HttpServerListener extends AbstractListener
 
     public function onWorkerStart(Server $server, int $workerId): void
     {
-        $module = $this->input->getArgument('module');
+        $module = $this->module;
         if ($workerId >= $server->setting['worker_num']) {
             $processName = "php httpserver {$module} task worker #{$workerId}";
             swoole_set_process_name($processName);
@@ -221,8 +225,9 @@ class HttpServerListener extends AbstractListener
     {
     }
 
-    public function onManagerStart(): void
+    public function onManagerStart(Server $server): void
     {
+        swoole_set_process_name("php httpserver manager {$this->module}");
     }
 
     public function onManagerStop(): void
