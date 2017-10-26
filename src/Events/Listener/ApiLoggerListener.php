@@ -140,13 +140,11 @@ class ApiLoggerListener extends AbstractListener
         $this->extrasData['usedMemory'] = memory_get_peak_usage(true);
         if (APP['env'] == 'swoole') {
             $server = $this->getDI()->getShared('swooleServer');
-            $server->task(
-                    [
-                        'class'  => ApiLogger::class,
-                        'method' => 'log',
-                        'params' => [$this->traceId, $this->requestData, $this->responseData, $this->extrasData],
-                    ]
-            );
+            $server->task([
+                'class'  => ApiLogger::class,
+                'method' => 'log',
+                'params' => [$this->traceId, $this->requestData, $this->responseData, $this->extrasData],
+            ]);
         } else {
             (new ApiLogger())->log($this->traceId, $this->requestData, $this->responseData, $this->extrasData);
         }

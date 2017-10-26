@@ -37,6 +37,9 @@ class AsyncAnnotationListener extends AbstractListener
      */
     public function beforeExecuteRoute(Event $event, Dispatcher $dispatcher)
     {
+        if ('no-cache' == $this->request->getHeader('Cache-Control')) {
+            return true;
+        }
         // Parse the annotations in the method currently executed
         $annotations = $this->annotations->getMethod(
             $dispatcher->getControllerClass(),

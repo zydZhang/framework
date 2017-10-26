@@ -67,11 +67,11 @@ class ValidateAccessTokenListener extends AbstractListener
 
     private function validateAuthorization(RequestInterface $request): void
     {
-        if (empty($request->getHeader('authorization'))) {
+        if (empty($request->getHeader('Authorization'))) {
             throw OAuthServerException::accessDenied('Missing "Authorization" header');
         }
 
-        $header = $request->getHeader('authorization');
+        $header = $request->getHeader('Authorization');
         $jwt = trim(preg_replace('/^(?:\s+)?Bearer\s/', '', $header));
 
         try {
