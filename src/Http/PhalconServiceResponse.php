@@ -23,6 +23,22 @@ class PhalconServiceResponse extends HttpResponse
         parent::__construct($content, $code, $status);
         $this->setHeader('Access-Control-Allow-Origin', '*');
         $this->setHeader('Server', ApplicationConst::APP_NAME.'/'.ApplicationConst::APP_VERSION);
-        $this->setStatusCode(200);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setJsonContent($content, int $jsonOptions = 0, int $depth = 512): HttpResponse
+    {
+        $this->setContentType('application/json', 'UTF-8');
+        $json = \json_encode($content, $jsonOptions, $depth);
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            $this->setStatusCode(500);
+            parent::setJsonContent(['error'=>'json_encode error: '.json_last_error_msg()]);
+        } else {
+            $this->setContent($json);
+        }
+
+        return $this;
     }
 }

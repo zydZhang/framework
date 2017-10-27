@@ -82,6 +82,7 @@ class Application extends MvcApplication
             return false;
         }
         $controller = $dispatcher->dispatch();
+
         $possibleResponse = $dispatcher->getReturnedValue();
         /* @var \Phalcon\Http\Response $response */
         $response = $di->getShared('response');

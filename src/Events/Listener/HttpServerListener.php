@@ -20,6 +20,7 @@ use Eelly\Http\Server;
 use Eelly\Http\SwoolePhalconRequest;
 use Eelly\Mvc\Application as MvcApplication;
 use ErrorException;
+use Exception;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use swoole_http_request as SwooleHttpRequest;
 use swoole_http_response as SwooleHttpResponse;
@@ -127,8 +128,10 @@ class HttpServerListener extends AbstractListener
     public function onRequest(SwooleHttpRequest $swooleHttpRequest, SwooleHttpResponse $swooleHttpResponse): void
     {
         if ($swooleHttpRequest->server['request_uri'] == '/favicon.ico') {
-            $swooleHttpResponse->header('Content-Type', 'image/x-icon');
-            $swooleHttpResponse->sendfile('public/favicon.ico');
+            /*$swooleHttpResponse->header('Content-Type', 'image/x-icon');
+            $swooleHttpResponse->sendfile('public/favicon.ico');*/
+            $swooleHttpResponse->status(404);
+            $swooleHttpResponse->end();
 
             return;
         }
@@ -155,8 +158,8 @@ class HttpServerListener extends AbstractListener
                 'message' => $e->getMessage(),
                 'hint'    => $e->getHint(),
             ]);
-        } catch (ErrorException $e) {
-            //...
+        } catch (ErrorException|Exception $e) {
+            $this->getDI()->getShared(ErrorHandler::class)->handleException($e);
             $response = $this->response;
         }
         $content = $response->getContent();
