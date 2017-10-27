@@ -159,7 +159,11 @@ class ServiceDispatcher extends Dispatcher
                         if (is_array($routeParams[$position]) && 'array' != $expectedType) {
                             $functionOfThrowInvalidArgumentException($position, $expectedType, 'array');
                         }
-                        settype($routeParams[$position], $expectedType);
+                        if ('/*_EMPTY_ARRAY_*/' == $routeParams[$position]) {
+                            $routeParams[$position] = [];
+                        } else {
+                            settype($routeParams[$position], $expectedType);
+                        }
                     } elseif (!is_a($routeParams[$position], $expectedType)) {
                         $functionOfThrowInvalidArgumentException($position, $expectedType, gettype($routeParams[$position]));
                     }
