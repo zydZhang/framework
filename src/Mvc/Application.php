@@ -86,6 +86,7 @@ class Application extends MvcApplication
         $possibleResponse = $dispatcher->getReturnedValue();
         /* @var \Phalcon\Http\Response $response */
         $response = $di->getShared('response');
+        $response->setContentType('application/json', 'UTF-8');
         if ('boolean' != gettype($possibleResponse) || false !== $possibleResponse) {
             if ('string' == gettype($possibleResponse)) {
                 $response->setContent($possibleResponse);
