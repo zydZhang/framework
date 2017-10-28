@@ -57,12 +57,12 @@ class Application extends ConsoleApplication implements InjectionAwareInterface,
      */
     protected $modules = [];
 
-    public function registerModules(array $modules, bool $merge = false): self
+    public function addModulesCommands(): self
     {
-        $this->modules = $merge ? array_merge($this->modules, $modules) : $modules;
+        $modules = $this->di->get('config')->modules->toArray();
         $loader = $this->di->get('loader');
         $classes = [];
-        foreach ($this->modules as $value) {
+        foreach ($modules as $value) {
             $classes[$value['className']] = $value['path'];
         }
         $loader->registerClasses($classes);

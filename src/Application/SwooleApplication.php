@@ -25,6 +25,9 @@ use Phalcon\Config;
  */
 class SwooleApplication extends Injectable
 {
+    /**
+     * @var ConsoleApplication
+     */
     private $application;
 
     /**
@@ -46,7 +49,6 @@ class SwooleApplication extends Injectable
         $consoleApplication = new ConsoleApplication(ApplicationConst::APP_NAME, ApplicationConst::APP_VERSION);
         $consoleApplication->setDI($this->di);
         $consoleApplication->setDispatcher($this->di->get('eventDispatcher'));
-        $consoleApplication->add($this->di->getShared(HttpServerCommand::class));
         $this->application = $consoleApplication;
 
         return $this;
@@ -54,10 +56,13 @@ class SwooleApplication extends Injectable
 
     public function handle()
     {
-        $this->application->registerModules($this->config->modules->toArray());
+        // 添加基础命令
         $this->application->addCommands([
             $this->di->get(FlushCacheCommand::class),
+            $this->di->getShared(HttpServerCommand::class),
         ]);
+        // 添加各模块的命令
+        $this->application->addModulesCommands();
 
         return $this->application;
     }
