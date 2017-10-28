@@ -24,6 +24,24 @@ use Symfony\Component\Console\Application as ConsoleApplication;
  */
 class Application extends ConsoleApplication implements InjectionAwareInterface, EventsAwareInterface
 {
+    private const LOGO = '                                          _
+                                         / )
+                                    .--.; |    _...,-"""-,
+                     .-""-.-""""-. /   _`\'-._.\'   /`      \
+                    /\'     \      \|  (/\'-._/     )        ;
+            .-""""-;       (       \'--\' /-\'    _           |
+          .\'       |        ;    e     /       a  ,       ;
+         /          \       |      __.\'`-.__,    ;       /
+        /            `._     ;    .-\'     `--.,__.\    /`
+       //|              \     \,-\'                /\_.\'
+      // |               `;.___>              /,-\'.
+    /`|  /                |`\      _..---\    |    \
+    |/  /     _,.-----\   |  \   /`|      |   |\    \
+       /    .;   |    |   |   \ /  |      |   | \    )
+      |    / |   \    /   |\..\' \   \     |   \  \..\'
+       \../  \.../    \.../ \.../---\'     \.../
+-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==
+';
     /**
      * @var DiInterface
      */
@@ -94,5 +112,13 @@ class Application extends ConsoleApplication implements InjectionAwareInterface,
     public function getEventsManager()
     {
         return $this->eventsManager;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getHelp()
+    {
+        return self::LOGO.parent::getHelp();
     }
 }

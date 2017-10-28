@@ -33,7 +33,7 @@ class FlushCacheCommand extends SymfonyCommand implements InjectionAwareInterfac
     protected function configure(): void
     {
         $this->setName('flush-cache')
-            ->setDescription('flush cache')
+            ->setDescription('Flush cahce')
             ->setHelp('flush cache');
         $this->addArgument('module', InputArgument::REQUIRED, 'Module name.');
     }

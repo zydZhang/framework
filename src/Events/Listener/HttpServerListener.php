@@ -112,7 +112,6 @@ class HttpServerListener extends AbstractListener
         ];
         $this->application->registerModules($modules);
         // start module
-        require $modules[$module]['path'];
         $moduleObject = $di->get($modules[$module]['className']);
         /*
          * 'registerAutoloaders' and 'registerServices' are automatically called

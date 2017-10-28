@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Eelly\Application;
 
 use Eelly\Console\Application as ConsoleApplication;
+use Eelly\Console\Command\FlushCacheCommand;
 use Eelly\Console\Command\HttpServerCommand;
 use Eelly\Di\Injectable;
 use Eelly\Di\SwooleDi;
@@ -24,6 +25,8 @@ use Phalcon\Config;
  */
 class SwooleApplication extends Injectable
 {
+    private $application;
+
     /**
      * ServiceApplication constructor.
      *
@@ -36,13 +39,34 @@ class SwooleApplication extends Injectable
         $this->setDI($di);
     }
 
+    public function initialize()
+    {
+        ApplicationConst::$env = $this->config->env;
+        date_default_timezone_set($this->config->defaultTimezone);
+        $consoleApplication = new ConsoleApplication(ApplicationConst::APP_NAME, ApplicationConst::APP_VERSION);
+        $consoleApplication->setDI($this->di);
+        $consoleApplication->setDispatcher($this->di->get('eventDispatcher'));
+        $consoleApplication->add($this->di->getShared(HttpServerCommand::class));
+        $this->application = $consoleApplication;
+
+        return $this;
+    }
+
+    public function handle()
+    {
+        $this->application->registerModules($this->config->modules->toArray());
+        $this->application->addCommands([
+            $this->di->get(FlushCacheCommand::class),
+        ]);
+
+        return $this->application;
+    }
+
     /**
      * run.
      */
     public function run(): void
     {
-        $consoleApplication = new ConsoleApplication(ApplicationConst::APP_NAME, ApplicationConst::APP_VERSION);
-        $consoleApplication->add($this->di->getShared(HttpServerCommand::class));
-        $consoleApplication->run();
+        $this->initialize()->handle()->run();
     }
 }

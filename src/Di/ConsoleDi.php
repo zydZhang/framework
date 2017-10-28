@@ -24,6 +24,8 @@ use Phalcon\Di\Service;
 
 /**
  * @author hehui<hehui@eelly.net>
+ *
+ * @deprecated
  */
 class ConsoleDi extends FactoryDefault
 {

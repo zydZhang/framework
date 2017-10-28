@@ -27,6 +27,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  * @property \Eelly\Console\Application $application
  *
  * @author hehui<hehui@eelly.net>
+ *
+ * @deprecated
  */
 class ConsoleApplication extends Injectable
 {

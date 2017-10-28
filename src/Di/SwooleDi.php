@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Eelly\Di;
 
+use Eelly\Dispatcher\EventDispatcher;
 use Eelly\Dispatcher\ServiceDispatcher;
 use Eelly\Http\PhalconServiceResponse;
 use Eelly\Http\SwoolePhalconRequest;
@@ -33,6 +34,7 @@ class SwooleDi extends FactoryDefault
         parent::__construct();
         $this->_services['collectionManager'] = new Service('collectionManager', CollectionManager::class, true);
         $this->_services['dispatcher'] = new Service('dispatcher', ServiceDispatcher::class, true);
+        $this->_services['eventDispatcher'] = new Service('eventDispatcher', EventDispatcher::class, true);
         $this->_services['logger'] = new Service('logger', ServiceLogger::class, true);
         $this->_services['modelsManager'] = new Service('modelsManager', ModelsManager::class, true);
         $this->_services['request'] = new Service('request', SwoolePhalconRequest::class, true);
