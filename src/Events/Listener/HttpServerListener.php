@@ -179,8 +179,8 @@ class HttpServerListener extends AbstractListener
             $swooleHttpRequest->header['user-agent']
         );
         $this->server->task([
-            'method'  => 'accessLog',
-            'params'  => [$info],
+            'method' => 'accessLog',
+            'params' => [$info],
             ]
         );
     }

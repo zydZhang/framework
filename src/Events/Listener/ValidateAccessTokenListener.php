@@ -93,10 +93,10 @@ class ValidateAccessTokenListener extends AbstractListener
                 throw OAuthServerException::accessDenied('Access token has been revoked');
             }*/
             ApplicationConst::$oauth = $requestAttributes = [
-                'oauth_access_token_id'=> $token->getClaim('jti'),
-                'oauth_client_id'      => $token->getClaim('aud'),
-                'oauth_user_id'        => $token->getClaim('sub'),
-                'oauth_scopes'         => $token->getClaim('scopes'),
+                'oauth_access_token_id' => $token->getClaim('jti'),
+                'oauth_client_id'       => $token->getClaim('aud'),
+                'oauth_user_id'         => $token->getClaim('sub'),
+                'oauth_scopes'          => $token->getClaim('scopes'),
             ];
             $uidDTO = ServiceDispatcher::$uidDTO;
             if (is_object($uidDTO)) {

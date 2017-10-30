@@ -76,16 +76,16 @@ abstract class Model extends MvcModel
             ]
         );
         $page = $paginator->getPaginate();
-        foreach ($page->items as $key=>$item) {
+        foreach ($page->items as $key => $item) {
             $return['items'][$key] = $item->toArray();
         }
         if (empty($return['items'])) {
             return [];
         }
         $return['page'] = [
-            'total_pages'=> $page->total_pages,
-            'total_items'=> $page->total_items,
-            'limit'      => $page->limit,
+            'total_pages' => $page->total_pages,
+            'total_items' => $page->total_items,
+            'limit'       => $page->limit,
         ];
 
         return self::arrayToHump($return);
@@ -115,9 +115,9 @@ abstract class Model extends MvcModel
         $total_pages = ceil($count / $limit);
         $return['items'] = $data;
         $return['page'] = [
-            'total_pages'=> ceil($count / $limit),
-            'total_items'=> $count,
-            'limit'      => $limit,
+            'total_pages' => ceil($count / $limit),
+            'total_items' => $count,
+            'limit'       => $limit,
         ];
 
         return self::arrayToHump($return);
@@ -142,7 +142,7 @@ abstract class Model extends MvcModel
         $stringField = get_called_class()::FIELD_SCOPE[$field] ?? $field;
         if ($stringField && $alias) {
             $data = explode(',', $stringField);
-            foreach ($data as $key=> $val) {
+            foreach ($data as $key => $val) {
                 $data[$key] = "$alias.$val";
             }
             $stringField = implode(',', $data);
@@ -170,7 +170,7 @@ abstract class Model extends MvcModel
             return [];
         }
         if (is_array($data)) {
-            foreach ($data as $key=>$value) {
+            foreach ($data as $key => $value) {
                 $key = preg_replace_callback('/(_)([a-z])/i', function ($matches) use (&$data,&$key) {
                     unset($data[$key]);
 
@@ -211,16 +211,16 @@ abstract class Model extends MvcModel
         $paginator = Factory::load($options);
         $page = $paginator->getPaginate();
 
-        foreach ($page->items as $key=>$item) {
+        foreach ($page->items as $key => $item) {
             $return['items'][$key] = $item->toArray();
         }
         if (empty($return['items'])) {
             return [];
         }
         $return['page'] = [
-            'total_pages'=> $page->total_pages,
-            'total_items'=> $page->total_items,
-            'limit'      => $page->limit,
+            'total_pages' => $page->total_pages,
+            'total_items' => $page->total_items,
+            'limit'       => $page->limit,
         ];
 
         return self::arrayToHump($return);
@@ -265,10 +265,10 @@ abstract class Model extends MvcModel
         $tableName = $this->getSource();
         $setSql = $whereSql = '';
         //拼接条件
-        foreach ($set as $sk=>$sv) {
+        foreach ($set as $sk => $sv) {
             $setSql .= $sk.' = "'.$sv.'",';
         }
-        foreach ($where as $wk=>$wv) {
+        foreach ($where as $wk => $wv) {
             $whereSql .= $wk.' = "'.$wv.'" AND ';
         }
 
@@ -298,7 +298,7 @@ abstract class Model extends MvcModel
         $tableName = $this->getSource();
         $whereSql = '';
         //拼接条件
-        foreach ($where as $wk=>$wv) {
+        foreach ($where as $wk => $wv) {
             $whereSql .= $wk.' = "'.$wv.'" AND ';
         }
 
