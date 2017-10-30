@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Eelly\Di;
 
+use Eelly\Db\Adapter\Pdo\Mysql as Connection;
 use Eelly\Queue\Adapter\AMQPFactory;
-use Phalcon\Db\Adapter\Pdo\Mysql as Connection;
 use Phalcon\Di\Injectable as DiInjectable;
 
 /**
