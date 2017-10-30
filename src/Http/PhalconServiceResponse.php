@@ -34,7 +34,7 @@ class PhalconServiceResponse extends HttpResponse
         $json = \json_encode($content, $jsonOptions, $depth);
         if (JSON_ERROR_NONE !== json_last_error()) {
             $this->setStatusCode(500);
-            parent::setJsonContent(['error'=>'json_encode error: '.json_last_error_msg()]);
+            parent::setJsonContent(['error' => 'json_encode error: '.json_last_error_msg()]);
         } else {
             $this->setContent($json);
         }
