@@ -31,16 +31,16 @@ class Database extends Adapter
      * @var array
      */
     protected $tables = [
-        'client'                 => 'oauth_client',
-        'module'                 => 'oauth_module',
-        'moduleService'          => 'oauth_module_service',
-        'permission'             => 'oauth_permission',
-        'permissionRequest'      => 'oauth_permission_request',
-        'permissionReturn'       => 'oauth_permission_return',
-        'role'                   => 'oauth_role',
-        'roleClient'             => 'oauth_role_client',
-        'rolePermission'         => 'oauth_role_permission',
-        'permissionParameter'    => 'oauth_permission_parameter',
+        'client'              => 'oauth_client',
+        'module'              => 'oauth_module',
+        'moduleService'       => 'oauth_module_service',
+        'permission'          => 'oauth_permission',
+        'permissionRequest'   => 'oauth_permission_request',
+        'permissionReturn'    => 'oauth_permission_return',
+        'role'                => 'oauth_role',
+        'roleClient'          => 'oauth_role_client',
+        'rolePermission'      => 'oauth_role_permission',
+        'permissionParameter' => 'oauth_permission_parameter',
     ];
 
     /**

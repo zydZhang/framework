@@ -29,9 +29,9 @@ class Psr7ServiceResponse extends Response
     ) {
         if (empty($headers)) {
             $headers = [
-                'Content-Type'               => 'application/json',
-                'Access-Control-Allow-Origin'=> '*',
-                'Server'                     => ApplicationConst::APP_NAME.'/'.ApplicationConst::APP_VERSION,
+                'Content-Type'                => 'application/json',
+                'Access-Control-Allow-Origin' => '*',
+                'Server'                      => ApplicationConst::APP_NAME.'/'.ApplicationConst::APP_VERSION,
             ];
         }
         parent::__construct($status, $headers, $body, $version, $reason);
