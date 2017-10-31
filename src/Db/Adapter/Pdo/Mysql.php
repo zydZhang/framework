@@ -27,7 +27,7 @@ class Mysql extends PdoMysql
         try {
             return parent::query($sqlStatement, $bindParams, $bindTypes);
         } catch (\Exception $e) {
-            if ($this->isGoneAwayException($e)) {
+            if ($this->isGoneAwayException($e) || null === $this->getInternalHandler()) {
                 $this->reconnect();
 
                 return parent::query($sqlStatement, $bindParams, $bindTypes);
@@ -45,7 +45,7 @@ class Mysql extends PdoMysql
         try {
             return parent::execute($sqlStatement, $bindParams, $bindTypes);
         } catch (\Exception $e) {
-            if ($this->isGoneAwayException($e)) {
+            if ($this->isGoneAwayException($e) || null === $this->getInternalHandler()) {
                 $this->reconnect();
 
                 return parent::execute($sqlStatement, $bindParams, $bindTypes);
