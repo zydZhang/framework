@@ -15,8 +15,7 @@ namespace Eelly\Queue\Adapter;
 
 class Consumer extends \Thumper\Consumer
 {
-    private const EXCHANGE_PREFIX = 'eelly.api.';
-    private const QUEUE_PREFIX = 'Eelly\\Api\\';
+    private const PREFIX = 'eelly_api.';
 
     /**
      * @param array $options
@@ -24,7 +23,7 @@ class Consumer extends \Thumper\Consumer
     public function setExchangeOptions(array $options): void
     {
         if (isset($options['name'])) {
-            $options['name'] = self::EXCHANGE_PREFIX.$options['name'];
+            $options['name'] = self::PREFIX.$options['name'];
         }
         parent::setExchangeOptions($options);
     }
@@ -35,7 +34,7 @@ class Consumer extends \Thumper\Consumer
     public function setQueueOptions(array $options): void
     {
         if (isset($options['name'])) {
-            $options['name'] = self::QUEUE_PREFIX.$options['name'];
+            $options['name'] = self::PREFIX.$options['name'];
         }
         parent::setQueueOptions($options);
     }

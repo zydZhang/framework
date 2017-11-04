@@ -16,6 +16,7 @@ namespace Eelly\Application;
 use Eelly\Console\Application as ConsoleApplication;
 use Eelly\Console\Command\FlushCacheCommand;
 use Eelly\Console\Command\HttpServerCommand;
+use Eelly\Console\Command\QueueConsumerCommand;
 use Eelly\Di\Injectable;
 use Eelly\Di\SwooleDi;
 use Phalcon\Config;
@@ -57,9 +58,10 @@ class SwooleApplication extends Injectable
     public function handle()
     {
         // 添加基础命令
-        $this->application->addCommands([
-            $this->di->get(FlushCacheCommand::class),
-            $this->di->getShared(HttpServerCommand::class),
+        $this->addBaseCommands([
+            FlushCacheCommand::class,
+            HttpServerCommand::class,
+            QueueConsumerCommand::class,
         ]);
         // 添加各模块的命令
         $this->application->addModulesCommands();
@@ -73,5 +75,15 @@ class SwooleApplication extends Injectable
     public function run(): void
     {
         $this->initialize()->handle()->run();
+    }
+
+    /**
+     * @param array $commands
+     */
+    private function addBaseCommands(array $commands): void
+    {
+        foreach ($commands as $command) {
+            $this->application->add($this->di->getShared($command));
+        }
     }
 }

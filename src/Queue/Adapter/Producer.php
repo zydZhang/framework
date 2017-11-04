@@ -15,7 +15,7 @@ namespace Eelly\Queue\Adapter;
 
 class Producer extends \Thumper\Producer
 {
-    private const PREFIX = 'eelly.api.';
+    private const PREFIX = 'eelly_api.';
 
     /**
      * @param array $options
