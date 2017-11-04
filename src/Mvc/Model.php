@@ -309,6 +309,28 @@ abstract class Model extends MvcModel
         return (int) $this->getWriteConnection()->affectedRows();
     }
 
+
+    /**
+     * 批量删除.
+     * code
+     *  $conditions = 'cb_id IN (?) AND owner_id=?';
+    $binds = [1,3,4, $ownerId];
+     * code
+     * @param string $conditions 绑定的sql语句
+     * @param array $binds 数组
+     * @return MvcModel\QueryInterface
+     * @author 肖俊明<xiaojunming@eelly.net>
+     * @since 2017年10月30日
+     */
+    public function batchDelete(string $conditions, array $binds)
+    {
+        $tableName = $this->getSource();
+        $sql = 'DELETE FROM ' . $tableName . ' WHERE ' . $conditions;
+        $this->getWriteConnection()->execute($sql, $binds);
+        return (int)$this->getWriteConnection()->affectedRows();
+    }
+
+
     /**
      * 自定义封装，批量插入.
      *
