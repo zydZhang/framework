@@ -56,7 +56,7 @@ class AsyncAnnotationListener extends AbstractListener
             ];
             $producer = $this->queueFactory->createProducer();
             $producer->setExchangeOptions(['name' => $dispatcher->getModuleName(), 'type' => 'topic']);
-            $routingKey = $annotation->getNamedParameter('route') ?? 'default';
+            $routingKey = $annotation->getNamedParameter('route') ?? 'default_routing_key';
             $producer->publish(json_encode($msgBody), $routingKey);
             if ($event->isCancelable()) {
                 $event->stop();
