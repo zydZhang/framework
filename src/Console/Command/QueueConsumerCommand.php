@@ -92,6 +92,7 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                     $this->consumerCallback(\GuzzleHttp\json_decode($msgBody, true));
                 }
             );
+
             try {
                 $this->consumer->consume(100);
             } catch (
