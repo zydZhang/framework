@@ -314,7 +314,11 @@ abstract class Model extends MvcModel
      * 批量删除.
      * code
      *  $conditions = 'cb_id IN (?) AND owner_id=?';
+<<<<<<< HEAD
     $binds = [1,3,4, $ownerId];
+=======
+        $binds = [1,3,4, $ownerId];
+>>>>>>> a3227020b71bd8fb7828a712ecb30e507b2f8f9d
      * code
      * @param string $conditions 绑定的sql语句
      * @param array $binds 数组
@@ -329,7 +333,6 @@ abstract class Model extends MvcModel
         $this->getWriteConnection()->execute($sql, $binds);
         return (int)$this->getWriteConnection()->affectedRows();
     }
-
 
     /**
      * 自定义封装，批量插入.
