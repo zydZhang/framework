@@ -314,11 +314,7 @@ abstract class Model extends MvcModel
      * 批量删除.
      * code
      *  $conditions = 'cb_id IN (?) AND owner_id=?';
-<<<<<<< HEAD
-    $binds = [1,3,4, $ownerId];
-=======
-        $binds = [1,3,4, $ownerId];
->>>>>>> a3227020b71bd8fb7828a712ecb30e507b2f8f9d
+     *  $binds = [1,3,4, $ownerId];
      * code
      * @param string $conditions 绑定的sql语句
      * @param array $binds 数组
