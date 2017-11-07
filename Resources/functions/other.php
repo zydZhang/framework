@@ -124,16 +124,15 @@ if (!function_exists('formatTime')) {
     }
 }
 
-if(!function_exists('priceOfConversion')){
+if (!function_exists('priceOfConversion')) {
     /**
-     * 金额在圆和分之间转换
+     * 金额在圆和分之间转换.
      *
      * @param int|float $price 金额
-     * @param string $type
+     * @param string    $type
      */
     function priceOfConversion($price, $type = 'fen')
     {
         return 'fen' === $type ? intval($price * 100) : $price / 100;
     }
 }
-
