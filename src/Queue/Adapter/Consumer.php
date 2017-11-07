@@ -78,6 +78,7 @@ class Consumer extends \Thumper\Consumer
         if ($this->consumed == $this->target) {
             $message->delivery_info['channel']
                 ->basic_cancel($message->delivery_info['consumer_tag']);
+            $this->consumed = 0;
         }
     }
 }
