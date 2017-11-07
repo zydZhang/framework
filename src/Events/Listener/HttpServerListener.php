@@ -71,7 +71,7 @@ class HttpServerListener extends AbstractListener
         \Swoole\Async::writeFile($masterPidFile, (string) $masterPid);
         \Swoole\Async::writeFile($managerPidFile, (string) $managerPid);
         $this->io->table(['name', 'pid', 'file'], [
-            ['master', $masterPid, $managerPidFile],
+            ['master', $masterPid, $masterPidFile],
             ['manager', $managerPid, $managerPidFile],
         ]);
     }
