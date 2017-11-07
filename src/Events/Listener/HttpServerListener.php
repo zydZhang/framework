@@ -66,11 +66,13 @@ class HttpServerListener extends AbstractListener
         $this->io->writeln($info);
         $masterPid = $server->master_pid;
         $managerPid = $server->manager_pid;
-        \Swoole\Async::writeFile('var/master.pid', (string) $masterPid);
-        \Swoole\Async::writeFile('var/manager.pid', (string) $managerPid);
+        $masterPidFile = 'var/pid/'.$this->module.'_master.pid';
+        $managerPidFile = 'var/pid/'.$this->module.'_manager.pid';
+        \Swoole\Async::writeFile($masterPidFile, (string) $masterPid);
+        \Swoole\Async::writeFile($managerPidFile, (string) $managerPid);
         $this->io->table(['name', 'pid', 'file'], [
-            ['master', $masterPid, 'var/master.pid'],
-            ['manager', $managerPid, 'var/manager.pid'],
+            ['master', $masterPid, $managerPidFile],
+            ['manager', $managerPid, $managerPidFile],
         ]);
     }
 
