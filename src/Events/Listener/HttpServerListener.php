@@ -170,21 +170,19 @@ class HttpServerListener extends AbstractListener
             $swooleHttpResponse->header($key, (string) $value);
         }
         $swooleHttpResponse->end($content);
-        $info = sprintf(
-            '%s - %s %d "%s %s" %d "%s"',
-            $swooleHttpRequest->server['remote_addr'],
-            formatTime($this->defaultTimezone),
-            $swooleHttpResponse->fd,
-            $swooleHttpRequest->server['request_method'],
-            $swooleHttpRequest->server['request_uri'],
-            $response->getStatusCode(),
-            $swooleHttpRequest->header['user-agent']
-        );
-        $this->server->task([
-            'method' => 'accessLog',
-            'params' => [$info],
-            ]
-        );
+        if ($this->output->isDebug()) {
+            $info = sprintf(
+                '%s - %s %d "%s %s" %d "%s"',
+                $swooleHttpRequest->server['remote_addr'],
+                formatTime($this->defaultTimezone),
+                $swooleHttpResponse->fd,
+                $swooleHttpRequest->server['request_method'],
+                $swooleHttpRequest->server['request_uri'],
+                $response->getStatusCode(),
+                $swooleHttpRequest->header['user-agent']
+            );
+            $this->io->writeln($info);
+        }
     }
 
     public function onPacket(): void
@@ -203,22 +201,16 @@ class HttpServerListener extends AbstractListener
     {
     }
 
-    public function onTask(Server $server, int $taskId, int $workId, $data): void
+    public function onTask(Server $server, int $taskId, int $workId, $data)
     {
-        if (isset($data['class'])) {
-            $object = new $data['class']();
-        } elseif (isset($data['method'])) {
-            $object = $this;
-        }
-        if (isset($object)) {
-            call_user_func_array([$object, $data['method']], $data['params']);
-        } else {
-            $this->io->writeln('task data error:'.json_encode($data));
+        if (isset($data['class']) && method_exists($data['class'], $data['method'])) {
+            return call_user_func_array([new $data['class'], $data['method']], $data['params']);
         }
     }
 
-    public function onFinish(): void
+    public function onFinish(Server $server, int $taskId, $data): void
     {
+
     }
 
     public function onPipeMessage(): void
@@ -236,14 +228,6 @@ class HttpServerListener extends AbstractListener
 
     public function onManagerStop(): void
     {
-    }
-
-    /**
-     * @param string|array $info
-     */
-    public function accessLog($info): void
-    {
-        $this->io->writeln($info);
     }
 
     private function initEventsManager()
