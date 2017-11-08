@@ -289,7 +289,7 @@ abstract class Model extends MvcModel
      *
      * @return int
      */
-    public function arrayDelete(array $where = [])
+    /*public function arrayDelete(array $where = [])
     {
         if (empty($where)) {
             return false;
@@ -307,26 +307,31 @@ abstract class Model extends MvcModel
         $this->getDI()->get('dbMaster')->execute($sql);
 
         return (int) $this->getWriteConnection()->affectedRows();
-    }
+    }*/
 
 
     /**
-     * 批量删除.
+     * 批量删除，通过主键ID.
      * code
-     *  $conditions = 'cb_id IN (?) AND owner_id=?';
-     *  $binds = [1,3,4, $ownerId];
+     *  $ids = [1,3,4];
      * code
-     * @param string $conditions 绑定的sql语句
-     * @param array $binds 数组
-     * @return MvcModel\QueryInterface
+     * @param array $ids 一维数组的主键ID
+     * @return int
      * @author 肖俊明<xiaojunming@eelly.net>
      * @since 2017年10月30日
      */
-    public function batchDelete(string $conditions, array $binds)
+    public function batchDelete(array $ids)
     {
+        $ids = array_map('intval', $ids);
+        if (empty($ids)) {
+            return false;
+        }
+        $idStr = implode(',', $ids);
         $tableName = $this->getSource();
-        $sql = 'DELETE FROM ' . $tableName . ' WHERE ' . $conditions;
-        $this->getWriteConnection()->execute($sql, $binds);
+
+        $binds = $ids;
+        $sql = 'DELETE FROM ' . $tableName . ' WHERE ' . $this->pk . ' IN (' . $idStr . ')';
+        $this->getWriteConnection()->execute($sql);
         return (int)$this->getWriteConnection()->affectedRows();
     }
 
