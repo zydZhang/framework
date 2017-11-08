@@ -13,9 +13,18 @@ declare(strict_types=1);
 
 namespace Eelly\Queue\Adapter;
 
+use PhpAmqpLib\Message\AMQPMessage;
+
 class Consumer extends \Thumper\Consumer
 {
     private const PREFIX = 'eelly_api.';
+
+    /**
+     * Target number of messages to consume.
+     *
+     * @var int
+     */
+    private $target;
 
     /**
      * @param array $options
@@ -37,5 +46,39 @@ class Consumer extends \Thumper\Consumer
             $options['name'] = self::PREFIX.$options['name'];
         }
         parent::setQueueOptions($options);
+    }
+
+    /**
+     * @param int $numOfMessages
+     */
+    public function consume($numOfMessages): void
+    {
+        $this->target = $numOfMessages;
+
+        $this->setUpConsumer();
+
+        while (count($this->channel->callbacks)) {
+            $this->channel->wait(null, false, 30);
+        }
+    }
+
+    /**
+     * @return \PhpAmqpLib\Connection\AbstractConnection
+     */
+    public function getConnection()
+    {
+        return $this->channel->getConnection();
+    }
+
+    /**
+     * @param AMQPMessage $message
+     */
+    protected function maybeStopConsumer(AMQPMessage $message): void
+    {
+        if ($this->consumed == $this->target) {
+            $message->delivery_info['channel']
+                ->basic_cancel($message->delivery_info['consumer_tag']);
+            $this->consumed = 0;
+        }
     }
 }

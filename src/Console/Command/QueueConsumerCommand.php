@@ -83,26 +83,29 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
      */
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
+        // define('AMQP_DEBUG', true);
         $this->input = $input;
         $this->output = $output;
         $this->consumer = $this->createConsumer($this->input);
         while (true) {
-            $this->consumer->setCallback(
-                function ($msgBody): void {
-                    $this->consumerCallback(\GuzzleHttp\json_decode($msgBody, true));
-                }
-            );
-
             try {
                 $this->consumer->consume(100);
             } catch (
-                \PhpAmqpLib\Exception\AMQPRuntimeException
-                | \PhpAmqpLib\Exception\AMQPProtocolConnectionException $e
+                \PhpAmqpLib\Exception\AMQPRuntimeException |
+                \PhpAmqpLib\Exception\AMQPProtocolException |
+                \PhpAmqpLib\Exception\AMQPTimeoutException $e
             ) {
-                $output->writeln(sprintf('%s %d "%s"', formatTime(), getmypid(), $e->getMessage()));
+                $pid = getmypid();
+                $connection = $this->consumer->getConnection();
+                if ($connection->isConnected()) {
+                    try {
+                        $connection->close();
+                    } catch (\PhpAmqpLib\Exception\AMQPRuntimeException $e) {
+                    }
+                }
+                $output->writeln(sprintf('%s %d -1 "%s"', formatTime(), $pid, $e->getMessage()));
                 sleep(5);
                 $this->consumer = $this->createConsumer($this->input);
-                continue;
             }
         }
     }
@@ -151,6 +154,11 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
         $consumer->setExchangeOptions(['name' => $exchange, 'type' => 'topic']);
         $consumer->setRoutingKey($routingKey);
         $consumer->setQueueOptions(['name' => $exchange.'.'.$routingKey.'.'.$queue]);
+        $consumer->setCallback(
+            function ($msgBody): void {
+                $this->consumerCallback(\GuzzleHttp\json_decode($msgBody, true));
+            }
+        );
 
         return $consumer;
     }

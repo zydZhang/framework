@@ -309,7 +309,6 @@ abstract class Model extends MvcModel
         return (int) $this->getWriteConnection()->affectedRows();
     }*/
 
-
     /**
      * 批量删除，通过主键ID.
      * code
@@ -318,6 +317,7 @@ abstract class Model extends MvcModel
      * @param array $ids 一维数组的主键ID
      * @return int
      * @author 肖俊明<xiaojunming@eelly.net>
+     *
      * @since 2017年10月30日
      */
     public function batchDelete(array $ids)
@@ -328,8 +328,6 @@ abstract class Model extends MvcModel
         }
         $idStr = implode(',', $ids);
         $tableName = $this->getSource();
-
-        $binds = $ids;
         $sql = 'DELETE FROM ' . $tableName . ' WHERE ' . $this->pk . ' IN (' . $idStr . ')';
         $this->getWriteConnection()->execute($sql);
         return (int)$this->getWriteConnection()->affectedRows();
