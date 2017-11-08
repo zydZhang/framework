@@ -204,13 +204,12 @@ class HttpServerListener extends AbstractListener
     public function onTask(Server $server, int $taskId, int $workId, $data)
     {
         if (isset($data['class']) && method_exists($data['class'], $data['method'])) {
-            return call_user_func_array([new $data['class'], $data['method']], $data['params']);
+            return call_user_func_array([new $data['class'](), $data['method']], $data['params']);
         }
     }
 
     public function onFinish(Server $server, int $taskId, $data): void
     {
-
     }
 
     public function onPipeMessage(): void
