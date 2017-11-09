@@ -40,6 +40,9 @@ class HttpServerListener extends AbstractListener
 
     private $lock;
 
+    /**
+     * @var Server
+     */
     private $server;
 
     private $module;
@@ -139,7 +142,7 @@ class HttpServerListener extends AbstractListener
         /* @var SwoolePhalconRequest  $phalconHttpRequest */
         $phalconHttpRequest = $this->di->get('request');
         $phalconHttpRequest->initialWithSwooleHttpRequest($swooleHttpRequest);
-
+        $this->server->setSwooleHttpResponse($swooleHttpResponse);
         try {
             /* @var \Phalcon\Http\Response $response */
             $response = $this->application->handle();
@@ -216,7 +219,7 @@ class HttpServerListener extends AbstractListener
     {
     }
 
-    public function onWorkerError(): void
+    public function onWorkerError(Server $server, int $workerId, int $workerPid, int $exitCode, int $signal): void
     {
     }
 
