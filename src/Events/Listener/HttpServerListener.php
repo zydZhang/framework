@@ -143,6 +143,7 @@ class HttpServerListener extends AbstractListener
         $phalconHttpRequest = $this->di->get('request');
         $phalconHttpRequest->initialWithSwooleHttpRequest($swooleHttpRequest);
         $this->server->setSwooleHttpResponse($swooleHttpResponse);
+
         try {
             /* @var \Phalcon\Http\Response $response */
             $response = $this->application->handle();
