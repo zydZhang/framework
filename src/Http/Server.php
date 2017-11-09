@@ -15,6 +15,7 @@ namespace Eelly\Http;
 
 use Eelly\Events\Listener\HttpServerListener;
 use Swoole\Http\Server as HttpServer;
+use swoole_http_response as SwooleHttpResponse;
 
 /**
  * Class Server.
@@ -26,7 +27,7 @@ class Server extends HttpServer
      *
      * @var array
      */
-    private $events = [
+    private const EVENTS = [
         'Start',
         'Shutdown',
         'WorkerStart',
@@ -44,6 +45,11 @@ class Server extends HttpServer
         'ManagerStop',
     ];
 
+    /**
+     * @var SwooleHttpResponse
+     */
+    private $swooleHttpResponse;
+
     public function __construct(
         string $host,
         int $port,
@@ -55,8 +61,24 @@ class Server extends HttpServer
         parent::__construct($host, $port, $mode, $sockType);
         $this->set($options);
         $httpServerListener->setServer($this);
-        foreach ($this->events as $event) {
+        foreach (self::EVENTS as $event) {
             $this->on($event, [$httpServerListener, 'on'.$event]);
         }
+    }
+
+    /**
+     * @return SwooleHttpResponse
+     */
+    public function getSwooleHttpResponse(): SwooleHttpResponse
+    {
+        return $this->swooleHttpResponse;
+    }
+
+    /**
+     * @param SwooleHttpResponse $swooleHttpResponse
+     */
+    public function setSwooleHttpResponse(SwooleHttpResponse $swooleHttpResponse): void
+    {
+        $this->swooleHttpResponse = $swooleHttpResponse;
     }
 }
