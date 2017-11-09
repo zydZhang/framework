@@ -14,8 +14,11 @@ declare(strict_types=1);
 namespace Eelly\Application;
 
 use Eelly\Console\Application;
+use Eelly\Console\Command\FlushCacheCommand;
+use Eelly\Di\ConsoleDi;
 use Eelly\Di\Injectable;
 use Eelly\Error\Handler as ErrorHandler;
+use Phalcon\Config;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -24,10 +27,24 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  * @property \Eelly\Console\Application $application
  *
  * @author hehui<hehui@eelly.net>
+ *
+ * @deprecated
  */
 class ConsoleApplication extends Injectable
 {
-    public function initial()
+    /**
+     * ConsoleApplication constructor.
+     *
+     * @param array $config
+     */
+    public function __construct(array $config)
+    {
+        $di = new ConsoleDi();
+        $di->setShared('config', new Config($config));
+        $this->setDI($di);
+    }
+
+    public function initialize()
     {
         $di = $this->getDI();
         $di->setShared('application', function () {
@@ -43,7 +60,9 @@ class ConsoleApplication extends Injectable
         $errorHandler = $di->getShared(ErrorHandler::class);
         $errorHandler->register();
 
-        $this->initEventsManager();
+        $this->application->addCommands([
+            $di->get(FlushCacheCommand::class),
+        ]);
 
         return $this;
     }
@@ -57,25 +76,6 @@ class ConsoleApplication extends Injectable
 
     public function run(): void
     {
-        $this->initial()->handle()->run();
-    }
-
-    private function initEventsManager(): void
-    {
-        /**
-         * @var \Phalcon\Events\Manager $eventsManager
-         */
-        $eventsManager = $this->di->getEventsManager();
-        $eventsManager->attach('di:afterServiceResolve', function (\Phalcon\Events\Event $event, \Phalcon\Di $di, array $service): void {
-            if ($service['instance'] instanceof \Phalcon\Events\EventsAwareInterface) {
-                $service['instance']->setEventsManager($di->getEventsManager());
-            }
-            if (method_exists($service['instance'], 'afterServiceResolve')) {
-                $service['instance']->afterServiceResolve();
-            }
-        });
-
-        $this->di->setInternalEventsManager($eventsManager);
-        $eventDispatcher = new EventDispatcher();
+        $this->initialize()->handle()->run();
     }
 }

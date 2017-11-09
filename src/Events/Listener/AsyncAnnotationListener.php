@@ -37,6 +37,9 @@ class AsyncAnnotationListener extends AbstractListener
      */
     public function beforeExecuteRoute(Event $event, Dispatcher $dispatcher)
     {
+        if ('no-cache' == $this->request->getHeader('Cache-Control')) {
+            return true;
+        }
         // Parse the annotations in the method currently executed
         $annotations = $this->annotations->getMethod(
             $dispatcher->getControllerClass(),
@@ -52,8 +55,8 @@ class AsyncAnnotationListener extends AbstractListener
                 'time'    => microtime(true),
             ];
             $producer = $this->queueFactory->createProducer();
-            $producer->setExchangeOptions(['name' => '_PHEX_'.$dispatcher->getModuleName(), 'type' => 'direct']);
-            $routingKey = $annotation->getNamedParameter('route') ?? $dispatcher->getModuleName();
+            $producer->setExchangeOptions(['name' => $dispatcher->getModuleName(), 'type' => 'topic']);
+            $routingKey = $annotation->getNamedParameter('route') ?? 'default_routing_key';
             $producer->publish(json_encode($msgBody), $routingKey);
             if ($event->isCancelable()) {
                 $event->stop();

@@ -14,10 +14,10 @@ declare(strict_types=1);
 namespace Eelly\Events\Listener;
 
 use Eelly\Application\ApplicationConst;
-use Eelly\Http\Response;
 use Eelly\SDK\Logger\Api\ApiLogger;
 use MongoDB\BSON\ObjectID;
 use Phalcon\Events\Event;
+use Phalcon\Http\Response;
 use Phalcon\Http\Response\Headers;
 use Phalcon\Mvc\Application;
 use Phalcon\Mvc\Dispatcher;
@@ -58,12 +58,41 @@ class ApiLoggerListener extends AbstractListener
     private $extrasData;
 
     /**
+     * 白名单.
+     *
+     * @var array
+     */
+    private $whiteNameList;
+
+    public function __construct(array $whiteNameList = [])
+    {
+        $this->whiteNameList = $whiteNameList;
+    }
+
+    /**
+     * 添加白名单.
+     *
+     * @param string $whiteName
+     */
+    public function pushWhiteName(string $whiteName): void
+    {
+        array_push($this->whiteNameList, $whiteName);
+    }
+
+    /**
      * @param Event       $event
      * @param Application $application
      * @param Dispatcher  $dispatcher
      */
     public function beforeHandleRequest(Event $event, Application $application, Dispatcher $dispatcher): void
     {
+        $controllerClass = $dispatcher->getControllerClass();
+        $actionName = $dispatcher->getActionName();
+        $needle = $controllerClass.'::'.$actionName;
+        if (in_array($needle, $this->whiteNameList)) {
+            return;
+        }
+
         $request = $this->request;
         // 添加跟踪id
         $this->traceId = $request->getHeader('traceId');
@@ -77,7 +106,6 @@ class ApiLoggerListener extends AbstractListener
             }
         }
         $this->eellyClient->setTraceId($this->traceId);
-
         $this->requestData = [];
         $this->requestData['requestTime'] = $this->config->requestTime;
         $this->requestData['clientAddress'] = $request->getClientAddress(true);
@@ -87,8 +115,8 @@ class ApiLoggerListener extends AbstractListener
         $this->requestData['method'] = $request->getMethod();
         $this->requestData['post'] = $request->getPost();
         $this->requestData['moduleName'] = $dispatcher->getModuleName();
-        $this->requestData['controllerClass'] = $dispatcher->getControllerClass();
-        $this->requestData['actionName'] = $dispatcher->getActionName();
+        $this->requestData['controllerClass'] = $controllerClass;
+        $this->requestData['actionName'] = $actionName;
         $this->requestData['params'] = $this->router->getParams();
         $this->requestData['appEnv'] = ApplicationConst::$env;
     }
@@ -100,6 +128,9 @@ class ApiLoggerListener extends AbstractListener
      */
     public function beforeSendResponse(Event $event, Application $application, Response $response): void
     {
+        if (null == $this->requestData) {
+            return;
+        }
         $this->requestData['oauth'] = ApplicationConst::$oauth;
         $this->responseData['responseTime'] = microtime(true);
         $this->responseData['statusCode'] = $response->getStatusCode();
@@ -107,6 +138,15 @@ class ApiLoggerListener extends AbstractListener
         $this->responseData['headers'] = $response->getHeaders()->toArray();
         $this->extrasData['usedTime'] = $this->responseData['responseTime'] - $this->requestData['requestTime'];
         $this->extrasData['usedMemory'] = memory_get_peak_usage(true);
-        (new ApiLogger())->log($this->traceId, $this->requestData, $this->responseData, $this->extrasData);
+        if (APP['env'] == 'swoole') {
+            $server = $this->getDI()->getShared('swooleServer');
+            $server->task([
+                'class'  => ApiLogger::class,
+                'method' => 'log',
+                'params' => [$this->traceId, $this->requestData, $this->responseData, $this->extrasData],
+            ]);
+        } else {
+            (new ApiLogger())->log($this->traceId, $this->requestData, $this->responseData, $this->extrasData);
+        }
     }
 }

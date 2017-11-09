@@ -13,10 +13,9 @@ declare(strict_types=1);
 
 namespace Eelly\Dispatcher;
 
-use Eelly\Doc\ApiDoc;
 use Eelly\DTO\UidDTO;
+use Eelly\Exception\InvalidArgumentException;
 use Eelly\Exception\RequestException;
-use InvalidArgumentException;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;
 use Phalcon\Mvc\Dispatcher\Exception as DispatchException;
@@ -31,10 +30,14 @@ class ServiceDispatcher extends Dispatcher
      */
     public static $uidDTO;
 
-    public function afterServiceResolve(): void
+    public function __construct()
     {
         $this->setControllerSuffix('Logic');
         $this->setActionSuffix('');
+    }
+
+    public function afterServiceResolve(): void
+    {
         $this->getEventsManager()->attach('dispatch', $this);
     }
 
@@ -68,51 +71,9 @@ class ServiceDispatcher extends Dispatcher
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @see \Phalcon\Dispatcher::setParams()
-     */
-    public function setParams($routeParams): void
-    {
-        /**
-         * @var \Eelly\Http\ServiceRequest $request
-         */
-        $request = $this->getDI()->getShared('request');
-        if ($request->isPost()) {
-            $this->setSeviceParams($routeParams);
-        } elseif ($request->isGet()) {
-            $module = $this->getModuleName();
-            $class = parent::getHandlerClass();
-            $method = $this->getActionName();
-            $this->setControllerSuffix('');
-            $this->setControllerName(ApiDoc::class);
-            $this->setActionName('display');
-            parent::setParams([$module, $class, $method]);
-        } else {
-            // Method Not Allowed
-            throw new RequestException(405, null, $this->getDI()->getShared('request'), $this->getDI()->getShared('response'));
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @see \Phalcon\Dispatcher::getHandlerClass()
-     */
-    public function getHandlerClass()
-    {
-        $request = $this->getDI()->getShared('request');
-        if ($request->isGet()) {
-            return ApiDoc::class;
-        } else {
-            return parent::getHandlerClass();
-        }
-    }
-
-    /**
      * @param array $routeParams
      */
-    private function setSeviceParams(array $routeParams): void
+    public function setParams($routeParams): void
     {
         $class = $this->getControllerClass();
         $method = $this->getActionName();
@@ -150,6 +111,7 @@ class ServiceDispatcher extends Dispatcher
     {
         $response = $this->getDI()->getShared('response');
         $response->setStatusCode(400);
+
         throw new InvalidArgumentException($message);
     }
 
@@ -197,7 +159,11 @@ class ServiceDispatcher extends Dispatcher
                         if (is_array($routeParams[$position]) && 'array' != $expectedType) {
                             $functionOfThrowInvalidArgumentException($position, $expectedType, 'array');
                         }
-                        settype($routeParams[$position], $expectedType);
+                        if ('/*_EMPTY_ARRAY_*/' == $routeParams[$position]) {
+                            $routeParams[$position] = [];
+                        } else {
+                            settype($routeParams[$position], $expectedType);
+                        }
                     } elseif (!is_a($routeParams[$position], $expectedType)) {
                         $functionOfThrowInvalidArgumentException($position, $expectedType, gettype($routeParams[$position]));
                     }

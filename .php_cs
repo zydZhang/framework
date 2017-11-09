@@ -37,4 +37,4 @@ return PhpCsFixer\Config::create()
     ->setRiskyAllowed(true)
     ->setRules($rules)
     ->setFinder($finder)
-    ->setCacheFile(sys_get_temp_dir().'/.php_cs.cache');
+    ->setCacheFile(sys_get_temp_dir().'/'.md5(__FILE__).'.php_cs.cache');

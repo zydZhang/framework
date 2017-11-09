@@ -58,12 +58,23 @@ class ServiceHandler extends AbstractProcessingHandler implements InjectionAware
                 $content['context'] = $record['context'];
                 break;
         }
-        /**
-         * @var \Phalcon\Http\Response
-         */
+        /* @var \Eelly\Http\Response $response */
         $response = $this->getDI()->getResponse();
-        $response->setStatusCode(500, $record['level_name']);
-        $response->setJsonContent($content);
-        $response->send();
+        $response = $response->setStatusCode(500, $record['level_name']);
+        $response = $response->setJsonContent($content);
+        if ('swoole' == APP['env']) {
+            /* @var \Eelly\Http\Server $server */
+            $server = $this->getDI()->getShared('swooleServer');
+            $swooleHttpResponse = $server->getSwooleHttpResponse();
+            $content = $response->getContent();
+            $headers = $response->getHeaders();
+            $swooleHttpResponse->status($response->getStatusCode());
+            foreach ($headers->toArray() as $key => $value) {
+                $swooleHttpResponse->header($key, (string) $value);
+            }
+            $swooleHttpResponse->end($content);
+        } else {
+            $response->send();
+        }
     }
 }

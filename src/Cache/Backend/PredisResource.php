@@ -20,7 +20,7 @@ class PredisResource extends PredisClient
     /**
      * @param string $key
      *
-     * @return number
+     * @return int
      */
     public function delete($key)
     {
@@ -31,10 +31,20 @@ class PredisResource extends PredisClient
      * @param string $key
      * @param int    $lifetime
      *
-     * @return number
+     * @return int
      */
     public function settimeout($key, $lifetime)
     {
         return $this->expire($key, $lifetime);
+    }
+
+    /**
+     * @param $key
+     *
+     * @return bool
+     */
+    public function exists($key)
+    {
+        return (bool) parent::exists($key);
     }
 }

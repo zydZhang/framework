@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace Eelly\Test;
 
 use Eelly\Di\InjectionAwareInterface;
+use Eelly\Di\ServiceDi;
+use Phalcon\Config;
 use Phalcon\Di;
 use Phalcon\DiInterface;
 use PHPUnit\Framework\TestCase;
@@ -34,8 +36,9 @@ class UnitTestCase extends TestCase implements InjectionAwareInterface
     protected function setUp(): void
     {
         Di::reset();
-
-        $di = require 'var/config/config.php';
+        $config = require 'var/config/config.php';
+        $di = new ServiceDi();
+        $di->setShared('config', new Config($config));
         \Eelly\Application\ApplicationConst::$env = $di->getConfig()->env;
         list($moduleName) = explode('\\', static::class);
         $loader = $di->getShared('loader');
