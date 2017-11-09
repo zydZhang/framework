@@ -82,7 +82,7 @@ class Number
 
         $data = [];
         $level = 2 ** $level;
-        for ($i = 1; $i < $level; $i++) {
+        for ($i = 1; $i < $level; ++$i) {
             $i & $value && $data[] = $i;
         }
 
@@ -104,7 +104,7 @@ class Number
         $value = (int) $value;
 
         $data = [];
-        for ($i = 0; $i < $level; $i++) {
+        for ($i = 0; $i < $level; ++$i) {
             $j = 2 ** $i;
             $value & $j && $data[] = $j;
         }

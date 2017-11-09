@@ -133,6 +133,6 @@ if (!function_exists('priceOfConversion')) {
      */
     function priceOfConversion($price, $type = 'fen')
     {
-        return 'fen' === $type ? intval($price * 100) : $price / 100;
+        return 'fen' === $type ? (int) ($price * 100) : $price / 100;
     }
 }
