@@ -38,8 +38,6 @@ class HttpServerListener extends AbstractListener
 
     private $defaultTimezone;
 
-    private $lock;
-
     /**
      * @var Server
      */
@@ -47,14 +45,13 @@ class HttpServerListener extends AbstractListener
 
     private $module;
 
-    public function __construct(InputInterface $input, OutputInterface $output)
+    public function __construct(InputInterface $input, OutputInterface $output, $module)
     {
         $this->input = $input;
         $this->output = $output;
         $this->io = new SymfonyStyle($input, $output);
         $this->defaultTimezone = $this->config->defaultTimezone;
-        $this->lock = new \swoole_lock(SWOOLE_MUTEX);
-        $this->module = $input->getArgument('module');
+        $this->module = $module;
     }
 
     public function setServer(Server $server): void
@@ -64,19 +61,7 @@ class HttpServerListener extends AbstractListener
 
     public function onStart(Server $server): void
     {
-        swoole_set_process_name("php httpserver master {$this->module}");
-        $info = sprintf('%s "swoole http server start" %s:%d', formatTime($this->defaultTimezone), $server->host, $server->port);
-        $this->io->writeln($info);
-        $masterPid = $server->master_pid;
-        $managerPid = $server->manager_pid;
-        $masterPidFile = 'var/pid/'.$this->module.'_master.pid';
-        $managerPidFile = 'var/pid/'.$this->module.'_manager.pid';
-        \Swoole\Async::writeFile($masterPidFile, (string) $masterPid);
-        \Swoole\Async::writeFile($managerPidFile, (string) $managerPid);
-        $this->io->table(['name', 'pid', 'file'], [
-            ['master', $masterPid, $masterPidFile],
-            ['manager', $managerPid, $managerPidFile],
-        ]);
+        $server->setProcessName('server');
     }
 
     public function onShutdown(): void
@@ -85,18 +70,10 @@ class HttpServerListener extends AbstractListener
 
     public function onWorkerStart(Server $server, int $workerId): void
     {
+        chdir(APP['root_path']);
         $module = $this->module;
-        if ($workerId >= $server->setting['worker_num']) {
-            $processName = "php httpserver {$module} task worker #{$workerId}";
-            swoole_set_process_name($processName);
-        } else {
-            $processName = "php httpserver {$module} event worker #{$workerId}";
-            swoole_set_process_name($processName);
-        }
-        $info = sprintf('%s "%s" %d', formatTime($this->defaultTimezone), $processName, getmypid());
-        $this->lock->lock();
-        $this->io->writeln($info);
-        $this->lock->unlock();
+        $processName = $workerId >= $server->setting['worker_num'] ? 'task#'.$workerId : 'event#'.$workerId;
+        $server->setProcessName($processName);
 
         $di = $this->getDI();
         $di->setShared('application', new MvcApplication($di));
@@ -216,7 +193,7 @@ class HttpServerListener extends AbstractListener
     {
     }
 
-    public function onPipeMessage(): void
+    public function onPipeMessage(Server $server, int $workId, string $message): void
     {
     }
 
@@ -226,7 +203,7 @@ class HttpServerListener extends AbstractListener
 
     public function onManagerStart(Server $server): void
     {
-        swoole_set_process_name("php httpserver manager {$this->module}");
+        $server->setProcessName('manager');
     }
 
     public function onManagerStop(): void
