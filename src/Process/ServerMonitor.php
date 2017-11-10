@@ -34,7 +34,7 @@ class ServerMonitor extends Process
         return $this->server;
     }
 
-    public function processhandler(ServerMonitor $serverMonitor): void
+    public function processhandler(self $serverMonitor): void
     {
         $this->server->setProcessName('monitor');
         $serverMonitor->useQueue(ftok($this->server->setting['pid_file'], 1));
