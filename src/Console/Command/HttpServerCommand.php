@@ -34,12 +34,12 @@ class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterfac
     use InjectableTrait;
 
     private const SIGNALS = [
-        'start'      => '启动服务',
-        'reload'     => '重启服务',
-        'plist'      => '进程列表',
-        'clist'      => '连接列表',
-        'shutdown'   => '关闭服务器',
-        'stats'      => '服务状态',
+        'start'    => '启动服务',
+        'reload'   => '重启服务',
+        'plist'    => '进程列表',
+        'clist'    => '连接列表',
+        'shutdown' => '关闭服务器',
+        'stats'    => '服务状态',
     ];
 
     protected function configure(): void
@@ -81,7 +81,8 @@ class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterfac
             $httpServer->addProcess(new ServerHealth($httpServer));
             $httpServer->start();
         } else {
-            $process = new Process(function (): void {});
+            $process = new Process(function (): void {
+            });
             $process->createQueue();
             $process->send('client', 'server', $signal);
             $message = $process->receive('client', 'server');
