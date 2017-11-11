@@ -18,6 +18,8 @@ use Eelly\Di\Traits\InjectableTrait;
 use Eelly\Events\Listener\HttpServerListener;
 use Eelly\Exception\InvalidArgumentException;
 use Eelly\Http\Server as HttpServer;
+use Eelly\Process\Process;
+use Eelly\Process\ServerHealth;
 use Eelly\Process\ServerMonitor;
 use Phalcon\Events\EventsAwareInterface;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
@@ -25,28 +27,36 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterface, EventsAwareInterface
 {
     use InjectableTrait;
 
     private const SIGNALS = [
-        'start'  => SIGIO,
-        'reload' => SIGUSR1,
-        'quit'   => SIGINT,
-        'stop'   => SIGKILL,
-        'status' => SIGUSR2,
+        'start'      => '启动服务',
+        'reload'     => '重启服务',
+        'plist'      => '进程列表',
+        'clist'      => '连接列表',
+        'shutdown'   => '关闭服务器',
+        'stats'      => '服务状态',
     ];
 
     protected function configure(): void
     {
+        $help = "\n\n系统信号选项说明\n";
+        $rows = [];
+        foreach (self::SIGNALS as $key => $value) {
+            $rows[] = [$key, $value];
+        }
+        $help .= consoleTableStream(['名称', '说明'], $rows);
         $this->setName('httpserver')
             ->setDescription('Http server')
-            ->setHelp('Builtin http server powered by swoole.');
+            ->setHelp('Builtin http server powered by swoole.'.$help);
         $this->addArgument('module', InputArgument::REQUIRED, '模块名，如: example');
         $this->addOption('daemonize', '-d', InputOption::VALUE_OPTIONAL, '是否守护进程化', false);
         $this->addOption('port', '-p', InputOption::VALUE_OPTIONAL, '监听端口', 9501);
-        $this->addOption('signal', '-s', InputOption::VALUE_OPTIONAL, '系统信号(start|reload|quit|stop|status)', 'start');
+        $this->addOption('signal', '-s', InputOption::VALUE_OPTIONAL, sprintf('系统信号(%s)', implode('|', array_keys(self::SIGNALS))), 'start');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): void
@@ -55,6 +65,7 @@ class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterfac
         if (!array_key_exists($signal, self::SIGNALS)) {
             throw new InvalidArgumentException('Signal not found');
         }
+        $io = new SymfonyStyle($input, $output);
         if ('start' == $signal) {
             $module = (string) $input->getArgument('module');
             /* @var HttpServerListener $listener */
@@ -66,10 +77,28 @@ class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterfac
             $options['module'] = $module;
             $httpServer = new HttpServer('0.0.0.0', (int) $input->getOption('port'), $listener, $options, $input, $output);
             $this->di->setShared('swooleServer', $httpServer);
-
-            $serverMonitor = new ServerMonitor($httpServer);
-            $httpServer->addProcess($serverMonitor);
+            $httpServer->addProcess(new ServerMonitor($httpServer));
+            $httpServer->addProcess(new ServerHealth($httpServer));
             $httpServer->start();
+        } else {
+            $process = new Process(function (): void {});
+            $process->createQueue();
+            $process->send('client', 'server', $signal);
+            $message = $process->receive('client', 'server');
+            if (is_array($message['msg'])) {
+                $rows = [];
+                foreach ($message['msg'] as $key => $value) {
+                    if (is_array($value)) {
+                        $value = json_encode($value);
+                    }
+                    $rows[] = [$key, $value];
+                }
+                $io->table(['property', 'value'], $rows);
+            } elseif (is_bool($message['msg'])) {
+                $io->success(sprintf('%s %s', $signal, $message['msg'] ? 'ok' : 'false'));
+            } else {
+                $io->error('return data error');
+            }
         }
     }
 }

@@ -136,3 +136,29 @@ if (!function_exists('priceOfConversion')) {
         return 'fen' === $type ? (int) ($price * 100) : $price / 100;
     }
 }
+
+if (!function_exists('consoleTable')) {
+    /**
+     * 表单流输出.
+     *
+     * @param array  $headers
+     * @param array  $rows
+     * @param string $tableStyle
+     *
+     * @return \GuzzleHttp\Stream\Stream
+     */
+    function consoleTableStream(array $headers, array $rows, $tableStyle = 'default')
+    {
+        $stream = \GuzzleHttp\Stream\Stream::factory();
+
+        $streamOutput = new \Symfony\Component\Console\Output\StreamOutput($stream->detach());
+        $style = clone \Symfony\Component\Console\Helper\Table::getStyleDefinition($tableStyle);
+        $style->setCellHeaderFormat('<info>%s</info>');
+        $table = new \Symfony\Component\Console\Helper\Table($streamOutput);
+        $table->setHeaders($headers)->addRows($rows)->setStyle($style);
+        $table->render();
+        $stream->attach($streamOutput->getStream());
+
+        return $stream;
+    }
+}

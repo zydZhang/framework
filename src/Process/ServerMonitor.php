@@ -14,8 +14,10 @@ declare(strict_types=1);
 namespace Eelly\Process;
 
 use Eelly\Http\Server;
-use Swoole\Process;
 
+/**
+ * 服务器监控进程.
+ */
 class ServerMonitor extends Process
 {
     /**
@@ -23,7 +25,7 @@ class ServerMonitor extends Process
      */
     private $server;
 
-    public function __construct(Server $server, bool $redirectStdinStdout = false, bool $createPipe = true)
+    public function __construct(Server $server = null, bool $redirectStdinStdout = false, int $createPipe = 2)
     {
         parent::__construct([$this, 'processhandler'], $redirectStdinStdout, $createPipe);
         $this->server = $server;
@@ -36,63 +38,38 @@ class ServerMonitor extends Process
 
     public function processhandler(ServerMonitor $serverMonitor): void
     {
+        $this->reCreateQueue();
         $this->server->setProcessName('monitor');
-        $serverMonitor->useQueue(ftok($this->server->setting['pid_file'], 1));
-        while ($message = $this->receive()) {
+        // 处理客户端发送的消息
+        while ($message = $this->receive('server', 'client')) {
             switch ($message['msg']) {
-                case 'status':
-                    $this->send($this->server->stats());
+                case 'stats':
+                    $this->sendMessageToClient($this->server->stats());
                     break;
                 case 'clist':
                     $allConnList = [];
                     foreach ($this->server->connections as $fd) {
                         $allConnList[$fd] = $this->server->getClientInfo($fd);
                     }
-                    $this->send($allConnList);
+                    $this->sendMessageToClient($allConnList);
                     break;
                 case 'plist':
+                    $this->sendMessageToClient($this->server->getAllProcessInfo());
                     break;
-                case 'quit':
-                    break;
-                case 'stop':
+                case 'shutdown':
+                    $this->sendMessageToClient($this->server->shutdown());
                     break;
                 case 'reload':
-                    if ($this->server->reload()) {
-                        $this->send('reload ok');
-                    }
+                    $this->sendMessageToClient($this->server->reload());
+                    break;
+                default:
+                    $this->sendMessageToClient(false);
             }
         }
     }
 
-    /**
-     * @return mixed
-     */
-    private function receive()
+    private function sendMessageToClient($msg)
     {
-        $rawMessage = $this->pop();
-        $message = json_decode($rawMessage, true);
-        // 抢到自己发送的数据
-        if ($message['from'] == getmypid()) {
-            $this->push($rawMessage);
-            sleep(1);
-
-            return $this->receive();
-        } else {
-            return $message;
-        }
-    }
-
-    /**
-     * @param $msg
-     */
-    private function send($msg): void
-    {
-        $message = json_encode(
-            [
-                'from' => getmypid(),
-                'msg'  => $msg,
-            ]
-        );
-        $this->push($message);
+        return $this->send('server', 'client', $msg);
     }
 }
