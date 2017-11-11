@@ -36,7 +36,7 @@ class ServerHealth extends Process
         return $this->server;
     }
 
-    public function processhandler(ServerHealth $serverMonitor): void
+    public function processhandler(self $serverMonitor): void
     {
         $this->server->setProcessName('health');
         $this->server->tick(1000, function (): void {
