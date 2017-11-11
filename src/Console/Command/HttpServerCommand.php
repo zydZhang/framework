@@ -73,7 +73,7 @@ class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterfac
             $env = $this->config->env;
             $options = require 'var/config/'.$env.'/'.$module.'/swoole.php';
             $daemonize = $input->getOption('daemonize');
-            $options['daemonize'] = $input->hasParameterOption(array('--daemonize', '-d'), true);
+            $options['daemonize'] = $input->hasParameterOption(['--daemonize', '-d'], true);
             $options['module'] = $module;
             $httpServer = new HttpServer('0.0.0.0', (int) $input->getOption('port'), $listener, $options, $input, $output);
             $this->di->setShared('swooleServer', $httpServer);
