@@ -280,58 +280,29 @@ abstract class Model extends MvcModel
         return (int) $this->getWriteConnection()->affectedRows();
     }
 
-    /**
-     * 自定义封装，通过传过来的where条件删除数据.
-     *
-     * @param array $where 更新条件
-     *
-     * @requestExample({"where":{"pk_id":10}})
-     *
-     * @return int
-     */
-    public function arrayDelete(array $where = [])
-    {
-        if (empty($where)) {
-            return false;
-        }
-
-        $tableName = $this->getSource();
-        $whereSql = '';
-        //拼接条件
-        foreach ($where as $wk => $wv) {
-            $whereSql .= $wk.' = "'.$wv.'" AND ';
-        }
-
-        $whereSql = rtrim($whereSql, ' AND ');
-        $sql = 'DELETE FROM '.$tableName.' WHERE '.$whereSql;
-        $this->getDI()->get('dbMaster')->execute($sql);
-
-        return (int) $this->getWriteConnection()->affectedRows();
-    }
 
     /**
-     * 批量删除.
+     * 批量删除，通过主键ID.
      * code
-     *  $conditions = 'cb_id IN (?) AND owner_id=?';
-     *  $binds = [1,3,4, $ownerId];
-     * code.
-     *
-     * @param string $conditions 绑定的sql语句
-     * @param array  $binds      数组
-     *
-     * @return MvcModel\QueryInterface
-     *
+     *  $ids = [1,3,4];
+     * code
+     * @param array $ids 一维数组的主键ID
+     * @return int
      * @author 肖俊明<xiaojunming@eelly.net>
      *
      * @since 2017年10月30日
      */
-    public function batchDelete(string $conditions, array $binds)
+    public function batchDelete(array $ids)
     {
+        $ids = array_map('intval', $ids);
+        if (empty($ids)) {
+            return false;
+        }
+        $idStr = implode(',', $ids);
         $tableName = $this->getSource();
-        $sql = 'DELETE FROM '.$tableName.' WHERE '.$conditions;
-        $this->getWriteConnection()->execute($sql, $binds);
-
-        return (int) $this->getWriteConnection()->affectedRows();
+        $sql = 'DELETE FROM ' . $tableName . ' WHERE ' . $this->pk . ' IN (' . $idStr . ')';
+        $this->getWriteConnection()->execute($sql);
+        return (int)$this->getWriteConnection()->affectedRows();
     }
 
     /**

@@ -137,7 +137,40 @@ if (!function_exists('priceOfConversion')) {
     }
 }
 
-if (!function_exists('consoleTable')) {
+if (!function_exists('numberToCode')) {
+    /**
+
+     *
+     * 数字转码成为指定位数的字符串
+     *
+     * @param int $number
+     * @param int $stringLength
+     * @return string
+     */
+    function numberToCode($number, $stringLength = 0){
+        $strArr = array('0','1','2','3','4','5','6','7','8','9',
+                        'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
+                        'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+        );
+        $returnStr = '';
+        while (1) {
+            $newNumber = floor($number / 62);
+            $key = $number % 62;
+            $returnStr = $strArr[$key] . $returnStr;
+            if ($newNumber > 0) {
+                $number = $newNumber;
+            } else {
+                break;
+            }
+        }
+        if ($stringLength < strlen($returnStr)) {
+            return $returnStr;
+        }
+        return str_pad($returnStr, $stringLength, '0', STR_PAD_LEFT);
+    }
+}
+
+if (!function_exists('consoleTableStream')) {
     /**
      * 表单流输出.
      *
