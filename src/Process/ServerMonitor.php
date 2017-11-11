@@ -36,7 +36,7 @@ class ServerMonitor extends Process
         return $this->server;
     }
 
-    public function processhandler(ServerMonitor $serverMonitor): void
+    public function processhandler(self $serverMonitor): void
     {
         $this->reCreateQueue();
         $this->server->setProcessName('monitor');
