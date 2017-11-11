@@ -280,14 +280,16 @@ abstract class Model extends MvcModel
         return (int) $this->getWriteConnection()->affectedRows();
     }
 
-
     /**
      * 批量删除，通过主键ID.
      * code
      *  $ids = [1,3,4];
-     * code
+     * code.
+     *
      * @param array $ids 一维数组的主键ID
+     *
      * @return int
+     *
      * @author 肖俊明<xiaojunming@eelly.net>
      *
      * @since 2017年10月30日
@@ -300,9 +302,10 @@ abstract class Model extends MvcModel
         }
         $idStr = implode(',', $ids);
         $tableName = $this->getSource();
-        $sql = 'DELETE FROM ' . $tableName . ' WHERE ' . $this->pk . ' IN (' . $idStr . ')';
+        $sql = 'DELETE FROM '.$tableName.' WHERE '.$this->pk.' IN ('.$idStr.')';
         $this->getWriteConnection()->execute($sql);
-        return (int)$this->getWriteConnection()->affectedRows();
+
+        return (int) $this->getWriteConnection()->affectedRows();
     }
 
     /**
