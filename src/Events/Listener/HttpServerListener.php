@@ -118,9 +118,10 @@ class HttpServerListener extends AbstractListener
         }
         //检查 swoole 服务的 status
         if ($swooleHttpRequest->server['request_uri'] == '/swoole.status') {
-            if($swooleHttpRequest->server['remote_addr'] == '127.0.0.1'){
+            if ($swooleHttpRequest->server['remote_addr'] == '127.0.0.1') {
                 $info = $this->server->stats();
                 $swooleHttpResponse->end(var_export($info, true));
+
                 return;
             }
         }
