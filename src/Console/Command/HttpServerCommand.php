@@ -95,7 +95,11 @@ class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterfac
                 }
                 $io->table(['property', 'value'], $rows);
             } elseif (is_bool($message['msg'])) {
-                $io->success(sprintf('%s %s', $signal, $message['msg'] ? 'ok' : 'false'));
+                if ($message['msg']) {
+                    $io->success(sprintf('%s %s', $signal, 'ok'));
+                } else {
+                    $io->warning(sprintf('%s %s', $signal, 'false'));
+                }
             } else {
                 $io->error('return data error');
             }
