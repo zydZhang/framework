@@ -15,11 +15,14 @@ namespace Eelly\Console\Command;
 
 use Eelly\Di\InjectionAwareInterface;
 use Eelly\Di\Traits\InjectableTrait;
+use Eelly\Process\Process;
 use InvalidArgumentException;
 use Phalcon\Events\EventsAwareInterface;
+use Swoole\Atomic;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -27,6 +30,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * 该命令支持3个参数，示例如下：
  *
+ * 选项 --count 可以指定消费者数量
  * ```
  * // 异步任务的消费，默认路由消费
  * bin/console queue-consumer logger
@@ -44,7 +48,10 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
 {
     use InjectableTrait;
 
-    private const WORKER_NUM = 5;
+    /**
+     * @var array
+     */
+    private $workers;
 
     /**
      * @var InputInterface
@@ -57,9 +64,9 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
     private $output;
 
     /**
-     * @var \Eelly\Queue\Adapter\Consumer
+     * @var Atomic
      */
-    private $consumer;
+    private $atomic;
 
     /**
      * {@inheritdoc}
@@ -71,8 +78,9 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
             ->setHelp('队列消费者');
 
         $this->addArgument('exchange', InputArgument::REQUIRED, '交换机名，系统设计为你的模块名，例如: logger');
-        $this->addArgument('routingKey', InputArgument::OPTIONAL, '路由key', 'default_routing_key');
-        $this->addArgument('queue', InputArgument::OPTIONAL, '队列名', 'default_queue');
+        $this->addOption('--routingKey', null, InputOption::VALUE_OPTIONAL, '路由key', 'default_routing_key');
+        $this->addOption('--queue', null, InputOption::VALUE_OPTIONAL, '队列名', 'default_queue');
+        $this->addOption('--count', null, InputOption::VALUE_OPTIONAL, '消费者数量', 5);
     }
 
     /**
@@ -86,80 +94,138 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
         // define('AMQP_DEBUG', true);
         $this->input = $input;
         $this->output = $output;
-        $this->consumer = $this->createConsumer($this->input);
-        while (true) {
-            try {
-                $this->consumer->consume(100);
-            } catch (
+        $this->atomic = new Atomic();
+        $this->createProcess();
+        $this->waitProcess();
+    }
+
+    private function createProcess(): void
+    {
+        $count = (int) $this->input->getOption('count');
+        for ($i = 0; $i < $count; ++$i) {
+            $this->createConsumerProcess($i);
+        }
+    }
+
+    /**
+     * @param int $index
+     *
+     * @return Process|__anonymous@2630
+     */
+    private function createConsumerProcess(int $index)
+    {
+        $process = new class(function (Process $worker) use ($index): void {
+            $worker->setDi($this->di);
+            $exchange = $this->input->getArgument('exchange');
+            $routingKey = $this->input->getOption('routingKey');
+            $queue = $this->input->getOption('queue');
+
+            $consumer = $worker->createConsumer($exchange, $routingKey, $queue);
+            $processName = $consumer->getQueueOptions()['name'].'#'.$index;
+            $worker->name($processName);
+            $pid = getmypid();
+            $worker->write(sprintf('%s %d -1 "worker %s"', formatTime(), $pid, $processName));
+            while (true) {
+                try {
+                    $consumer->consume(100);
+                } catch (
                 \PhpAmqpLib\Exception\AMQPRuntimeException |
                 \PhpAmqpLib\Exception\AMQPProtocolException |
                 \PhpAmqpLib\Exception\AMQPTimeoutException $e
-            ) {
-                $pid = getmypid();
-                $connection = $this->consumer->getConnection();
-                if ($connection->isConnected()) {
-                    try {
-                        $connection->close();
-                    } catch (\PhpAmqpLib\Exception\AMQPRuntimeException $e) {
+                ) {
+                    $connection = $consumer->getConnection();
+                    if ($connection->isConnected()) {
+                        try {
+                            $connection->close();
+                        } catch (\PhpAmqpLib\Exception\AMQPRuntimeException $e) {
+                        }
                     }
+                    $worker->write(sprintf('%s %d -1 "%s"', formatTime(), $pid, $e->getMessage()));
+                    sleep(random_int(1, 10));
+                    $consumer = $worker->createConsumer($exchange, $routingKey, $queue);
+                } catch (\Exception $e) {
+                    $worker->write(sprintf('%s %d -1 "%s"', formatTime(), $pid, $e->getMessage()));
+                    break;
                 }
-                $output->writeln(sprintf('%s %d -1 "%s"', formatTime(), $pid, $e->getMessage()));
-                sleep(5);
-                $this->consumer = $this->createConsumer($this->input);
             }
-        }
+        }) extends Process{
+            private $di;
+
+            /**
+             * @var Atomic
+             */
+            private $atomic;
+
+            public function setDi($di): void
+            {
+                $this->di = $di;
+            }
+
+            public function setAtomic(Atomic $atomic): void
+            {
+                $this->atomic = $atomic;
+            }
+
+            public function createConsumer($exchange, $routingKey, $queue)
+            {
+                $moduleName = ucfirst($exchange).'\\Module';
+                if (!class_exists($moduleName)) {
+                    throw new InvalidArgumentException('Not found exchange: '.$exchange);
+                }
+                /**
+                 * @var \Eelly\Mvc\AbstractModule
+                 */
+                $moduleObject = $this->di->getShared($moduleName);
+                /*
+                     * 'registerAutoloaders' and 'registerServices' are automatically called
+                     */
+                $moduleObject->registerAutoloaders($this->di);
+                $moduleObject->registerServices($this->di);
+                /* @var \Eelly\Queue\Adapter\Consumer $consumer */
+                $queueFactory = $this->di->get('queueFactory');
+                $consumer = $queueFactory->createConsumer();
+                $consumer->setExchangeOptions(['name' => $exchange, 'type' => 'topic']);
+                $consumer->setRoutingKey($routingKey);
+                $consumer->setQueueOptions(['name' => $exchange.'.'.$routingKey.'.'.$queue]);
+                $consumer->setCallback(
+                    function ($msgBody): void {
+                        $this->consumerCallback(\GuzzleHttp\json_decode($msgBody, true));
+                    }
+                );
+
+                return $consumer;
+            }
+
+            /**
+             * @param array $msg
+             */
+            private function consumerCallback(array $msg): void
+            {
+                $object = $this->di->getShared($msg['class']);
+                $pid = getmypid();
+                $num = $this->atomic->add(1);
+                $this->write(sprintf('%s %d %d "%s::%s()" start', formatTime(), $pid, $num, $msg['class'], $msg['method']));
+                $start = microtime(true);
+                $return = call_user_func_array([$object, $msg['method']], $msg['params']);
+                $usedTime = microtime(true) - $start;
+                $this->write(sprintf('%s %d %d "%s::%s()" "%s" %s', formatTime(), $pid, $num, $msg['class'], $msg['method'], json_encode($return), $usedTime));
+            }
+        };
+        $process->setAtomic($this->atomic);
+        $this->workers[$index] = $process->start();
+        swoole_event_add($process->pipe, function ($pipe) use ($process): void {
+            $this->output->writeln($process->read());
+        });
     }
 
-    /**
-     * @param array $msg
-     */
-    private function consumerCallback(array $msg): void
+    private function waitProcess(): void
     {
-        $object = $this->di->getShared($msg['class']);
-        $pid = getmypid();
-        $this->output->writeln(sprintf('%s %d %d "%s::%s()" start', formatTime(), $pid, $this->consumer->consumed, $msg['class'], $msg['method']));
-        $start = microtime(true);
-        $return = call_user_func_array([$object, $msg['method']], $msg['params']);
-        $usedTime = microtime(true) - $start;
-        $this->output->writeln(sprintf('%s %d %d "%s::%s()" "%s" %s', formatTime(), $pid, $this->consumer->consumed, $msg['class'], $msg['method'], json_encode($return), $usedTime));
-    }
-
-    /**
-     * @param InputInterface $input
-     *
-     * @return \Eelly\Queue\Adapter\Consumer
-     */
-    private function createConsumer(InputInterface $input)
-    {
-        $exchange = $input->getArgument('exchange');
-        $routingKey = $input->getArgument('routingKey');
-        $queue = $input->getArgument('queue');
-
-        $moduleName = ucfirst($exchange).'\\Module';
-        if (!class_exists($moduleName)) {
-            throw new InvalidArgumentException('Not found exchange: '.$exchange);
-        }
-        /**
-         * @var \Eelly\Mvc\AbstractModule
-         */
-        $moduleObject = $this->di->getShared($moduleName);
-        /*
-         * 'registerAutoloaders' and 'registerServices' are automatically called
-         */
-        $moduleObject->registerAutoloaders($this->di);
-        $moduleObject->registerServices($this->di);
-        /* @var \Eelly\Queue\Adapter\Consumer $consumer */
-        $queueFactory = $this->di->get('queueFactory');
-        $consumer = $queueFactory->createConsumer();
-        $consumer->setExchangeOptions(['name' => $exchange, 'type' => 'topic']);
-        $consumer->setRoutingKey($routingKey);
-        $consumer->setQueueOptions(['name' => $exchange.'.'.$routingKey.'.'.$queue]);
-        $consumer->setCallback(
-            function ($msgBody): void {
-                $this->consumerCallback(\GuzzleHttp\json_decode($msgBody, true));
+        \swoole_process::signal(SIGCHLD, function ($signo): void {
+            $status = \swoole_process::wait();
+            if ($status) {
+                $index = array_search($status['pid'], $this->workers);
+                $this->createConsumerProcess($index);
             }
-        );
-
-        return $consumer;
+        });
     }
 }

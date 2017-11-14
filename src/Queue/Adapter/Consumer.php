@@ -70,6 +70,11 @@ class Consumer extends \Thumper\Consumer
         return $this->channel->getConnection();
     }
 
+    public function getQueueOptions()
+    {
+        return $this->queueOptions;
+    }
+
     /**
      * @param AMQPMessage $message
      */

@@ -199,7 +199,7 @@ class HttpServerListener extends AbstractListener
 
     public function onWorkerError(Server $server, int $workerId, int $workerPid, int $exitCode, int $signal): void
     {
-        $server->shutdown();
+        // $server->shutdown();
     }
 
     public function onManagerStart(Server $server): void
