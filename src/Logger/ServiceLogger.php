@@ -20,7 +20,7 @@ use Phalcon\Di\InjectionAwareInterface;
 /**
  * @author hehui<hehui@eelly.net>
  */
-class Servicelogger extends Logger implements InjectionAwareInterface
+class ServiceLogger extends Logger implements InjectionAwareInterface
 {
     private $dependencyInjector;
 
