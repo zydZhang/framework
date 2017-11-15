@@ -140,7 +140,7 @@ class HttpServerListener extends AbstractListener
                 'message' => $e->getMessage(),
                 'hint'    => $e->getHint(),
             ]);
-        } catch (ErrorException|Exception $e) {
+        } catch (ErrorException | Exception $e) {
             $this->getDI()->getShared(ErrorHandler::class)->handleException($e);
             $response = $this->response;
         }
