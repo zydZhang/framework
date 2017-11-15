@@ -50,7 +50,7 @@ class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterfac
             $rows[] = [$key, $value];
         }
         $help .= consoleTableStream(['名称', '说明'], $rows);
-        $this->setName('httpserver')
+        $this->setName('api:httpserver')
             ->setDescription('Http server')
             ->setHelp('Builtin http server powered by swoole.'.$help);
         $this->addArgument('module', InputArgument::REQUIRED, '模块名，如: example');

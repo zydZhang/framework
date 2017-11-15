@@ -73,7 +73,7 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
      */
     protected function configure(): void
     {
-        $this->setName('queue-consumer')
+        $this->setName('api:queue-consumer')
             ->setDescription('Queue consumer')
             ->setHelp('队列消费者');
 

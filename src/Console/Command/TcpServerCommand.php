@@ -22,7 +22,7 @@ class TcpServerCommand extends SymfonyCommand
 {
     protected function configure(): void
     {
-        $this->setName('tcpserver')
+        $this->setName('api:tcpserver')
             ->setDescription('Tcp server');
     }
 
