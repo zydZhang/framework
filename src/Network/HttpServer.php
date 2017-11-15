@@ -11,10 +11,10 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Http;
+namespace Eelly\Network;
 
 use Eelly\Events\Listener\HttpServerListener;
-use Swoole\Http\Server as HttpServer;
+use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Lock;
 use Swoole\Table;
 use swoole_http_response as SwooleHttpResponse;
@@ -25,7 +25,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * Class Server.
  */
-class Server extends HttpServer
+class HttpServer extends SwooleHttpServer
 {
     /**
      * 事件列表.

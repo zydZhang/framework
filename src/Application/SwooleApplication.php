@@ -17,6 +17,7 @@ use Eelly\Console\Application as ConsoleApplication;
 use Eelly\Console\Command\FlushCacheCommand;
 use Eelly\Console\Command\HttpServerCommand;
 use Eelly\Console\Command\QueueConsumerCommand;
+use Eelly\Console\Command\TcpServerCommand;
 use Eelly\Di\Injectable;
 use Eelly\Di\SwooleDi;
 use Phalcon\Config;
@@ -62,6 +63,7 @@ class SwooleApplication extends Injectable
             FlushCacheCommand::class,
             HttpServerCommand::class,
             QueueConsumerCommand::class,
+            TcpServerCommand::class,
         ]);
         // 添加各模块的命令
         $this->application->addModulesCommands();

@@ -16,7 +16,7 @@ namespace Eelly\Events\Listener;
 use Eelly\Application\ApplicationConst;
 use Eelly\Error\Handler as ErrorHandler;
 use Eelly\Exception\RequestException;
-use Eelly\Http\Server;
+use Swoole\Server;
 use Eelly\Http\SwoolePhalconRequest;
 use Eelly\Mvc\Application as MvcApplication;
 use ErrorException;

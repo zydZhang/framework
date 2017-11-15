@@ -87,6 +87,7 @@ class Handler extends Injectable
     {
         if (null === $this->logger) {
             $di = $this->getDI();
+            class_exists()
             $this->logger = $di->getLogger();
             if ('php' == APP['env']) {
                 $streamHandler = new StreamHandler('php://stdout');

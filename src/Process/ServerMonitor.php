@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Eelly\Process;
 
-use Eelly\Http\Server;
+use Swoole\Server;
 
 /**
  * 服务器监控进程.
