@@ -13,71 +13,105 @@ declare(strict_types=1);
 
 namespace Eelly\Events\Listener;
 
-use Swoole\Server;
+use Eelly\Application\ApplicationConst;
+use Eelly\Di\TcpServerDi;
+use Eelly\Network\TcpServer;
+use Phalcon\Di;
 
 class TcpServerListner
 {
-    public function onStart(Server $server)
+    public function onStart(TcpServer $server): void
+    {
+        $server->setProcessName('server');
+    }
+
+    public function onShutdown(): void
     {
     }
 
-    public function onShutdown()
+    public function onWorkerStart(TcpServer $server, int $workerId): void
+    {
+        chdir(APP['root_path']);
+        $processName = $workerId >= $server->setting['worker_num'] ? 'task#'.$workerId : 'event#'.$workerId;
+        $server->setProcessName($processName);
+        $module = $server->getModule();
+        // 清除apc或op缓存
+        if (function_exists('apc_clear_cache')) {
+            apc_clear_cache();
+        }
+        if (function_exists('opcache_reset')) {
+            opcache_reset();
+        }
+        // initialize di
+        $di = new TcpServerDi(ApplicationConst::$env, $module);
+        $server->setDi($di);
+        // initialize module
+        $moduleClass = ucfirst($module).'\\Module';
+        /* @var \Eelly\Mvc\AbstractModule $moduleObject */
+        $moduleObject = $di->get($moduleClass);
+        $moduleObject->registerAutoloaders($di);
+        $moduleObject->registerServices($di);
+    }
+
+    public function onWorkerStop(): void
     {
     }
 
-    public function onWorkerStart()
+    public function onConnect(): void
     {
     }
 
-    public function onWorkerStop()
+    public function onReceive(TcpServer $server, int $fd, int $reactorId, string $data): void
+    {
+        $data = json_decode($data, true);
+        $handlerClass = $data['class'];
+        $actionMethod = $data['method'];
+        $params = $data['params'];
+        $handler = $server->getDi()->getShared($handlerClass);
+
+        $data = call_user_func_array([$handler, $actionMethod], $params);
+        $server->send($fd, json_encode([
+            'data' => $data,
+        ]));
+    }
+
+    public function onPacket(): void
     {
     }
 
-    public function onConnect()
+    public function onClose(): void
     {
     }
 
-    public function onReceive()
+    public function onBufferFull(): void
     {
     }
 
-    public function onPacket()
+    public function onBufferEmpty(): void
     {
     }
 
-    public function onClose()
+    public function onTask(): void
     {
     }
 
-    public function onBufferFull()
+    public function onFinish(): void
     {
     }
 
-    public function onBufferEmpty()
+    public function onPipeMessage(): void
     {
     }
 
-    public function onTask()
+    public function onWorkerError(): void
     {
     }
 
-    public function onFinish()
+    public function onManagerStart(): void
     {
     }
 
-    public function onPipeMessage()
-    {
-    }
-
-    public function onWorkerError()
-    {
-    }
-
-    public function onManagerStart()
-    {
-    }
-
-    public function onManagerStop()
+    public function onManagerStop(): void
     {
     }
 }

@@ -44,15 +44,17 @@ class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterfac
 
     protected function configure(): void
     {
+        $this->setName('api:httpserver')
+            ->setDescription('Http server');
+
         $help = "\n\n系统信号选项说明\n";
         $rows = [];
         foreach (self::SIGNALS as $key => $value) {
             $rows[] = [$key, $value];
         }
         $help .= consoleTableStream(['名称', '说明'], $rows);
-        $this->setName('api:httpserver')
-            ->setDescription('Http server')
-            ->setHelp('Builtin http server powered by swoole.'.$help);
+        $this->setHelp('Builtin http server powered by swoole.'.$help);
+
         $this->addArgument('module', InputArgument::REQUIRED, '模块名，如: example');
         $this->addOption('daemonize', '-d', InputOption::VALUE_NONE, '是否守护进程化');
         $this->addOption('port', '-p', InputOption::VALUE_OPTIONAL, '监听端口', 9501);

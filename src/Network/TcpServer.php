@@ -14,7 +14,10 @@ declare(strict_types=1);
 namespace Eelly\Network;
 
 use Eelly\Events\Listener\TcpServerListner;
+use Phalcon\DiInterface;
+use Swoole\Lock;
 use Swoole\Server;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class TcpServer extends Server
 {
@@ -45,6 +48,23 @@ class TcpServer extends Server
     private $listner;
 
     /**
+     * @var string
+     */
+    private $module;
+
+    /**
+     * @var OutputInterface
+     */
+    private $output;
+
+    /**
+     * @var DiInterface
+     */
+    private $di;
+
+    private $lock;
+
+    /**
      * TcpServer constructor.
      *
      * @param string $host
@@ -56,8 +76,67 @@ class TcpServer extends Server
     {
         parent::__construct($host, $port, $mode, $sockType);
         $this->listner = new TcpServerListner();
+        $this->lock = new Lock(SWOOLE_MUTEX);
         foreach (self::EVENTS as $event) {
             $this->on($event, [$this->listner, 'on'.$event]);
         }
+    }
+
+    public function setProcessName(string $name): void
+    {
+        $processName = $this->module.'_'.$name;
+        swoole_set_process_name($processName);
+        $info = sprintf('%s "%s" %d', formatTime(), $processName, getmypid());
+        $this->lock->lock();
+        $this->output->writeln($info);
+        $this->lock->unlock();
+    }
+
+    /**
+     * @return string
+     */
+    public function getModule(): string
+    {
+        return $this->module;
+    }
+
+    /**
+     * @param string $module
+     */
+    public function setModule(string $module): void
+    {
+        $this->module = $module;
+    }
+
+    /**
+     * @return OutputInterface
+     */
+    public function getOutput(): OutputInterface
+    {
+        return $this->output;
+    }
+
+    /**
+     * @param OutputInterface $output
+     */
+    public function setOutput(OutputInterface $output): void
+    {
+        $this->output = $output;
+    }
+
+    /**
+     * @return DiInterface
+     */
+    public function getDi(): DiInterface
+    {
+        return $this->di;
+    }
+
+    /**
+     * @param DiInterface $di
+     */
+    public function setDi(DiInterface $di): void
+    {
+        $this->di = $di;
     }
 }
