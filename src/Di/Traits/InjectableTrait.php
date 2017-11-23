@@ -61,7 +61,7 @@ trait InjectableTrait
      */
     public function getDI()
     {
-        return $di;
+        return $this->di;
     }
 
     /**
