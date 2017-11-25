@@ -40,13 +40,9 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
      */
     public function registerAutoloaders(Di $di = null): void
     {
-        /**
-         * @var \Phalcon\Loader
-         */
+        /* @var \Composer\Autoload\ClassLoader $loader */
         $loader = $di->getLoader();
-        $loader->registerNamespaces([
-            static::NAMESPACE => static::NAMESPACE_DIR,
-        ]);
+        $loader->addPsr4(static::NAMESPACE.'\\', static::NAMESPACE_DIR);
         $loader->register();
 
         $this->registerUserAutoloaders($di);
@@ -133,11 +129,9 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
      */
     public function registerCommands(\Eelly\Console\Application $app): void
     {
+        /* @var \Composer\Autoload\ClassLoader $loader */
         $loader = $this->loader;
-        $loader->registerNamespaces([
-            static::NAMESPACE.'\\Command' => static::NAMESPACE_DIR.'/Command',
-        ]);
-        $loader->register();
+        $loader->addPsr4(static::NAMESPACE.'\\Command\\', static::NAMESPACE_DIR.'/Command');
         $this->registerUserCommands($app);
     }
 

@@ -42,7 +42,7 @@ class FormatTimeHelper implements Helper
         $parsedArgs = $template->parseArguments($args);
         $first = $context->get($parsedArgs[0]);
         $second = $context->get($parsedArgs[1]);
-        $time = $second == '' ? time() : (int) $second;
+        $time = '' == $second ? time() : (int) $second;
 
         $stringTime = (string) $time;
         if (strlen($stringTime) >= 13) {

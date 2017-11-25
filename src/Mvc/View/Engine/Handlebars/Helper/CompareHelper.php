@@ -40,7 +40,7 @@ class CompareHelper implements Helper
     public function execute(Template $template, Context $context, $args, $source)
     {
         $parsedArgs = $template->parseArguments($args);
-        $firstArgs = $context->get($parsedArgs[0]) === '' ? (int) $parsedArgs[0] : (int) $context->get($parsedArgs[0]);
+        $firstArgs = '' === $context->get($parsedArgs[0]) ? (int) $parsedArgs[0] : (int) $context->get($parsedArgs[0]);
         $secondArgs = (string) $parsedArgs[1];
         $thirdArgs = (string) $parsedArgs[2];
         $result = $buffer = '';

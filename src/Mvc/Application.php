@@ -43,7 +43,7 @@ class Application extends MvcApplication
      */
     public function handle(string $uri = null)
     {
-        if (APP['env'] == 'swoole') {
+        if ('swoole' == APP['env']) {
             return $this->handleSwoole($uri);
         } else {
             return parent::handle($uri);

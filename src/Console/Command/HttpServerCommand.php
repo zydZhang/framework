@@ -55,7 +55,7 @@ class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterfac
         $help .= consoleTableStream(['名称', '说明'], $rows);
         $this->setHelp('Builtin http server powered by swoole.'.$help);
 
-        $this->addArgument('module', InputArgument::REQUIRED, '模块名，如: example');
+        //$this->addArgument('module', InputArgument::REQUIRED, '模块名，如: example');
         $this->addOption('daemonize', '-d', InputOption::VALUE_NONE, '是否守护进程化');
         $this->addOption('port', '-p', InputOption::VALUE_OPTIONAL, '监听端口', 9501);
         $this->addOption('signal', '-s', InputOption::VALUE_OPTIONAL, sprintf('系统信号(%s)', implode('|', array_keys(self::SIGNALS))), 'start');
@@ -69,8 +69,13 @@ class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterfac
         }
         $io = new SymfonyStyle($input, $output);
         if ('start' == $signal) {
-            $module = (string) $input->getArgument('module');
-            /* @var HttpServerListener $listener */
+            $httpServer = new HttpServer('0.0.0.0', (int) $input->getOption('port'));
+            $config = require 'var/config/config.php';
+            $httpServer->set($config['httpserver']);
+            $httpServer->setOutput($output);
+            $httpServer->start();
+
+            /*$module = (string) $input->getArgument('module');
             $listener = $this->di->getShared(HttpServerListener::class, [$input, $output, $module]);
             $env = $this->config->env;
             $swooleConfig = require 'var/config/'.$env.'/'.$module.'/swoole.php';
@@ -82,7 +87,7 @@ class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterfac
             $this->di->setShared('swooleServer', $httpServer);
             $httpServer->addProcess(new ServerMonitor($httpServer));
             $httpServer->addProcess(new ServerHealth($httpServer));
-            $httpServer->start();
+            $httpServer->start();*/
         } else {
             $process = new Process(function (): void {
             });

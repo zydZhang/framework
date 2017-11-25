@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Eelly\Application;
 
+use Composer\Autoload\ClassLoader;
 use Eelly\Di\Injectable;
 use Eelly\Di\ServiceDi;
 use Eelly\Error\Handler as ErrorHandler;
@@ -33,9 +34,12 @@ class ServiceApplication extends Injectable
     /**
      * ServiceApplication constructor.
      *
-     * @param array $config
+     * ServiceApplication constructor.
+     *
+     * @param ClassLoader $classLoader
+     * @param array       $config
      */
-    public function __construct(array $config)
+    public function __construct(ClassLoader $classLoader, array $config)
     {
         $di = new ServiceDi();
         $di->setShared('config', new Config($config));

@@ -21,7 +21,7 @@ if (!function_exists('getallheaders')) {
     {
         $headers = [];
         foreach ($_SERVER as $name => $value) {
-            if (substr($name, 0, 5) == 'HTTP_') {
+            if ('HTTP_' == substr($name, 0, 5)) {
                 $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
             }
         }

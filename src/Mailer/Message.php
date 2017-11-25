@@ -634,7 +634,7 @@ class Message
             $result = true;
         }
 
-        if ($result === false) {
+        if (false === $result) {
             return false;
         }
 
@@ -677,7 +677,7 @@ class Message
             $result = true;
         }
 
-        if ($result !== false) {
+        if (false !== $result) {
             $this->getMessage()->attach($attachment);
 
             if ($eventManager) {

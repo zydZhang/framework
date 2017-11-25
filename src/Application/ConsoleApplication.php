@@ -13,69 +13,75 @@ declare(strict_types=1);
 
 namespace Eelly\Application;
 
+use Composer\Autoload\ClassLoader;
 use Eelly\Console\Application;
 use Eelly\Console\Command\FlushCacheCommand;
+use Eelly\Console\Command\HttpServerCommand;
+use Eelly\Console\Command\QueueConsumerCommand;
+use Eelly\Console\Command\TcpServerCommand;
 use Eelly\Di\ConsoleDi;
-use Eelly\Di\Injectable;
-use Eelly\Error\Handler as ErrorHandler;
 use Phalcon\Config;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
- * console application.
- *
- * @property \Eelly\Console\Application $application
- *
  * @author hehui<hehui@eelly.net>
- *
- * @deprecated
  */
-class ConsoleApplication extends Injectable
+class ConsoleApplication
 {
+    /**
+     * @var Application
+     */
+    private $application;
+
+    private $di;
+
     /**
      * ConsoleApplication constructor.
      *
-     * @param array $config
+     * @param ClassLoader $classLoader
+     * @param array       $config
      */
-    public function __construct(array $config)
+    public function __construct(ClassLoader $classLoader, array $config)
     {
-        $di = new ConsoleDi();
-        $di->setShared('config', new Config($config));
-        $this->setDI($di);
-    }
-
-    public function initialize()
-    {
-        $di = $this->getDI();
-        $di->setShared('application', function () {
-            $applications = new Application(ApplicationConst::APP_NAME, ApplicationConst::APP_VERSION);
-            $applications->setDispatcher($this->get('eventDispatcher'));
-
-            return $applications;
-        });
-        $config = $di->getConfig();
+        $this->di = new ConsoleDi();
+        $this->di->setShared('loader', $classLoader);
+        $config = new Config($config);
+        $this->di->setShared('config', $config);
         ApplicationConst::$env = $config->env;
         date_default_timezone_set($config->defaultTimezone);
-
-        $errorHandler = $di->getShared(ErrorHandler::class);
-        $errorHandler->register();
-
-        $this->application->addCommands([
-            $di->get(FlushCacheCommand::class),
-        ]);
-
-        return $this;
+        $this->application = $this->di->getShared(Application::class, [ApplicationConst::APP_NAME, ApplicationConst::APP_VERSION]);
+        $this->application->setDispatcher($this->di->get('eventDispatcher'));
     }
 
     public function handle()
     {
-        $this->application->registerModules($this->config->modules->toArray());
+        // 添加基础命令
+        $this->addBaseCommands([
+            FlushCacheCommand::class,
+            HttpServerCommand::class,
+            QueueConsumerCommand::class,
+            TcpServerCommand::class,
+        ]);
+        // 添加各模块的命令
+        $this->application->addModulesCommands();
 
         return $this->application;
     }
 
+    /**
+     * run.
+     */
     public function run(): void
     {
-        $this->initialize()->handle()->run();
+        $this->handle()->run();
+    }
+
+    /**
+     * @param array $commands
+     */
+    private function addBaseCommands(array $commands): void
+    {
+        foreach ($commands as $command) {
+            $this->application->add($this->di->getShared($command));
+        }
     }
 }

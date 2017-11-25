@@ -142,7 +142,7 @@ class ServiceDispatcher extends Dispatcher
                     unset($routeParams[$paramName]);
                 } elseif ($parameter->isDefaultValueAvailable()) {
                     // 存在默认值参数
-                    if ($expectedType == UidDTO::class) {
+                    if (UidDTO::class == $expectedType) {
                         $routeParams[$position] = self::$uidDTO = new UidDTO();
                     } else {
                         $routeParams[$position] = $parameter->getDefaultValue();

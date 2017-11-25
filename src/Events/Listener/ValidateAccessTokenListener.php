@@ -77,14 +77,14 @@ class ValidateAccessTokenListener extends AbstractListener
         try {
             // Attempt to parse and validate the JWT
             $token = (new Parser())->parse($jwt);
-            if ($token->verify(new Sha256(), $this->publicKey->getKeyPath()) === false) {
+            if (false === $token->verify(new Sha256(), $this->publicKey->getKeyPath())) {
                 throw OAuthServerException::accessDenied('Access token could not be verified');
             }
 
             // Ensure access token hasn't expired
             $data = new ValidationData();
             $data->setCurrentTime(time());
-            if ($token->validate($data) === false) {
+            if (false === $token->validate($data)) {
                 throw OAuthServerException::accessDenied('Access token is invalid');
             }
 

@@ -42,7 +42,7 @@ class StartInexdHelper implements Helper
         $parsedArgs = $template->parseArguments($args);
         $first = $parsedArgs[0];
         $last = (int) $parsedArgs[1];
-        $first = $context->get($first) === '' ? 1 : (int) $context->get($first);
+        $first = '' === $context->get($first) ? 1 : (int) $context->get($first);
 
         return $first * 1 + $last;
     }
