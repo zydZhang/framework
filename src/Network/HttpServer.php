@@ -14,9 +14,11 @@ declare(strict_types=1);
 namespace Eelly\Network;
 
 use Eelly\Events\Listener\HttpServerListener;
+use Phalcon\DiInterface;
 use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Lock;
 use Symfony\Component\Console\Output\OutputInterface;
+use swoole_http_request as SwooleHttpRequest;
 
 /**
  * Class Server.
@@ -53,6 +55,11 @@ class HttpServer extends SwooleHttpServer
 
     private $listner;
 
+    /**
+     * @var DiInterface
+     */
+    private $di;
+
     private $lock;
 
     public function __construct(string $host, int $port)
@@ -63,6 +70,28 @@ class HttpServer extends SwooleHttpServer
         foreach (self::EVENTS as $event) {
             $this->on($event, [$this->listner, 'on'.$event]);
         }
+    }
+
+    public function registerRouter(): void
+    {
+        $router = $this->di->getShared('router');
+        foreach ($this->di->getShared('config')->appBundles as $bundle) {
+            $this->di->getShared($bundle->class, $bundle->params)->registerRouter();
+        }
+        foreach ($this->di->getShared('config')->modules as $moduleName => $value) {
+            $namespace = str_replace('Module', 'Logic', $value['className']);
+            $router->addPost('/'.$moduleName.'/:controller/:action', [
+                'namespace'  => $namespace,
+                'module'     => $moduleName,
+                'controller' => 1,
+                'action'     => 2,
+            ])->setName($moduleName);
+        }
+    }
+
+    public function convertRequest(SwooleHttpRequest $swooleHttpRequest)
+    {
+
     }
 
     public function setProcessName(string $name): void
@@ -89,5 +118,21 @@ class HttpServer extends SwooleHttpServer
     public function setOutput(OutputInterface $output): void
     {
         $this->output = $output;
+    }
+
+    /**
+     * @return DiInterface
+     */
+    public function getDi(): DiInterface
+    {
+        return $this->di;
+    }
+
+    /**
+     * @param DiInterface $di
+     */
+    public function setDi(DiInterface $di): void
+    {
+        $this->di = $di;
     }
 }

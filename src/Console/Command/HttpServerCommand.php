@@ -72,6 +72,7 @@ class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterfac
             $httpServer = new HttpServer('0.0.0.0', (int) $input->getOption('port'));
             $config = require 'var/config/config.php';
             $httpServer->set($config['httpserver']);
+            $httpServer->setDi($this->getDI());
             $httpServer->setOutput($output);
             $httpServer->start();
 

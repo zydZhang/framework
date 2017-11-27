@@ -16,16 +16,23 @@ namespace Eelly\Events\Listener;
 use Eelly\Error\Handler as ErrorHandler;
 use Eelly\Exception\RequestException;
 use Eelly\Http\SwoolePhalconRequest;
+use Eelly\Network\HttpServer;
 use ErrorException;
 use Exception;
 use League\OAuth2\Server\Exception\OAuthServerException;
+use Phalcon\Di;
 use Swoole\Server;
 use swoole_http_request as SwooleHttpRequest;
 use swoole_http_response as SwooleHttpResponse;
 
 class HttpServerListener
 {
-    public function onStart(Server $server): void
+    /**
+     * @var HttpServer
+     */
+    private $server;
+
+    public function onStart(HttpServer $server): void
     {
         $server->setProcessName('server');
     }
@@ -34,7 +41,7 @@ class HttpServerListener
     {
     }
 
-    public function onWorkerStart(Server $server, int $workerId): void
+    public function onWorkerStart(HttpServer $server, int $workerId): void
     {
         chdir(APP['root_path']);
         $processName = $workerId >= $server->setting['worker_num'] ? 'task#'.$workerId : 'event#'.$workerId;
@@ -46,6 +53,10 @@ class HttpServerListener
         if (function_exists('opcache_reset')) {
             opcache_reset();
         }
+        // 注册路由
+        $server->registerRouter();
+        $this->server = $server;
+
     }
 
     public function onWorkerStop(): void
@@ -60,6 +71,17 @@ class HttpServerListener
 
             return;
         }
+        $di = $this->server->getDi();
+
+        /* @var SwoolePhalconRequest  $phalconHttpRequest */
+        $phalconHttpRequest = $di->get('request');
+        $phalconHttpRequest->initialWithSwooleHttpRequest($swooleHttpRequest);
+
+        /* @var \Eelly\Router\ServiceRouter $router */
+        $router = $di->getShared('router');
+        $router->handle();
+
+        //dump($router->getModuleName(),$swooleHttpRequest);
 
         $swooleHttpResponse->end('hello');
 
@@ -119,7 +141,7 @@ class HttpServerListener
     {
     }
 
-    public function onClose(Server $server, int $fd, int $reactorId): void
+    public function onClose(HttpServer $server, int $fd, int $reactorId): void
     {
     }
 
@@ -131,27 +153,27 @@ class HttpServerListener
     {
     }
 
-    public function onTask(Server $server, int $taskId, int $workId, $data)
+    public function onTask(HttpServer $server, int $taskId, int $workId, $data)
     {
         if (isset($data['class']) && method_exists($data['class'], $data['method'])) {
             return call_user_func_array([new $data['class'](), $data['method']], $data['params']);
         }
     }
 
-    public function onFinish(Server $server, int $taskId, $data): void
+    public function onFinish(HttpServer $server, int $taskId, $data): void
     {
     }
 
-    public function onPipeMessage(Server $server, int $workId, string $message): void
+    public function onPipeMessage(HttpServer $server, int $workId, string $message): void
     {
     }
 
-    public function onWorkerError(Server $server, int $workerId, int $workerPid, int $exitCode, int $signal): void
+    public function onWorkerError(HttpServer $server, int $workerId, int $workerPid, int $exitCode, int $signal): void
     {
-        // $server->shutdown();
+         $server->shutdown();
     }
 
-    public function onManagerStart(Server $server): void
+    public function onManagerStart(HttpServer $server): void
     {
         $server->setProcessName('manager');
     }
