@@ -20,7 +20,6 @@ use Eelly\Network\HttpServer;
 use ErrorException;
 use Exception;
 use League\OAuth2\Server\Exception\OAuthServerException;
-use Phalcon\Di;
 use Swoole\Server;
 use swoole_http_request as SwooleHttpRequest;
 use swoole_http_response as SwooleHttpResponse;
@@ -56,7 +55,6 @@ class HttpServerListener
         // 注册路由
         $server->registerRouter();
         $this->server = $server;
-
     }
 
     public function onWorkerStop(): void
@@ -170,7 +168,7 @@ class HttpServerListener
 
     public function onWorkerError(HttpServer $server, int $workerId, int $workerPid, int $exitCode, int $signal): void
     {
-         $server->shutdown();
+        $server->shutdown();
     }
 
     public function onManagerStart(HttpServer $server): void

@@ -21,7 +21,6 @@ use Eelly\Console\Command\QueueConsumerCommand;
 use Eelly\Console\Command\TcpServerCommand;
 use Eelly\Di\ConsoleDi;
 use Phalcon\Config;
-use Phalcon\Di;
 
 /**
  * @author hehui<hehui@eelly.net>
@@ -64,6 +63,7 @@ class ConsoleApplication
         ]);
         // 添加各模块的命令
         $this->application->addModulesCommands();
+
         return $this->application;
     }
 

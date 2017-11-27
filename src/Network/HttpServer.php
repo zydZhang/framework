@@ -17,8 +17,8 @@ use Eelly\Events\Listener\HttpServerListener;
 use Phalcon\DiInterface;
 use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Lock;
-use Symfony\Component\Console\Output\OutputInterface;
 use swoole_http_request as SwooleHttpRequest;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class Server.
@@ -91,7 +91,6 @@ class HttpServer extends SwooleHttpServer
 
     public function convertRequest(SwooleHttpRequest $swooleHttpRequest)
     {
-
     }
 
     public function setProcessName(string $name): void
