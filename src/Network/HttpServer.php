@@ -74,10 +74,21 @@ class HttpServer extends SwooleHttpServer
 
     public function registerRouter(): void
     {
+        /* @var \Phalcon\Mvc\Router $router */
         $router = $this->di->getShared('router');
+        // system
+        $router->addPost('/_/:controller/:action', [
+            'namespace'  => 'Eelly\\Controller',
+            'controller' => 1,
+            'action'     => 2,
+        ]);
+        // doc
         foreach ($this->di->getShared('config')->appBundles as $bundle) {
-            $this->di->getShared($bundle->class, $bundle->params)->registerRouter();
+            $this->di->getShared($bundle->class, $bundle->params)
+                ->registerService()
+                ->registerRouter();
         }
+        // service api
         foreach ($this->di->getShared('config')->modules as $moduleName => $value) {
             $namespace = str_replace('Module', 'Logic', $value['className']);
             $router->addPost('/'.$moduleName.'/:controller/:action', [
@@ -85,11 +96,11 @@ class HttpServer extends SwooleHttpServer
                 'module'     => $moduleName,
                 'controller' => 1,
                 'action'     => 2,
-            ])->setName($moduleName);
+            ]);
         }
     }
 
-    public function convertRequest(SwooleHttpRequest $swooleHttpRequest)
+    public function convertRequest(SwooleHttpRequest $swooleHttpRequest): void
     {
     }
 

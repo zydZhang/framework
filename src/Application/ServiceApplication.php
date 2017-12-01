@@ -42,6 +42,7 @@ class ServiceApplication extends Injectable
     public function __construct(ClassLoader $classLoader, array $config)
     {
         $di = new ServiceDi();
+        $di->setShared('loader', $classLoader);
         $di->setShared('config', new Config($config));
         $this->setDI($di);
     }
@@ -63,6 +64,15 @@ class ServiceApplication extends Injectable
             $di->getShared($bundle->class, $bundle->params)->register();
         }
         $this->application->registerModules($this->config->modules->toArray());
+        foreach ($di->getShared('config')->modules as $moduleName => $value) {
+            $namespace = str_replace('Module', 'Logic', $value['className']);
+            $di->getShared('router')->addPost('/'.$moduleName.'/:controller/:action', [
+                'namespace'  => $namespace,
+                'module'     => $moduleName,
+                'controller' => 1,
+                'action'     => 2,
+            ])->setName($moduleName);
+        }
 
         return $this;
     }
