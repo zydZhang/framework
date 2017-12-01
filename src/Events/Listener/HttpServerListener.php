@@ -82,6 +82,7 @@ class HttpServerListener
             $dispatcher->setNamespaceName($router->getNamespaceName());
             $dispatcher->setControllerName($router->getControllerName());
             $dispatcher->setActionName($router->getActionName());
+
             try {
                 $dispatcher->setParams($router->getParams());
                 $controller = $dispatcher->dispatch();
