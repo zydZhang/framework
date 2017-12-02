@@ -151,7 +151,7 @@ class ServiceApplication
             if (is_object($returnedValue)) {
                 $response->setHeader('returnType', get_class($returnedValue));
                 if ($returnedValue instanceof \JsonSerializable) {
-                    $this->response->setJsonContent(['data' => $returnedValue, 'returnType' => get_class($returnedValue)]);
+                    $response->setJsonContent(['data' => $returnedValue, 'returnType' => get_class($returnedValue)]);
                 }
             } elseif (is_array($returnedValue)) {
                 $response->setHeader('returnType', 'array');
