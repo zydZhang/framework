@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Eelly\Logger;
 
 use Eelly\Application\ApplicationConst;
+use Eelly\Logger\Handler\DingDingHandler;
 use Monolog\Logger;
 use Phalcon\Di\InjectionAwareInterface;
 
@@ -39,6 +40,7 @@ class ServiceLogger extends Logger implements InjectionAwareInterface
         $dispatcher = $di->getDispatcher();
         $this->appendName($dispatcher->getModuleName());
         $this->pushHandler(new \Monolog\Handler\StreamHandler($config['logPath'].'/app.'.date('Ymd').'.txt'));
+        $this->pushHandler(new DingDingHandler($config['dingding']));
     }
 
     /**
