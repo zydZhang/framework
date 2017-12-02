@@ -37,7 +37,7 @@ class HttpServerListener
 
     public function onWorkerStart(HttpServer $server, int $workerId): void
     {
-        chdir(APP['root_path']);
+        chdir(ROOT_PATH);
         $processName = $workerId >= $server->setting['worker_num'] ? 'task#'.$workerId : 'event#'.$workerId;
         $server->setProcessName($processName);
         // 清除apc或op缓存

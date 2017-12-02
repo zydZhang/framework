@@ -112,7 +112,7 @@ if (!function_exists('formatTime')) {
      *
      * @return string
      */
-    function formatTime(string $timezone = null, string $format = DateTime::ISO8601)
+    function formatTime(string $timezone = APP['timezone'], string $format = DATE_ATOM)
     {
         $dateTime = \DateTime::createFromFormat('U.u', sprintf('%.6F', microtime(true)));
         if (null !== $timezone) {

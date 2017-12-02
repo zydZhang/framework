@@ -56,15 +56,19 @@ class Application extends ConsoleApplication implements InjectionAwareInterface
      */
     protected $modules = [];
 
-    public function addModulesCommands(): self
+    /**
+     * add modules commands.
+     *
+     * @return self
+     */
+    public function registerModulesCommands(): self
     {
-        $modules = $this->di->get('config')->modules->toArray();
+        $classMap = [];
+        foreach ($this->di->getShared('config')->moduleList as $value) {
+            $classMap[ucfirst($value).'\\Module'] = 'src/'.ucfirst($value).'/Module.php';
+        }
         /* @var \Composer\Autoload\ClassLoader $loader */
         $loader = $this->di->get('loader');
-        $classMap = [];
-        foreach ($modules as $value) {
-            $classMap[$value['className']] = $value['path'];
-        }
         $loader->addClassMap($classMap);
         foreach (array_keys($classMap) as $class) {
             $this->di->getShared($class)->registerCommands($this);

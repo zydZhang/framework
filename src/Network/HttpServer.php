@@ -84,13 +84,13 @@ class HttpServer extends SwooleHttpServer
         ]);
         // doc
         foreach ($this->di->getShared('config')->appBundles as $bundle) {
-            $this->di->getShared($bundle->class, $bundle->params)
+            $this->di->getShared($bundle)
                 ->registerService()
                 ->registerRouter();
         }
         // service api
-        foreach ($this->di->getShared('config')->modules as $moduleName => $value) {
-            $namespace = str_replace('Module', 'Logic', $value['className']);
+        foreach ($this->di->getShared('config')->moduleList as $moduleName) {
+            $namespace = ucfirst($moduleName);
             $router->addPost('/'.$moduleName.'/:controller/:action', [
                 'namespace'  => $namespace,
                 'module'     => $moduleName,

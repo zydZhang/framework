@@ -210,7 +210,6 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                 $usedTime = microtime(true) - $start;
                 $this->write(sprintf('%s %d %d "%s::%s()" "%s" %s', formatTime(), $pid, $num, $msg['class'], $msg['method'], json_encode($return), $usedTime));
             }
-
         };
         $process->setAtomic($this->atomic);
         $this->workers[$index] = $process->start();

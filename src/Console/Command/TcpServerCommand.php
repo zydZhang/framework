@@ -15,15 +15,20 @@ namespace Eelly\Console\Command;
 
 use Dotenv\Dotenv;
 use Eelly\Application\ApplicationConst;
+use Eelly\Di\InjectionAwareInterface;
+use Eelly\Di\Traits\InjectableTrait;
 use Eelly\Network\TcpServer;
+use Phalcon\Events\EventsAwareInterface;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class TcpServerCommand extends SymfonyCommand
+class TcpServerCommand extends SymfonyCommand implements InjectionAwareInterface, EventsAwareInterface
 {
+    use InjectableTrait;
+
     private const SIGNALS = [
         'start'    => '启动服务',
         'reload'   => '重启服务',
@@ -59,9 +64,10 @@ class TcpServerCommand extends SymfonyCommand
         $this->overloadDotEnv();
         $env = getenv('APPLICATION_ENV');
         ApplicationConst::$env = $env;
-        $swooleConfig = require 'var/config/'.$env.'/'.$module.'/swoole.php';
-        $options = $swooleConfig['tcpserver'];
+        $options = require 'var/config/'.$env.'/'.$module.'/tcpServer.php';
+        $options['daemonize'] = $input->hasParameterOption(['--daemonize', '-d'], true);
         $tcpServer->set($options);
+        $tcpServer->setDi($this->getDI());
         $tcpServer->setModule($module);
         $tcpServer->setOutput($output);
         $tcpServer->start();

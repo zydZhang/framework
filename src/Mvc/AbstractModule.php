@@ -61,7 +61,7 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
     public function registerConfig(Di $di): void
     {
         $moduleName = $this->moduleName;
-        $di->setShared('moduleConfig', require 'var/config/'.ApplicationConst::$env.'/'.$moduleName.'.php');
+        $di->setShared('moduleConfig', require 'var/config/'.APP['env'].'/'.$moduleName.'.php');
     }
 
     /**
@@ -88,7 +88,7 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
         // eelly client service
         $di->setShared('eellyClient', function () {
             $options = $this->getModuleConfig()->oauth2Client->eelly->toArray();
-            if (ApplicationConst::ENV_PRODUCTION === ApplicationConst::$env) {
+            if (ApplicationConst::ENV_PRODUCTION === APP['env']) {
                 $eellyClient = EellyClient::init($options['options']);
             } else {
                 $collaborators = [

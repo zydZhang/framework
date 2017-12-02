@@ -13,16 +13,14 @@ declare(strict_types=1);
 
 namespace Eelly\Events\Listener;
 
-use Eelly\Application\ApplicationConst;
-use Eelly\Di\TcpServerDi;
 use Eelly\Network\TcpServer;
-use Phalcon\Di;
 
 class TcpServerListner
 {
     public function onStart(TcpServer $server): void
     {
         $server->setProcessName('server');
+        printf('Module %s tcp server was started, listening on %d'.PHP_EOL, $server->getModule(), $server->port);
     }
 
     public function onShutdown(): void
@@ -31,10 +29,9 @@ class TcpServerListner
 
     public function onWorkerStart(TcpServer $server, int $workerId): void
     {
-        chdir(APP['root_path']);
+        chdir(ROOT_PATH);
         $processName = $workerId >= $server->setting['worker_num'] ? 'task#'.$workerId : 'event#'.$workerId;
         $server->setProcessName($processName);
-        $module = $server->getModule();
         // 清除apc或op缓存
         if (function_exists('apc_clear_cache')) {
             apc_clear_cache();
@@ -42,15 +39,7 @@ class TcpServerListner
         if (function_exists('opcache_reset')) {
             opcache_reset();
         }
-        // initialize di
-        $di = new TcpServerDi(ApplicationConst::$env, $module);
-        $server->setDi($di);
-        // initialize module
-        $moduleClass = ucfirst($module).'\\Module';
-        /* @var \Eelly\Mvc\AbstractModule $moduleObject */
-        $moduleObject = $di->get($moduleClass);
-        $moduleObject->registerAutoloaders($di);
-        $moduleObject->registerServices($di);
+        $server->registerModule();
     }
 
     public function onWorkerStop(): void

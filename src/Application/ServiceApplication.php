@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Eelly\Application;
 
 use Composer\Autoload\ClassLoader;
-use Eelly\Di\Injectable;
 use Eelly\Di\ServiceDi;
 use Eelly\Error\Handler as ErrorHandler;
 use Eelly\Exception\LogicException;
@@ -29,52 +28,53 @@ use Phalcon\Config;
  *
  * @author hehui<hehui@eelly.net>
  */
-class ServiceApplication extends Injectable
+class ServiceApplication
 {
     /**
-     * ServiceApplication constructor.
-     *
+     * @var Application
+     */
+    private $application;
+
+    private $di;
+
+    /**
      * ServiceApplication constructor.
      *
      * @param ClassLoader $classLoader
-     * @param array       $config
      */
-    public function __construct(ClassLoader $classLoader, array $config)
+    public function __construct(ClassLoader $classLoader)
     {
-        $di = new ServiceDi();
-        $di->setShared('loader', $classLoader);
-        $di->setShared('config', new Config($config));
-        $this->setDI($di);
-    }
-
-    /**
-     * initial.
-     */
-    public function initialize()
-    {
-        $di = $this->getDI();
-        $di->setShared('application', new Application($di));
-        $config = $this->config;
-        ApplicationConst::$env = $config->env;
-        date_default_timezone_set($config->defaultTimezone);
-        $errorHandler = $di->getShared(ErrorHandler::class);
-        $errorHandler->register();
-        $this->initEventsManager();
-        foreach ($config->appBundles as $bundle) {
-            $di->getShared($bundle->class, $bundle->params)->register();
+        $this->di = new ServiceDi();
+        $this->di->setShared('loader', $classLoader);
+        if (!file_exists('.env')) {
+            file_put_contents('.env', preg_replace(
+                    '/^APPLICATION_KEY=/m',
+                    'APPLICATION_KEY='.base64_encode(random_bytes(32)),
+                    file_get_contents('.env.example'))
+            );
         }
-        $this->application->registerModules($this->config->modules->toArray());
-        foreach ($di->getShared('config')->modules as $moduleName => $value) {
-            $namespace = str_replace('Module', 'Logic', $value['className']);
-            $di->getShared('router')->addPost('/'.$moduleName.'/:controller/:action', [
-                'namespace'  => $namespace,
-                'module'     => $moduleName,
-                'controller' => 1,
-                'action'     => 2,
-            ])->setName($moduleName);
+        $dotenv = new \Dotenv\Dotenv(getcwd(), '.env');
+        $dotenv->load();
+        $appEnv = getenv('APPLICATION_ENV');
+        $appKey = getenv('APPLICATION_KEY');
+        $arrayConfig = require 'var/config/config.'.$appEnv.'.php';
+        if (isset($_SERVER['REQUEST_TIME_FLOAT'])) {
+            $arrayConfig['requestTime'] = $_SERVER['REQUEST_TIME_FLOAT'];
+        } elseif (isset($_SERVER['REQUEST_TIME'])) {
+            $arrayConfig['requestTime'] = $_SERVER['REQUEST_TIME'];
+        } else {
+            $arrayConfig['requestTime'] = microtime(true);
         }
-
-        return $this;
+        define('APP', [
+            'env'      => $appEnv,
+            'key'      => $appKey,
+            'rootPath' => $arrayConfig['rootPath'],
+            'timezone' => $arrayConfig['timezone'],
+        ]);
+        $this->di->setShared('config', new Config($arrayConfig));
+        date_default_timezone_set(APP['timezone']);
+        $this->application = $this->di->getShared(Application::class);
+        $this->di->setShared('application', $this->application);
     }
 
     /**
@@ -84,17 +84,39 @@ class ServiceApplication extends Injectable
      */
     public function handle($uri = null)
     {
+        $errorHandler = $this->di->getShared(ErrorHandler::class);
+        $errorHandler->register();
+        $this->initEventsManager();
+        foreach ($this->di->getShared('config')->appBundles as $bundle) {
+            $this->di->getShared($bundle)->register();
+        }
+        $modules = [];
+        foreach ($this->di->getShared('config')->moduleList as $moduleName) {
+            $namespace = ucfirst($moduleName);
+            $this->di->getShared('router')->addPost('/'.$moduleName.'/:controller/:action', [
+                'namespace'  => $namespace.'\\Logic',
+                'module'     => $moduleName,
+                'controller' => 1,
+                'action'     => 2,
+            ]);
+            $modules[$moduleName] = [
+                'className' => $namespace.'\\Module',
+                'path'      => 'src/'.$namespace.'/Module.php',
+            ];
+        }
+        $this->application->registerModules($modules);
+        $response = $this->di->getShared('response');
         try {
-            $response = $this->application->handle($uri);
+            $this->application->handle($uri);
         } catch (LogicException $e) {
-            $response = $this->response->setHeader('returnType', get_class($e));
+            $response->setHeader('returnType', get_class($e));
             $content = ['error' => $e->getMessage(), 'returnType' => get_class($e)];
             $content['context'] = $e->getContext();
-            $response = $response->setJsonContent($content);
+            $response->setJsonContent($content);
         } catch (RequestException $e) {
             $response = $e->getResponse();
         } catch (OAuthServerException $e) {
-            $response = $this->response->setStatusCode($e->getHttpStatusCode());
+            $response->setStatusCode($e->getHttpStatusCode());
             // TODO RFC 6749, section 5.2 Add "WWW-Authenticate" header
             $response->setJsonContent([
                 'error'   => $e->getErrorType(),
@@ -113,7 +135,7 @@ class ServiceApplication extends Injectable
      */
     public function run(): void
     {
-        $this->initialize()->handle()->send();
+        $this->handle()->send();
     }
 
     private function initEventsManager()
@@ -121,24 +143,25 @@ class ServiceApplication extends Injectable
         /**
          * @var \Phalcon\Events\Manager
          */
-        $eventsManager = $this->eventsManager;
+        $eventsManager = $this->di->getShared('eventsManager');
         $eventsManager->attach('dispatch:afterDispatchLoop', function (\Phalcon\Events\Event $event, \Phalcon\Mvc\Dispatcher $dispatcher): void {
             $returnedValue = $dispatcher->getReturnedValue();
+            $response = $this->di->getShared('response');
             if (is_object($returnedValue)) {
-                $this->response->setHeader('returnType', get_class($returnedValue));
+                $response->setHeader('returnType', get_class($returnedValue));
                 if ($returnedValue instanceof \JsonSerializable) {
                     $this->response->setJsonContent(['data' => $returnedValue, 'returnType' => get_class($returnedValue)]);
                 }
             } elseif (is_array($returnedValue)) {
-                $this->response->setHeader('returnType', 'array');
-                $this->response->setJsonContent(['data' => $returnedValue, 'returnType' => 'array']);
+                $response->setHeader('returnType', 'array');
+                $response->setJsonContent(['data' => $returnedValue, 'returnType' => 'array']);
             } elseif (is_scalar($returnedValue)) {
-                $this->response = $this->response->setHeader('returnType', gettype($returnedValue));
-                $this->response = $this->response->setJsonContent(
+                $response->setHeader('returnType', gettype($returnedValue));
+                $response->setJsonContent(
                     ['data' => $returnedValue, 'returnType' => gettype($returnedValue)]
                 );
                 if (is_string($returnedValue)) {
-                    $dispatcher->setReturnedValue($this->response->getContent());
+                    $dispatcher->setReturnedValue($response->getContent());
                 }
             }
         });

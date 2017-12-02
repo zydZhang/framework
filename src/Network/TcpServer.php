@@ -93,6 +93,18 @@ class TcpServer extends Server
     }
 
     /**
+     * register module.
+     */
+    public function registerModule(): void
+    {
+        $module = ucfirst($this->module).'\\Module';
+        /* @var \Eelly\Mvc\AbstractModule $moduleInstance */
+        $moduleInstance = $this->di->getShared($module);
+        $moduleInstance->registerAutoloaders($this->di);
+        $moduleInstance->registerServices($this->di);
+    }
+
+    /**
      * @return string
      */
     public function getModule(): string

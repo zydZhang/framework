@@ -38,37 +38,53 @@ class ConsoleApplication
      * ConsoleApplication constructor.
      *
      * @param ClassLoader $classLoader
-     * @param array       $config
      */
-    public function __construct(ClassLoader $classLoader, array $config)
+    public function __construct(ClassLoader $classLoader)
     {
         $this->di = new ConsoleDi();
         $this->di->setShared('loader', $classLoader);
-        $config = new Config($config);
-        $this->di->setShared('config', $config);
-        ApplicationConst::$env = $config->env;
-        date_default_timezone_set($config->defaultTimezone);
+        if (!file_exists('.env')) {
+            file_put_contents('.env', preg_replace(
+                    '/^APPLICATION_KEY=/m',
+                    'APPLICATION_KEY='.base64_encode(random_bytes(32)),
+                    file_get_contents('.env.example'))
+            );
+        }
+        $dotenv = new \Dotenv\Dotenv(getcwd(), '.env');
+        $dotenv->load();
+        $appEnv = getenv('APPLICATION_ENV');
+        $appKey = getenv('APPLICATION_KEY');
+        $arrayConfig = require 'var/config/config.'.$appEnv.'.php';
+        // initialize constants and config
+        define('APP', [
+            'env'      => $appEnv,
+            'key'      => $appKey,
+            'rootPath' => $arrayConfig['rootPath'],
+            'timezone' => $arrayConfig['timezone'],
+        ]);
+        $this->di->setShared('config', new Config($arrayConfig));
+        date_default_timezone_set(APP['timezone']);
         $this->application = $this->di->getShared(Application::class, [ApplicationConst::APP_NAME, ApplicationConst::APP_VERSION]);
         $this->application->setDispatcher($this->di->get('eventDispatcher'));
     }
 
     public function handle()
     {
-        // 添加基础命令
-        $this->addBaseCommands([
+        // register system commands
+        $this->registerBaseCommands([
             FlushCacheCommand::class,
             HttpServerCommand::class,
             QueueConsumerCommand::class,
             TcpServerCommand::class,
         ]);
-        // 添加各模块的命令
-        $this->application->addModulesCommands();
+        // register modules commands
+        $this->application->registerModulesCommands();
 
         return $this->application;
     }
 
     /**
-     * run.
+     * run your application.
      */
     public function run(): void
     {
@@ -78,7 +94,7 @@ class ConsoleApplication
     /**
      * @param array $commands
      */
-    private function addBaseCommands(array $commands): void
+    private function registerBaseCommands(array $commands): void
     {
         foreach ($commands as $command) {
             $this->application->add($this->di->getShared($command));
