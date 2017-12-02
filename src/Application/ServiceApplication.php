@@ -106,6 +106,7 @@ class ServiceApplication
         }
         $this->application->registerModules($modules);
         $response = $this->di->getShared('response');
+
         try {
             $this->application->handle($uri);
         } catch (LogicException $e) {
