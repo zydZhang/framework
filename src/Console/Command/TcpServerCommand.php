@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Eelly\Console\Command;
 
-use Dotenv\Dotenv;
-use Eelly\Application\ApplicationConst;
 use Eelly\Di\InjectionAwareInterface;
 use Eelly\Di\Traits\InjectableTrait;
 use Eelly\Network\TcpServer;
