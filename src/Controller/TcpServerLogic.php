@@ -20,13 +20,12 @@ use Eelly\Mvc\Controller;
  */
 class TcpServerLogic extends Controller
 {
-
     public function register(): void
     {
         $module = $this->request->getPost('module');
         $ip = $this->request->getPost('ip', null, $this->request->getClientAddress());
         // TODO 数据校验
-        $port = (int)$this->request->getPost('port');
+        $port = (int) $this->request->getPost('port');
         $this->server->registerModule($module, $ip, $port);
     }
 }

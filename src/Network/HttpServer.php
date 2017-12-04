@@ -18,7 +18,6 @@ use Phalcon\DiInterface;
 use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Lock;
 use Swoole\Table;
-use swoole_http_request as SwooleHttpRequest;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -127,7 +126,8 @@ class HttpServer extends SwooleHttpServer
      *
      * @param string $module
      * @param string $ip
-     * @param int $port
+     * @param int    $port
+     *
      * @return bool
      */
     public function registerModule(string $module, string $ip, int $port)
@@ -136,7 +136,6 @@ class HttpServer extends SwooleHttpServer
     }
 
     /**
-     *
      * @return array
      */
     public function getModuleMap()
