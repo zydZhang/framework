@@ -44,7 +44,6 @@ class TcpServerHealth extends Process
             '/_/tcpServer/register',
             ['module' => $this->server->getModule(), 'port' => $this->server->port],
             function ($response) {
-
             }
         );
         $this->server->setProcessName('health');

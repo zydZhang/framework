@@ -221,7 +221,7 @@ abstract class Model extends MvcModel
         $return['page'] = [
             'total_pages' => $page->total_pages,
             'total_items' => $page->total_items,
-            'current' => $page->current,
+            'current'     => $page->current,
             'limit'       => $page->limit,
         ];
 

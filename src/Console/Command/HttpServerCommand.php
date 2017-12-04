@@ -15,13 +15,10 @@ namespace Eelly\Console\Command;
 
 use Eelly\Di\InjectionAwareInterface;
 use Eelly\Di\Traits\InjectableTrait;
-use Eelly\Events\Listener\HttpServerListener;
 use Eelly\Exception\InvalidArgumentException;
 use Eelly\Network\HttpServer;
 use Eelly\Process\HttpServerHealth;
 use Eelly\Process\Process;
-use Eelly\Process\ServerHealth;
-use Eelly\Process\ServerMonitor;
 use Phalcon\Events\EventsAwareInterface;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputArgument;
