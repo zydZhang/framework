@@ -61,21 +61,12 @@ class TcpServerCommand extends SymfonyCommand implements InjectionAwareInterface
     {
         $tcpServer = new TcpServer('0.0.0.0', (int) $input->getOption('port'));
         $module = (string) $input->getArgument('module');
-        $this->overloadDotEnv();
-        $env = getenv('APPLICATION_ENV');
-        ApplicationConst::$env = $env;
-        $options = require 'var/config/'.$env.'/'.$module.'/tcpServer.php';
+        $options = require 'var/config/'.APP['env'].'/'.$module.'/tcpServer.php';
         $options['daemonize'] = $input->hasParameterOption(['--daemonize', '-d'], true);
         $tcpServer->set($options);
         $tcpServer->setDi($this->getDI());
         $tcpServer->setModule($module);
         $tcpServer->setOutput($output);
         $tcpServer->start();
-    }
-
-    private function overloadDotEnv(): void
-    {
-        $dotenv = new Dotenv(getcwd(), '.env');
-        $dotenv->overload();
     }
 }
