@@ -235,3 +235,17 @@ if (!function_exists('getAllGbCode')){
         return $gbCodes;
     }
 }
+
+if (!function_exists('isAssoc')){
+    /**
+     * 判断数组是否为关联数组
+     *
+     * @param array $arr
+     * @return bool
+     */
+    function isAssoc(array $arr): bool
+    {
+        $keys = array_keys($arr);
+        return $keys !== array_keys($keys);
+    }
+}
