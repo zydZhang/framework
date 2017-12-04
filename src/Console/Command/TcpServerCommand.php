@@ -16,6 +16,7 @@ namespace Eelly\Console\Command;
 use Eelly\Di\InjectionAwareInterface;
 use Eelly\Di\Traits\InjectableTrait;
 use Eelly\Network\TcpServer;
+use Eelly\Process\TcpServerHealth;
 use Phalcon\Events\EventsAwareInterface;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -65,6 +66,7 @@ class TcpServerCommand extends SymfonyCommand implements InjectionAwareInterface
         $tcpServer->setDi($this->getDI());
         $tcpServer->setModule($module);
         $tcpServer->setOutput($output);
+        $tcpServer->addProcess(new TcpServerHealth($tcpServer));
         $tcpServer->start();
     }
 }

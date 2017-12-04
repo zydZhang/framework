@@ -18,6 +18,7 @@ use Eelly\Di\Traits\InjectableTrait;
 use Eelly\Events\Listener\HttpServerListener;
 use Eelly\Exception\InvalidArgumentException;
 use Eelly\Network\HttpServer;
+use Eelly\Process\HttpServerHealth;
 use Eelly\Process\Process;
 use Eelly\Process\ServerHealth;
 use Eelly\Process\ServerMonitor;
@@ -76,21 +77,8 @@ class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterfac
             $httpServer->set($options->toArray());
             $httpServer->setDi($this->getDI());
             $httpServer->setOutput($output);
+            $httpServer->addProcess(new HttpServerHealth($httpServer));
             $httpServer->start();
-
-            /*$module = (string) $input->getArgument('module');
-            $listener = $this->di->getShared(HttpServerListener::class, [$input, $output, $module]);
-            $env = $this->config->env;
-            $swooleConfig = require 'var/config/'.$env.'/'.$module.'/swoole.php';
-            $options = $swooleConfig['httpserver'];
-            $daemonize = $input->getOption('daemonize');
-            $options['daemonize'] = $input->hasParameterOption(['--daemonize', '-d'], true);
-            $options['module'] = $module;
-            $httpServer = new HttpServer('0.0.0.0', (int) $input->getOption('port'), $listener, $options, $input, $output);
-            $this->di->setShared('swooleServer', $httpServer);
-            $httpServer->addProcess(new ServerMonitor($httpServer));
-            $httpServer->addProcess(new ServerHealth($httpServer));
-            $httpServer->start();*/
         } else {
             $process = new Process(function (): void {
             });

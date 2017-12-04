@@ -14,7 +14,10 @@ declare(strict_types=1);
 namespace Eelly\Events\Listener;
 
 use Eelly\Network\TcpServer;
-
+use swoole_http_client as HttpClient;
+/**
+ * Class TcpServerListner.
+ */
 class TcpServerListner
 {
     public function onStart(TcpServer $server): void

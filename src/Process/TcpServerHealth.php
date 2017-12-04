@@ -14,11 +14,12 @@ declare(strict_types=1);
 namespace Eelly\Process;
 
 use Swoole\Server;
+use swoole_http_client as HttpClient;
 
 /**
  * 服务器健康状态进程.
  */
-class ServerHealth extends Process
+class TcpServerHealth extends Process
 {
     /**
      * @var Server
@@ -38,9 +39,17 @@ class ServerHealth extends Process
 
     public function processhandler(self $serverMonitor): void
     {
+        $httpClient = new HttpClient('0.0.0.0', 9501);
+        $httpClient->post(
+            '/_/tcpServer/register',
+            ['module' => $this->server->getModule(), 'port' => $this->server->port],
+            function ($response) {
+
+            }
+        );
         $this->server->setProcessName('health');
         $this->server->tick(1000, function (): void {
-            // TODO 异常监控
+            //...
         });
     }
 }

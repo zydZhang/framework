@@ -17,6 +17,7 @@ use Eelly\Events\Listener\HttpServerListener;
 use Phalcon\DiInterface;
 use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Lock;
+use Swoole\Table;
 use swoole_http_request as SwooleHttpRequest;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -26,7 +27,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class HttpServer extends SwooleHttpServer
 {
     /**
-     * 事件列表.
+     * event list.
      *
      * @var array
      */
@@ -49,6 +50,11 @@ class HttpServer extends SwooleHttpServer
     ];
 
     /**
+     * max module map count.
+     */
+    private const MAX_MODULE_MAP_COUNT = 50;
+
+    /**
      * @var OutputInterface
      */
     private $output;
@@ -60,13 +66,19 @@ class HttpServer extends SwooleHttpServer
      */
     private $di;
 
+    /**
+     * @var Lock
+     */
     private $lock;
+
+    private $moduleMap;
 
     public function __construct(string $host, int $port)
     {
         parent::__construct($host, $port);
         $this->listner = new HttpServerListener();
         $this->lock = new Lock(SWOOLE_MUTEX);
+        $this->moduleMap = $this->createModuleMap();
         foreach (self::EVENTS as $event) {
             $this->on($event, [$this->listner, 'on'.$event]);
         }
@@ -100,10 +112,6 @@ class HttpServer extends SwooleHttpServer
         }
     }
 
-    public function convertRequest(SwooleHttpRequest $swooleHttpRequest): void
-    {
-    }
-
     public function setProcessName(string $name): void
     {
         $processName = 'httpserver_'.$name;
@@ -112,6 +120,33 @@ class HttpServer extends SwooleHttpServer
         $this->lock->lock();
         $this->output->writeln($info);
         $this->lock->unlock();
+    }
+
+    /**
+     * register module.
+     *
+     * @param string $module
+     * @param string $ip
+     * @param int $port
+     * @return bool
+     */
+    public function registerModule(string $module, string $ip, int $port)
+    {
+        return $this->moduleMap->set($module, ['ip' => $ip, 'port' => $port, 'created' => time()]);
+    }
+
+    /**
+     *
+     * @return array
+     */
+    public function getModuleMap()
+    {
+        $moduleMap = [];
+        foreach ($this->moduleMap as $module => $value) {
+            $moduleMap[$module] = $value;
+        }
+
+        return $moduleMap;
     }
 
     /**
@@ -144,5 +179,16 @@ class HttpServer extends SwooleHttpServer
     public function setDi(DiInterface $di): void
     {
         $this->di = $di;
+    }
+
+    private function createModuleMap()
+    {
+        $moduleMap = new Table(self::MAX_MODULE_MAP_COUNT);
+        $moduleMap->column('ip', Table::TYPE_STRING, 15);
+        $moduleMap->column('port', Table::TYPE_INT);
+        $moduleMap->column('created', Table::TYPE_INT);
+        $moduleMap->create();
+
+        return $moduleMap;
     }
 }

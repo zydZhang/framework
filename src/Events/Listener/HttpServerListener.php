@@ -50,6 +50,7 @@ class HttpServerListener
         // 注册路由
         $server->registerRouter();
         $this->server = $server;
+        $server->getDi()->setShared('server', $server);
     }
 
     public function onWorkerStop(): void
