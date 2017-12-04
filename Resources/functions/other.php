@@ -196,3 +196,56 @@ if (!function_exists('consoleTableStream')) {
         return $stream;
     }
 }
+
+
+if (!function_exists('getAllGbCode')){
+    /**
+     * 获取所有的地区编码
+     *
+     * @param string $gbCode
+     * @return array
+     * @author wangjiang<wangjiang@eelly.net>
+     * @since 2017年12月1日
+     */
+    function getAllGbCode(string $gbCode)
+    {
+        if ('' === $gbCode || !ctype_digit($gbCode)){
+            return [];
+        }
+
+        $len = strlen($gbCode);
+        if (0 == $len % 2){
+            $codes = str_split($gbCode, 2);
+        }elseif (3 < $len){
+            $subCode = substr($gbCode, -3);
+            $codes = str_split(substr($gbCode, 0, -3), 2);
+            $codes[] = $subCode;
+        }else {
+            $codes[] = $gbCode;
+        }
+
+        $gbCodes = [];
+        array_reduce($codes, function($str, $code) use (&$gbCodes) {
+
+            $str .= $code;
+            $gbCodes[] = $str;
+            return $str;
+        });
+
+        return $gbCodes;
+    }
+}
+
+if (!function_exists('isAssoc')){
+    /**
+     * 判断数组是否为关联数组
+     *
+     * @param array $arr
+     * @return bool
+     */
+    function isAssoc(array $arr): bool
+    {
+        $keys = array_keys($arr);
+        return $keys !== array_keys($keys);
+    }
+}
