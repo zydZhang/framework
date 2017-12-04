@@ -36,7 +36,6 @@ abstract class FactoryDefault extends \Phalcon\Di
         $this->setInternalEventsManager($eventsManager);
         $this->_services = [
             'eventsManager' => new Service('eventsManager', $eventsManager, true),
-            'loader'        => new Service('loader', \Phalcon\Loader::class, true),
         ];
     }
 }

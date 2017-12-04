@@ -54,8 +54,8 @@ class SortFunHelper implements Helper
                     $newData[$fkey] = $fval;
                 }
             }
-            $thirdArg == 'asc' && asort($newData);
-            $thirdArg == 'desc' && arsort($newData);
+            'asc' == $thirdArg && asort($newData);
+            'desc' == $thirdArg && arsort($newData);
             //重新排序数组
             if (isset($firstArg[$secondArg])) {
                 $listData = $newData;

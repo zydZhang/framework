@@ -15,14 +15,13 @@ namespace Eelly\Console;
 
 use Phalcon\Di\InjectionAwareInterface;
 use Phalcon\DiInterface;
-use Phalcon\Events\EventsAwareInterface;
 use Phalcon\Events\ManagerInterface;
 use Symfony\Component\Console\Application as ConsoleApplication;
 
 /**
  * @author hehui<hehui@eelly.net>
  */
-class Application extends ConsoleApplication implements InjectionAwareInterface, EventsAwareInterface
+class Application extends ConsoleApplication implements InjectionAwareInterface
 {
     private const LOGO = '                                          _
                                          / )
@@ -57,19 +56,24 @@ class Application extends ConsoleApplication implements InjectionAwareInterface,
      */
     protected $modules = [];
 
-    public function addModulesCommands(): self
+    /**
+     * add modules commands.
+     *
+     * @return self
+     */
+    public function registerModulesCommands(): self
     {
-        $modules = $this->di->get('config')->modules->toArray();
-        $loader = $this->di->get('loader');
-        $classes = [];
-        foreach ($modules as $value) {
-            $classes[$value['className']] = $value['path'];
+        $classMap = [];
+        foreach ($this->di->getShared('config')->moduleList as $value) {
+            $classMap[ucfirst($value).'\\Module'] = 'src/'.ucfirst($value).'/Module.php';
         }
-        $loader->registerClasses($classes);
-        $loader->register();
-        foreach (array_keys($loader->getClasses()) as $class) {
+        /* @var \Composer\Autoload\ClassLoader $loader */
+        $loader = $this->di->get('loader');
+        $loader->addClassMap($classMap);
+        foreach (array_keys($classMap) as $class) {
             $this->di->getShared($class)->registerCommands($this);
         }
+        $loader->register(true);
 
         return $this;
     }
@@ -92,26 +96,6 @@ class Application extends ConsoleApplication implements InjectionAwareInterface,
     public function getDI()
     {
         return $this->di;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @see \Phalcon\Events\EventsAwareInterface::setEventsManager()
-     */
-    public function setEventsManager(ManagerInterface $eventsManager): void
-    {
-        $this->eventsManager = $eventsManager;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @see \Phalcon\Events\EventsAwareInterface::getEventsManager()
-     */
-    public function getEventsManager()
-    {
-        return $this->eventsManager;
     }
 
     /**

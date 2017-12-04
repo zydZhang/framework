@@ -82,7 +82,7 @@ class ServiceDispatcher extends Dispatcher
          */
         $request = $this->getDI()->getShared('request');
         if (!class_exists($class) || !method_exists($class, $method)) {
-            throw new RequestException(404, null, $request, $this->getDI()->getShared('response'));
+            throw new RequestException(404, sprintf('%s::%s not found', $class, $method), $request, $this->getDI()->getShared('response'));
         }
 
         $classMethod = new \ReflectionMethod($class, $method);
@@ -142,7 +142,7 @@ class ServiceDispatcher extends Dispatcher
                     unset($routeParams[$paramName]);
                 } elseif ($parameter->isDefaultValueAvailable()) {
                     // 存在默认值参数
-                    if ($expectedType == UidDTO::class) {
+                    if (UidDTO::class == $expectedType) {
                         $routeParams[$position] = self::$uidDTO = new UidDTO();
                     } else {
                         $routeParams[$position] = $parameter->getDefaultValue();

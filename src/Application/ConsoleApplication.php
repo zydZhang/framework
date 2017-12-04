@@ -13,69 +13,91 @@ declare(strict_types=1);
 
 namespace Eelly\Application;
 
+use Composer\Autoload\ClassLoader;
 use Eelly\Console\Application;
 use Eelly\Console\Command\FlushCacheCommand;
+use Eelly\Console\Command\HttpServerCommand;
+use Eelly\Console\Command\QueueConsumerCommand;
+use Eelly\Console\Command\TcpServerCommand;
 use Eelly\Di\ConsoleDi;
-use Eelly\Di\Injectable;
-use Eelly\Error\Handler as ErrorHandler;
 use Phalcon\Config;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
- * console application.
- *
- * @property \Eelly\Console\Application $application
- *
  * @author hehui<hehui@eelly.net>
- *
- * @deprecated
  */
-class ConsoleApplication extends Injectable
+class ConsoleApplication
 {
+    /**
+     * @var Application
+     */
+    private $application;
+
+    private $di;
+
     /**
      * ConsoleApplication constructor.
      *
-     * @param array $config
+     * @param ClassLoader $classLoader
      */
-    public function __construct(array $config)
+    public function __construct(ClassLoader $classLoader)
     {
-        $di = new ConsoleDi();
-        $di->setShared('config', new Config($config));
-        $this->setDI($di);
-    }
-
-    public function initialize()
-    {
-        $di = $this->getDI();
-        $di->setShared('application', function () {
-            $applications = new Application(ApplicationConst::APP_NAME, ApplicationConst::APP_VERSION);
-            $applications->setDispatcher($this->get('eventDispatcher'));
-
-            return $applications;
-        });
-        $config = $di->getConfig();
-        ApplicationConst::$env = $config->env;
-        date_default_timezone_set($config->defaultTimezone);
-
-        $errorHandler = $di->getShared(ErrorHandler::class);
-        $errorHandler->register();
-
-        $this->application->addCommands([
-            $di->get(FlushCacheCommand::class),
+        $this->di = new ConsoleDi();
+        $this->di->setShared('loader', $classLoader);
+        if (!file_exists('.env')) {
+            file_put_contents('.env', preg_replace(
+                    '/^APPLICATION_KEY=/m',
+                    'APPLICATION_KEY='.base64_encode(random_bytes(32)),
+                    file_get_contents('.env.example'))
+            );
+        }
+        $dotenv = new \Dotenv\Dotenv(getcwd(), '.env');
+        $dotenv->load();
+        $appEnv = getenv('APPLICATION_ENV');
+        $appKey = getenv('APPLICATION_KEY');
+        $arrayConfig = require 'var/config/config.'.$appEnv.'.php';
+        // initialize constants and config
+        define('APP', [
+            'env'      => $appEnv,
+            'key'      => $appKey,
+            'rootPath' => $arrayConfig['rootPath'],
+            'timezone' => $arrayConfig['timezone'],
         ]);
-
-        return $this;
+        $this->di->setShared('config', new Config($arrayConfig));
+        date_default_timezone_set(APP['timezone']);
+        $this->application = $this->di->getShared(Application::class, [ApplicationConst::APP_NAME, ApplicationConst::APP_VERSION]);
+        $this->application->setDispatcher($this->di->get('eventDispatcher'));
     }
 
     public function handle()
     {
-        $this->application->registerModules($this->config->modules->toArray());
+        // register system commands
+        $this->registerBaseCommands([
+            FlushCacheCommand::class,
+            HttpServerCommand::class,
+            QueueConsumerCommand::class,
+            TcpServerCommand::class,
+        ]);
+        // register modules commands
+        $this->application->registerModulesCommands();
 
         return $this->application;
     }
 
+    /**
+     * run your application.
+     */
     public function run(): void
     {
-        $this->initialize()->handle()->run();
+        $this->handle()->run();
+    }
+
+    /**
+     * @param array $commands
+     */
+    private function registerBaseCommands(array $commands): void
+    {
+        foreach ($commands as $command) {
+            $this->application->add($this->di->getShared($command));
+        }
     }
 }

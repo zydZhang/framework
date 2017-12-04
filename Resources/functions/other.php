@@ -21,7 +21,7 @@ if (!function_exists('getallheaders')) {
     {
         $headers = [];
         foreach ($_SERVER as $name => $value) {
-            if (substr($name, 0, 5) == 'HTTP_') {
+            if ('HTTP_' == substr($name, 0, 5)) {
                 $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
             }
         }
@@ -112,7 +112,7 @@ if (!function_exists('formatTime')) {
      *
      * @return string
      */
-    function formatTime(string $timezone = null, string $format = DateTime::ISO8601)
+    function formatTime(string $timezone = APP['timezone'], string $format = DATE_ATOM)
     {
         $dateTime = \DateTime::createFromFormat('U.u', sprintf('%.6F', microtime(true)));
         if (null !== $timezone) {

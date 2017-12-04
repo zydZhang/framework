@@ -42,7 +42,7 @@ class IsEvenHelper implements Helper
         $parsedArgs = $template->parseArguments($args);
         $tmp = $context->get($parsedArgs[0]);
 
-        if ($tmp % 2 == 0) {
+        if (0 == $tmp % 2) {
             $template->setStopToken('else');
             $buffer = $template->render($context);
             $template->setStopToken(false);

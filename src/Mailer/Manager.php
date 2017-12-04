@@ -219,7 +219,7 @@ class Manager extends Component
      */
     protected function getConfig($key = null, $default = null)
     {
-        if ($key !== null) {
+        if (null !== $key) {
             if (isset($this->config[$key])) {
                 return $this->config[$key];
             } else {
@@ -297,7 +297,7 @@ class Manager extends Component
     {
         $view = $this->getView();
 
-        if ($viewsDir !== null) {
+        if (null !== $viewsDir) {
             $viewsDirOld = $view->getViewsDir();
             $view->setViewsDir($viewsDir);
 

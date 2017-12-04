@@ -40,13 +40,9 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
      */
     public function registerAutoloaders(Di $di = null): void
     {
-        /**
-         * @var \Phalcon\Loader
-         */
+        /* @var \Composer\Autoload\ClassLoader $loader */
         $loader = $di->getLoader();
-        $loader->registerNamespaces([
-            static::NAMESPACE => static::NAMESPACE_DIR,
-        ]);
+        $loader->addPsr4(static::NAMESPACE.'\\', static::NAMESPACE_DIR);
         $loader->register();
 
         $this->registerUserAutoloaders($di);
@@ -65,7 +61,7 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
     public function registerConfig(Di $di): void
     {
         $moduleName = $this->moduleName;
-        $di->setShared('moduleConfig', require 'var/config/'.ApplicationConst::$env.'/'.$moduleName.'.php');
+        $di->setShared('moduleConfig', require 'var/config/'.APP['env'].'/'.$moduleName.'.php');
     }
 
     /**
@@ -92,7 +88,7 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
         // eelly client service
         $di->setShared('eellyClient', function () {
             $options = $this->getModuleConfig()->oauth2Client->eelly->toArray();
-            if (ApplicationConst::ENV_PRODUCTION === ApplicationConst::$env) {
+            if (ApplicationConst::ENV_PRODUCTION === APP['env']) {
                 $eellyClient = EellyClient::init($options['options']);
             } else {
                 $collaborators = [
@@ -133,11 +129,9 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
      */
     public function registerCommands(\Eelly\Console\Application $app): void
     {
+        /* @var \Composer\Autoload\ClassLoader $loader */
         $loader = $this->loader;
-        $loader->registerNamespaces([
-            static::NAMESPACE.'\\Command' => static::NAMESPACE_DIR.'/Command',
-        ]);
-        $loader->register();
+        $loader->addPsr4(static::NAMESPACE.'\\Command\\', static::NAMESPACE_DIR.'/Command');
         $this->registerUserCommands($app);
     }
 

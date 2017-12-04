@@ -28,4 +28,8 @@ abstract class Controller extends Injectable implements ControllerInterface
             $this->onConstruct();
         }
     }
+
+    public function isImplicitView(): void
+    {
+    }
 }

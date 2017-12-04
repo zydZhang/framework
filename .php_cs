@@ -31,6 +31,7 @@ $rules = [
     'phpdoc_order'                               => true,
     'phpdoc_no_alias_tag'                        => [],
     'phpdoc_var_without_name'                    => false,
+    'increment_style'                            => ['style' => 'post'],
 ];
 
 return PhpCsFixer\Config::create()

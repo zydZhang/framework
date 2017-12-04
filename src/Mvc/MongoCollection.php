@@ -426,7 +426,7 @@ abstract class MongoCollection extends PhalconCollection implements Unserializab
         /*
          * Execute the preSave hook
          */
-        if ($this->_preSave($this->_dependencyInjector, self::$_disableEvents, false) === false) {
+        if (false === $this->_preSave($this->_dependencyInjector, self::$_disableEvents, false)) {
             return false;
         }
 

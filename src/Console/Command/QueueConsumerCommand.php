@@ -81,6 +81,7 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
         $this->addOption('--routingKey', null, InputOption::VALUE_OPTIONAL, '路由key', 'default_routing_key');
         $this->addOption('--queue', null, InputOption::VALUE_OPTIONAL, '队列名', 'default_queue');
         $this->addOption('--count', null, InputOption::VALUE_OPTIONAL, '消费者数量', 5);
+        $this->addOption('daemonize', '-d', InputOption::VALUE_NONE, '是否守护进程化');
     }
 
     /**
@@ -95,6 +96,9 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
         $this->input = $input;
         $this->output = $output;
         $this->atomic = new Atomic();
+        if ($input->hasParameterOption(['--daemonize', '-d'], true)) {
+            \swoole_process::daemon();
+        }
         $this->createProcess();
         $this->waitProcess();
     }
