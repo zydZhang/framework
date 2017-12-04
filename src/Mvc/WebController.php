@@ -30,6 +30,13 @@ class WebController extends Controller
 
     public function onConstruct(): void
     {
+        // add cache service
+        $this->di->setShared('cache', function () {
+            $config = $this->getConfig()->cache->toArray();
+            $frontend = $this->get($config['frontend'], [$config['options'][$config['frontend']]]);
+
+            return $this->get($config['backend'], [$frontend, $config['options'][$config['backend']]]);
+        });
         /* @var \League\OAuth2\Client\Token\AccessToken $accessToken */
         $accessToken = $this->session->get('accessToken');
         if ($accessToken) {
