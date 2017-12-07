@@ -15,6 +15,7 @@ namespace Eelly\Application;
 
 use Eelly\Di\Injectable;
 use Eelly\Di\WebDi;
+use Eelly\Loader\Loader;
 use Eelly\Mvc\Application;
 use Eelly\SDK\EellyClient;
 use Phalcon\Config;
@@ -94,6 +95,7 @@ class WebApplication extends Injectable
      */
     private function initAutoload()
     {
+        $this->loader = new Loader();
         $this->loader->registerNamespaces([
             ApplicationConst::$appName => 'src',
         ])->register();
