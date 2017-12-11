@@ -59,7 +59,7 @@ class ConsoleApplication
         define('APP', [
             'env'      => $appEnv,
             'key'      => $appKey,
-            'rootPath' => $arrayConfig['rootPath'],
+            'rootPath' => \ROOT_PATH,
             'timezone' => $arrayConfig['timezone'],
         ]);
         $this->di->setShared('config', new Config($arrayConfig));
