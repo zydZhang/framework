@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Eelly\Application;
 
+use Composer\Autoload\ClassLoader;
 use Eelly\Di\Injectable;
 use Eelly\Di\WebDi;
 use Eelly\Loader\Loader;
@@ -25,31 +26,52 @@ use Phalcon\Config;
  *
  * @property \Eelly\Mvc\Application $application
  */
-class WebApplication extends Injectable
+class WebApplication
 {
-    public function __construct(array $config)
-    {
-        $di = new WebDi();
-        $di->setShared('config', new Config($config));
-        $this->setDI($di);
-    }
+    /**
+     * @var Application
+     */
+    private $application;
 
-    public function initialize()
-    {
-        $di = $this->getDI();
-        $di->setShared('application', new Application($di));
-        $config = $this->config;
-        ApplicationConst::$env = $config->env;
-        ApplicationConst::$appName = $config->appName;
-        date_default_timezone_set($config->defaultTimezone);
-        // TODO WebHandler
-        //$errorHandler = $di->getShared(ErrorHandler::class);
-        //$errorHandler->register();
-        $this->initAutoload()
-            ->initEventsManager()
-            ->registerServices();
+    private $di;
 
-        return $this;
+    /**
+     * WebApplication constructor.
+     * @param ClassLoader $classLoade
+     */
+    public function __construct(ClassLoader $classLoader)
+    {
+        $this->di = new WebDi();
+        $this->di->setShared('loader', $classLoader);
+        if (!file_exists('.env')) {
+            file_put_contents('.env', preg_replace(
+                    '/^APPLICATION_KEY=/m',
+                    'APPLICATION_KEY='.base64_encode(random_bytes(32)),
+                    file_get_contents('.env.example'))
+            );
+        }
+        $dotenv = new \Dotenv\Dotenv(getcwd(), '.env');
+        $dotenv->load();
+        $appEnv = getenv('APPLICATION_ENV');
+        $appKey = getenv('APPLICATION_KEY');
+        $arrayConfig = require 'var/config/config.'.$appEnv.'.php';
+        if (isset($_SERVER['REQUEST_TIME_FLOAT'])) {
+            $arrayConfig['requestTime'] = $_SERVER['REQUEST_TIME_FLOAT'];
+        } elseif (isset($_SERVER['REQUEST_TIME'])) {
+            $arrayConfig['requestTime'] = $_SERVER['REQUEST_TIME'];
+        } else {
+            $arrayConfig['requestTime'] = microtime(true);
+        }
+        define('APP', [
+            'env'      => $appEnv,
+            'key'      => $appKey,
+            'timezone' => $arrayConfig['timezone'],
+            'appname'  => $arrayConfig['appName'],
+        ]);
+        $this->di->setShared('config', new Config($arrayConfig));
+        date_default_timezone_set(APP['timezone']);
+        $this->application = $this->di->getShared(Application::class);
+        $this->di->setShared('application', $this->application);
     }
 
     /**
@@ -59,6 +81,9 @@ class WebApplication extends Injectable
      */
     public function handle($uri = null)
     {
+        $this->initAutoload()
+            ->initEventsManager()
+            ->registerServices();
         $this->application->useImplicitView(true);
         $response = $this->application->handle($uri);
 
@@ -67,7 +92,7 @@ class WebApplication extends Injectable
 
     public function run(): void
     {
-        $this->initialize()->handle()->send();
+        $this->handle()->send();
     }
 
     /**
@@ -75,7 +100,7 @@ class WebApplication extends Injectable
      */
     private function initEventsManager()
     {
-        $eventsManager = $this->eventsManager;
+        $eventsManager = $this->di->getShared('eventsManager');
         $eventsManager->attach('di:afterServiceResolve', function (\Phalcon\Events\Event $event, \Phalcon\Di $di, array $service): void {
             if ($service['instance'] instanceof \Phalcon\Events\EventsAwareInterface) {
                 $service['instance']->setEventsManager($di->getEventsManager());
@@ -95,10 +120,10 @@ class WebApplication extends Injectable
      */
     private function initAutoload()
     {
-        $this->loader = new Loader();
-        $this->loader->registerNamespaces([
-            ApplicationConst::$appName => 'src',
-        ])->register();
+        /* @var ClassLoader $loader */
+        $loader = $this->di->getShared('loader');
+        $loader->addPsr4(APP['appname'].'\\', 'src');
+        $loader->register();
 
         return $this;
     }
@@ -108,9 +133,9 @@ class WebApplication extends Injectable
      */
     private function registerServices()
     {
-        $this->getDI()->setShared('router', $this->config->routes);
+        $this->di->setShared('router', $this->di->getShared('config')->routes);
         // eelly client service
-        $this->getDI()->setShared('eellyClient', function () {
+        $this->di->setShared('eellyClient', function () {
             $options = $this->getConfig()->oauth2Client->eelly->toArray();
             if (ApplicationConst::ENV_PRODUCTION === ApplicationConst::$env) {
                 $eellyClient = EellyClient::init($options['options']);
