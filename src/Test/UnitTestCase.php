@@ -19,12 +19,14 @@ use Phalcon\Config;
 use Phalcon\Di;
 use Phalcon\DiInterface;
 use PHPUnit\Framework\TestCase;
+use Composer\Autoload\ClassLoader;
 
 /**
  * Class UnitTestCase.
  */
 class UnitTestCase extends TestCase implements InjectionAwareInterface
 {
+
     /**
      * @var DiInterface
      */
@@ -36,15 +38,28 @@ class UnitTestCase extends TestCase implements InjectionAwareInterface
     protected function setUp(): void
     {
         Di::reset();
-        $config = require 'var/config/config.php';
         $di = new ServiceDi();
-        $di->setShared('config', new Config($config));
-        \Eelly\Application\ApplicationConst::$env = $di->getConfig()->env;
-        list($moduleName) = explode('\\', static::class);
+        $di->setShared('loader', new ClassLoader());
+        $dotenv = new \Dotenv\Dotenv(getcwd(), '.env');
+        $dotenv->load();
+        $appEnv = getenv('APPLICATION_ENV');
+        $appKey = getenv('APPLICATION_KEY');
+        /**
+         * @var ClassLoader $loader
+         */
         $loader = $di->getShared('loader');
-        $loader->registerNamespaces([
-            $moduleName => 'src/'.$moduleName,
+
+        $arrayConfig = require 'var/config/config.'.$appEnv.'.php';
+        define('APP', [
+            'env'      => $appEnv,
+            'key'      => $appKey,
+            'rootPath' => $arrayConfig['rootPath'],
+            'timezone' => $arrayConfig['timezone'],
         ]);
+        $di->setShared('config', new Config($arrayConfig));
+        \Eelly\Application\ApplicationConst::$env = $appEnv;
+        list($moduleName) = explode('\\', static::class);
+        $loader->addPsr4($moduleName.'\\', 'src/'.$moduleName);
         $loader->register();
 
         $module = $di->getShared('\\'.$moduleName.'\\Module');
