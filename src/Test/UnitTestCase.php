@@ -13,20 +13,19 @@ declare(strict_types=1);
 
 namespace Eelly\Test;
 
+use Composer\Autoload\ClassLoader;
 use Eelly\Di\InjectionAwareInterface;
 use Eelly\Di\ServiceDi;
 use Phalcon\Config;
 use Phalcon\Di;
 use Phalcon\DiInterface;
 use PHPUnit\Framework\TestCase;
-use Composer\Autoload\ClassLoader;
 
 /**
  * Class UnitTestCase.
  */
 class UnitTestCase extends TestCase implements InjectionAwareInterface
 {
-
     /**
      * @var DiInterface
      */
