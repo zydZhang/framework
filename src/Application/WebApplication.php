@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Eelly\Application;
 
 use Composer\Autoload\ClassLoader;
-use Eelly\Di\Injectable;
 use Eelly\Di\WebDi;
 use Eelly\Loader\Loader;
 use Eelly\Mvc\Application;
@@ -37,6 +36,7 @@ class WebApplication
 
     /**
      * WebApplication constructor.
+     *
      * @param ClassLoader $classLoade
      */
     public function __construct(ClassLoader $classLoader)
