@@ -43,7 +43,7 @@ class TcpServerHealth extends Process
         $httpClient->post(
             '/_/tcpServer/register',
             ['module' => $this->server->getModule(), 'port' => $this->server->port],
-            function ($response) {
+            function ($response): void {
             }
         );
         $this->server->setProcessName('health');
