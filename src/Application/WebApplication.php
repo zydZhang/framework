@@ -137,7 +137,7 @@ class WebApplication
         // eelly client service
         $this->di->setShared('eellyClient', function () {
             $options = $this->getConfig()->oauth2Client->eelly->toArray();
-            if (ApplicationConst::ENV_PRODUCTION === ApplicationConst::$env) {
+            if (ApplicationConst::ENV_PRODUCTION === APP['env']) {
                 $eellyClient = EellyClient::init($options['options']);
             } else {
                 $collaborators = [
