@@ -48,7 +48,7 @@ class TcpServerHealth extends Process
             //...
         });
         // 10s
-        $this->server->tick(10000, function (): void{
+        $this->server->tick(10000, function (): void {
             $this->registerModule();
         });
     }
@@ -57,23 +57,24 @@ class TcpServerHealth extends Process
     {
         $di = $this->server->getDi();
         $port = $di->getShared('config')->httpServer->port;
+
         try {
             $response = $this->httpClient->post(
                 '0.0.0.0:'.$port.'/_/tcpServer/register',
                 [
                     'form_params' => [
-                        'module' => $this->server->getModule(),
-                        'port' => $this->server->port,
-                        'pid' => $this->server->master_pid,
+                        'module'  => $this->server->getModule(),
+                        'port'    => $this->server->port,
+                        'pid'     => $this->server->master_pid,
                         'updated' => time(),
-                    ]
+                    ],
                 ]
             );
             if (200 == $response->getStatusCode()) {
                 $this->server->writeln(
                     sprintf(
                         'register module(%s) to 0.0.0.0:%d %s',
-                        $this->server->getModule(), $port, (string)$response->getBody()
+                        $this->server->getModule(), $port, (string) $response->getBody()
                     )
                 );
             }

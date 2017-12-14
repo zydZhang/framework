@@ -131,6 +131,7 @@ class HttpServer extends SwooleHttpServer
         $this->output->writeln($info);
         $this->lock->unlock();
     }
+
     /**
      * register module.
      *
@@ -141,7 +142,7 @@ class HttpServer extends SwooleHttpServer
     public function registerModule(string $module, string $ip, int $port): void
     {
         $record = $this->moduleMap->get($module);
-        $created = false == $record?time():$record['created'];
+        $created = false == $record ? time() : $record['created'];
         $this->moduleMap->set($module, ['ip' => $ip, 'port' => $port, 'created' => $created, 'updated' => time()]);
         $this->writeln(sprintf('register module(%s) %s:%d', $module, $ip, $port));
     }
