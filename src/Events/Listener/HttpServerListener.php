@@ -120,8 +120,8 @@ class HttpServerListener
                 /* @var \swoole_client $moduleClient */
                 $moduleClient = $this->server->getModuleClient($moduleName);
                 $moduleClient->send(json_encode([
-                    'uri' => $router->getRewriteUri(),
-                    'params' => $router->getParams()
+                    'uri'    => $router->getRewriteUri(),
+                    'params' => $router->getParams(),
                 ]));
                 $response->setContentType('application/json');
                 $content = $moduleClient->recv();
