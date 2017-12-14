@@ -16,6 +16,7 @@ namespace Eelly\Process;
 use Eelly\Network\TcpServer as Server;
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Exception\ConnectException;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * 服务器健康状态进程.
@@ -75,7 +76,8 @@ class TcpServerHealth extends Process
                     sprintf(
                         'register module(%s) to 0.0.0.0:%d %s',
                         $this->server->getModule(), $port, (string) $response->getBody()
-                    )
+                    ),
+                    OutputInterface::VERBOSITY_DEBUG
                 );
             }
         } catch (ConnectException $e) {

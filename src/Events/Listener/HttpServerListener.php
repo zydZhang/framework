@@ -116,7 +116,26 @@ class HttpServerListener
             }
         } else {
             // service api
-            $response->setJsonContent(['data' =>'service api']);
+            try {
+                /* @var \swoole_client $moduleClient */
+                $moduleClient = $this->server->getModuleClient($moduleName);
+                $moduleClient->send(json_encode([
+                    'uri' => $router->getRewriteUri(),
+                    'params' => $router->getParams()
+                ]));
+                $response->setContentType('application/json');
+                $content = $moduleClient->recv();
+                if (false === $content) {
+                    $response->setStatusCode(500);
+                    $content = json_encode(['error' => 'Server error('.$moduleClient->errCode.')']);
+                }
+                $response->setContent($content);
+            } catch (RequestException $e) {
+                $response = $e->getResponse();
+            } catch (\Exception $e) {
+                $response->setStatusCode(500);
+                $response->setJsonContent(['error' => $e->getMessage()]);
+            }
         }
         // swollow output
         $swooleHttpResponse->status($response->getStatusCode());

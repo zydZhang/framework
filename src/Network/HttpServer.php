@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Eelly\Network;
 
 use Eelly\Events\Listener\HttpServerListener;
+use Eelly\Exception\RequestException;
 use Phalcon\DiInterface;
 use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Lock;
@@ -123,12 +124,13 @@ class HttpServer extends SwooleHttpServer
 
     /**
      * @param string $string
+     * @param int $options
      */
-    public function writeln(string $string)
+    public function writeln(string $string, $options = 0)
     {
         $info = sprintf('[%s %d] %s', formatTime(), getmypid(), $string);
         $this->lock->lock();
-        $this->output->writeln($info);
+        $this->output->writeln($info, $options);
         $this->lock->unlock();
     }
 
@@ -144,7 +146,7 @@ class HttpServer extends SwooleHttpServer
         $record = $this->moduleMap->get($module);
         $created = false == $record ? time() : $record['created'];
         $this->moduleMap->set($module, ['ip' => $ip, 'port' => $port, 'created' => $created, 'updated' => time()]);
-        $this->writeln(sprintf('register module(%s) %s:%d', $module, $ip, $port));
+        $this->writeln(sprintf('register module(%s) %s:%d', $module, $ip, $port), OutputInterface::VERBOSITY_DEBUG);
     }
 
     /**
@@ -158,6 +160,41 @@ class HttpServer extends SwooleHttpServer
         }
 
         return $moduleMap;
+    }
+
+    /**
+     * 
+     * @param string $moduleName
+     * @return \swoole_client
+     */
+    public function getModuleClient(string $moduleName)
+    {
+        $module = $this->moduleMap->get($moduleName);
+        if (false === $module) {
+            throw new RequestException(404, 'Module not found', $this->di->getShared('request'), $this->di->getShared('response'));
+        }
+        static $mdduleClientMap = [];
+        if (isset($mdduleClientMap[$moduleName])){
+            if($mdduleClientMap[$moduleName]['ip'] == $module['ip']
+                && $mdduleClientMap[$moduleName]['port'] == $module['port']) {
+                if (!$mdduleClientMap[$moduleName]['client']->isConnected()) {
+                    $mdduleClientMap[$moduleName]['client']->connect($module['ip'], $module['port']);
+                }
+                return $mdduleClientMap[$moduleName]['client'];
+            } else {
+                // 强制关闭
+                $mdduleClientMap[$module]['client']->close(true);
+                unset($mdduleClientMap[$module]);
+            }
+        }
+        $client = new \swoole_client(SWOOLE_TCP | SWOOLE_KEEP);
+        $client->connect($module['ip'], $module['port']);
+        $mdduleClientMap[$moduleName] = [
+            'ip' => $module['ip'],
+            'port' => $module['port'],
+            'client' => $client
+        ];
+        return $client;
     }
 
     /**

@@ -91,12 +91,13 @@ class TcpServer extends Server
 
     /**
      * @param string $string
+     * @param int $option
      */
-    public function writeln(string $string)
+    public function writeln(string $string, $option = 0)
     {
         $info = sprintf('[%s %d] %s', formatTime(), getmypid(), $string);
         $this->lock->lock();
-        $this->output->writeln($info);
+        $this->output->writeln($info, $option);
         $this->lock->unlock();
     }
 
