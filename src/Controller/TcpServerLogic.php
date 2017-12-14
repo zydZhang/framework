@@ -17,15 +17,18 @@ use Eelly\Mvc\Controller;
 
 /**
  * Class TcpServerLogic.
+ *
+ * @property \Eelly\Network\HttpServer $server
  */
 class TcpServerLogic extends Controller
 {
-    public function register(): void
+    public function register():array
     {
         $module = $this->request->getPost('module');
         $ip = $this->request->getPost('ip', null, $this->request->getClientAddress());
-        // TODO 数据校验
         $port = (int) $this->request->getPost('port');
-        $this->server->registerModule($module, $ip, $port);
+        $pid = (int) $this->request->getPost('pid');
+        $this->server->registerModule($module, $ip, $port, $pid);
+        return $this->server->getModuleMap();
     }
 }

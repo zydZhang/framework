@@ -23,7 +23,8 @@ class TcpServerListner
     public function onStart(TcpServer $server): void
     {
         $server->setProcessName('server');
-        printf('Module %s tcp server was started, listening on %d'.PHP_EOL, $server->getModule(), $server->port);
+        $info = sprintf('%s tcp server was started and listening on <info>%d</info>', $server->getModule(), $server->port);
+        $server->writeln($info);
     }
 
     public function onShutdown(): void

@@ -52,10 +52,7 @@ class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterfac
         }
         $help .= consoleTableStream(['名称', '说明'], $rows);
         $this->setHelp('Builtin http server powered by swoole.'.$help);
-
-        //$this->addArgument('module', InputArgument::REQUIRED, '模块名，如: example');
         $this->addOption('daemonize', '-d', InputOption::VALUE_NONE, '是否守护进程化');
-        $this->addOption('port', '-p', InputOption::VALUE_OPTIONAL, '监听端口', 9501);
         $this->addOption('signal', '-s', InputOption::VALUE_OPTIONAL, sprintf('系统信号(%s)', implode('|', array_keys(self::SIGNALS))), 'start');
     }
 
@@ -67,9 +64,9 @@ class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterfac
         }
         $io = new SymfonyStyle($input, $output);
         if ('start' == $signal) {
-            $httpServer = new HttpServer('0.0.0.0', (int) $input->getOption('port'));
             $config = $this->getDI()->getShared('config');
-            $options = $config['httpServer'];
+            $httpServer = new HttpServer('0.0.0.0', $config['httpServer']['port']);
+            $options = $config['httpServer']['swoole'];
             $options['daemonize'] = $input->hasParameterOption(['--daemonize', '-d'], true);
             $httpServer->set($options->toArray());
             $httpServer->setDi($this->getDI());

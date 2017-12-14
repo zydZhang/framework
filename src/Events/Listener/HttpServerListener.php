@@ -54,7 +54,7 @@ class HttpServerListener
         $server->getDi()->setShared('server', $server);
     }
 
-    public function onWorkerStop(): void
+    public function onWorkerStop(HttpServer $server, int $workerId): void
     {
     }
 
@@ -106,7 +106,7 @@ class HttpServerListener
                     $response->setContent($content);
                 } else {
                     // system api
-                    $response->setJsonContent(['data' => 'system api']);
+                    $response->setJsonContent($possibleResponse);
                 }
             } catch (RequestException $e) {
                 $response = $e->getResponse();
@@ -167,7 +167,7 @@ class HttpServerListener
         $server->setProcessName('manager');
     }
 
-    public function onManagerStop(): void
+    public function onManagerStop(HttpServer $server): void
     {
     }
 }

@@ -86,7 +86,15 @@ class TcpServer extends Server
     {
         $processName = $this->module.'_'.$name;
         swoole_set_process_name($processName);
-        $info = sprintf('%s "%s" %d', formatTime(), $processName, getmypid());
+        $this->writeln($processName);
+    }
+
+    /**
+     * @param string $string
+     */
+    public function writeln(string $string)
+    {
+        $info = sprintf('[%s %d] %s', formatTime(), getmypid(), $string);
         $this->lock->lock();
         $this->output->writeln($info);
         $this->lock->unlock();

@@ -4,25 +4,32 @@
 [![Total Downloads](https://poser.pugx.org/eelly/framework/downloads.png)](https://packagist.org/packages/eelly/framework)
 [![StyleCI](https://styleci.io/repos/94968797/shield?branch=master)](https://styleci.io/repos/94968797)
 
-## 关于Eelly framework
+## About Eelly framework
 
-Eelly framework 使用 php7.1 开发，融合 phalcon3 swoole symfony 等等，带给您全新的现代php开发体验，大型项目开发的首选。
+Eelly framework is developed by php7.1, phalcon3 swoole symfony and so on. It brings you a new experience of modern PHP development, and the first choice for large-scale project development.
 
-## 安装
+## Require
+
+PHP_VERSION = 7.1.x
+
+PHALCON_VERSION = 3.2.x
+
+SWOOLE_VERSION = 1.9.x
+
+## Install
 
 ```bash
 composer require eelly/framework
 ```
 
-## 文档和技术支持
+## Documents
 
-敬请期待...
 
-## 贡献
+## Contribution
 
-这是一个开源项目，欢迎你加入我们
+Welcome to join us!
 
-[提交bug或建议](https://github.com/EellyDev/framework/issues)
+[Issues](https://github.com/EellyDev/framework/issues)
 
-[提交你共享的代码](https://github.com/EellyDev/framework/pulls)
+[Pull requests](https://github.com/EellyDev/framework/pulls)
 

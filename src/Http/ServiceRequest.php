@@ -40,6 +40,7 @@ class ServiceRequest extends HttpRequest
             $params = $this->getPost();
         }
         $uploadFiles = ServerRequest::normalizeFiles($_FILES);
+        $params = (array)$params;
         $params = array_replace_recursive($params, $uploadFiles);
         $this->sortNestedArrayAssoc($params);
 

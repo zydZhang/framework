@@ -70,6 +70,9 @@ class HttpServer extends SwooleHttpServer
      */
     private $lock;
 
+    /**
+     * @var Table
+     */
     private $moduleMap;
 
     public function __construct(string $host, int $port)
@@ -115,24 +118,32 @@ class HttpServer extends SwooleHttpServer
     {
         $processName = 'httpserver_'.$name;
         swoole_set_process_name($processName);
-        $info = sprintf('%s "%s" %d', formatTime(), $processName, getmypid());
+        $this->writeln($processName);
+    }
+
+    /**
+     * @param string $string
+     */
+    public function writeln(string $string)
+    {
+        $info = sprintf('[%s %d] %s', formatTime(), getmypid(), $string);
         $this->lock->lock();
         $this->output->writeln($info);
         $this->lock->unlock();
     }
-
     /**
      * register module.
      *
      * @param string $module
      * @param string $ip
      * @param int    $port
-     *
-     * @return bool
      */
-    public function registerModule(string $module, string $ip, int $port)
+    public function registerModule(string $module, string $ip, int $port): void
     {
-        return $this->moduleMap->set($module, ['ip' => $ip, 'port' => $port, 'created' => time()]);
+        $record = $this->moduleMap->get($module);
+        $created = false == $record?time():$record['created'];
+        $this->moduleMap->set($module, ['ip' => $ip, 'port' => $port, 'created' => $created, 'updated' => time()]);
+        $this->writeln(sprintf('register module(%s) %s:%d', $module, $ip, $port));
     }
 
     /**
@@ -180,12 +191,16 @@ class HttpServer extends SwooleHttpServer
         $this->di = $di;
     }
 
+    /**
+     * @return Table
+     */
     private function createModuleMap()
     {
         $moduleMap = new Table(self::MAX_MODULE_MAP_COUNT);
         $moduleMap->column('ip', Table::TYPE_STRING, 15);
         $moduleMap->column('port', Table::TYPE_INT);
         $moduleMap->column('created', Table::TYPE_INT);
+        $moduleMap->column('updated', Table::TYPE_INT);
         $moduleMap->create();
 
         return $moduleMap;

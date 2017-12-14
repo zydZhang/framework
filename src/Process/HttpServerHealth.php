@@ -31,11 +31,6 @@ class HttpServerHealth extends Process
         $this->server = $server;
     }
 
-    public function getServer()
-    {
-        return $this->server;
-    }
-
     public function processhandler(self $serverMonitor): void
     {
         $this->server->setProcessName('health');
