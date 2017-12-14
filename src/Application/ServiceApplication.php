@@ -22,6 +22,9 @@ use Eelly\Mvc\Application;
 use ErrorException;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Phalcon\Config;
+use Phalcon\Dispatcher;
+use Phalcon\Events\Event;
+use Phalcon\Mvc\Router;
 
 /**
  * @property \Eelly\Mvc\Application $application
@@ -68,7 +71,6 @@ class ServiceApplication
         define('APP', [
             'env'      => $appEnv,
             'key'      => $appKey,
-            'rootPath' => \ROOT_PATH,
             'timezone' => $arrayConfig['timezone'],
         ]);
         $this->di->setShared('config', new Config($arrayConfig));
@@ -145,7 +147,7 @@ class ServiceApplication
          * @var \Phalcon\Events\Manager
          */
         $eventsManager = $this->di->getShared('eventsManager');
-        $eventsManager->attach('dispatch:afterDispatchLoop', function (\Phalcon\Events\Event $event, \Phalcon\Mvc\Dispatcher $dispatcher): void {
+        $eventsManager->attach('dispatch:afterDispatchLoop', function (Event $event, Dispatcher $dispatcher): void {
             $returnedValue = $dispatcher->getReturnedValue();
             $response = $this->di->getShared('response');
             if (is_object($returnedValue)) {
@@ -164,6 +166,13 @@ class ServiceApplication
                 if (is_string($returnedValue)) {
                     $dispatcher->setReturnedValue($response->getContent());
                 }
+            }
+        });
+        $eventsManager->attach('router:afterCheckRoutes', function (Event $event, Router $router): void {
+            /* @var \Eelly\Http\ServiceRequest $request */
+            $request = $this->di->getShared('request');
+            if ($request->isPost()) {
+                $router->setParams($request->getRouteParams());
             }
         });
         $this->application->setEventsManager($eventsManager);

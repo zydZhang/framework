@@ -20,22 +20,10 @@ use Phalcon\Text;
  */
 class ServiceRouter extends Router
 {
-    public function afterServiceResolve(): void
+    public function __construct(bool $defaultRoutes = false)
     {
-        $this->clear();
+        parent::__construct($defaultRoutes);
         $this->setUriSource(Router::URI_SOURCE_SERVER_REQUEST_URI);
-        $this->getEventsManager()->attach('router', $this);
-    }
-
-    public function afterCheckRoutes(\Phalcon\Events\Event $event, Router $router): void
-    {
-        /**
-         * @var \Eelly\Http\ServiceRequest $request
-         */
-        $request = $this->getDI()->getShared('request');
-        if ($request->isPost()) {
-            $router->setParams($request->getRouteParams());
-        }
     }
 
     public function getControllerName()

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Eelly\Events\Listener;
 
+use Eelly\Exception\RequestException;
 use Eelly\Http\SwoolePhalconRequest;
 use Eelly\Network\HttpServer;
 use Swoole\Server;
@@ -57,7 +58,7 @@ class HttpServerListener
     {
     }
 
-    public function onRequest(SwooleHttpRequest $swooleHttpRequest, SwooleHttpResponse $swooleHttpResponse)
+    public function onRequest(SwooleHttpRequest $swooleHttpRequest, SwooleHttpResponse $swooleHttpResponse): void
     {
         if ('/favicon.ico' == $swooleHttpRequest->server['request_uri']) {
             $swooleHttpResponse->status(404);
@@ -74,8 +75,11 @@ class HttpServerListener
         /* @var \Eelly\Router\ServiceRouter $router */
         $router = $di->getShared('router');
         $router->handle();
-        //dump($router->getMatchedRoute());
         $moduleName = $router->getModuleName();
+        /* @var \Phalcon\Http\Response $response */
+        $response = $di->getShared('response');
+        $response->setStatusCode(200);
+        $response->setContentType('application/json');
         if (null === $moduleName) {
             /* @var \Phalcon\Mvc\Dispatcher $dispatcher */
             $dispatcher = $di->getShared('dispatcher');
@@ -87,30 +91,39 @@ class HttpServerListener
             try {
                 $dispatcher->setParams($router->getParams());
                 $controller = $dispatcher->dispatch();
+                $possibleResponse = $dispatcher->getReturnedValue();
+                if ($possibleResponse instanceof \Phalcon\Mvc\View) {
+                    // doc
+                    $possibleResponse->start();
+                    $possibleResponse->render(
+                        $dispatcher->getControllerName(),
+                        $dispatcher->getActionName(),
+                        $dispatcher->getParams()
+                    );
+                    $content = $possibleResponse->getContent();
+                    $possibleResponse->finish();
+                    $response->setContentType('text/html');
+                    $response->setContent($content);
+                } else {
+                    // system api
+                    $response->setJsonContent(['data' => 'system api']);
+                }
+            } catch (RequestException $e) {
+                $response = $e->getResponse();
             } catch (\Exception $e) {
-                return $swooleHttpResponse->end($e->getMessage());
-            }
-            $possibleResponse = $dispatcher->getReturnedValue();
-            if ($possibleResponse instanceof \Phalcon\Mvc\View) {
-                // doc
-                $possibleResponse->start();
-                $possibleResponse->render(
-                    $dispatcher->getControllerName(),
-                    $dispatcher->getActionName(),
-                    $dispatcher->getParams()
-                );
-                $content = $possibleResponse->getContent();
-                $possibleResponse->finish();
-
-                return $swooleHttpResponse->end($content);
-            } else {
-                // system api
-                return $swooleHttpResponse->end('system api');
+                $response->setStatusCode(500);
+                $response->setJsonContent(['error' => $e->getMessage()]);
             }
         } else {
             // service api
-            return $swooleHttpResponse->end('service api');
+            $response->setJsonContent(['data' =>'service api']);
         }
+        // swollow output
+        $swooleHttpResponse->status($response->getStatusCode());
+        foreach ($response->getHeaders()->toArray() as $key => $value) {
+            $swooleHttpResponse->header($key, (string) $value);
+        }
+        $swooleHttpResponse->end($response->getContent());
     }
 
     public function onPacket(): void
