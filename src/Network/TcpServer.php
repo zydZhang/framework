@@ -91,7 +91,7 @@ class TcpServer extends Server
 
     /**
      * @param string $string
-     * @param int $option
+     * @param int    $option
      */
     public function writeln(string $string, $option = 0)
     {

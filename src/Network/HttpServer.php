@@ -124,7 +124,7 @@ class HttpServer extends SwooleHttpServer
 
     /**
      * @param string $string
-     * @param int $options
+     * @param int    $options
      */
     public function writeln(string $string, $options = 0)
     {
@@ -163,8 +163,8 @@ class HttpServer extends SwooleHttpServer
     }
 
     /**
-     * 
      * @param string $moduleName
+     *
      * @return \swoole_client
      */
     public function getModuleClient(string $moduleName)
@@ -174,12 +174,13 @@ class HttpServer extends SwooleHttpServer
             throw new RequestException(404, 'Module not found', $this->di->getShared('request'), $this->di->getShared('response'));
         }
         static $mdduleClientMap = [];
-        if (isset($mdduleClientMap[$moduleName])){
-            if($mdduleClientMap[$moduleName]['ip'] == $module['ip']
+        if (isset($mdduleClientMap[$moduleName])) {
+            if ($mdduleClientMap[$moduleName]['ip'] == $module['ip']
                 && $mdduleClientMap[$moduleName]['port'] == $module['port']) {
                 if (!$mdduleClientMap[$moduleName]['client']->isConnected()) {
                     $mdduleClientMap[$moduleName]['client']->connect($module['ip'], $module['port']);
                 }
+
                 return $mdduleClientMap[$moduleName]['client'];
             } else {
                 // 强制关闭
@@ -190,10 +191,11 @@ class HttpServer extends SwooleHttpServer
         $client = new \swoole_client(SWOOLE_TCP | SWOOLE_KEEP);
         $client->connect($module['ip'], $module['port']);
         $mdduleClientMap[$moduleName] = [
-            'ip' => $module['ip'],
-            'port' => $module['port'],
-            'client' => $client
+            'ip'     => $module['ip'],
+            'port'   => $module['port'],
+            'client' => $client,
         ];
+
         return $client;
     }
 
