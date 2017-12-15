@@ -57,9 +57,10 @@ class WebController extends Controller
             }
             $this->eellyClient->setAccessToken($accessToken);
             $user = new User();
-            try{
+
+            try {
                 $this->view->user = $this->user = $user->getInfo();
-             }catch (LogicException $e) {
+            } catch (LogicException $e) {
                 $this->session->set('accessToken', null);
                 $this->response->redirect('/user/login')->send();
             }
