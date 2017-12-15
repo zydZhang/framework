@@ -88,7 +88,7 @@ class ServiceApplication
     {
         $errorHandler = $this->di->getShared(ErrorHandler::class);
         $errorHandler->register();
-        $this->initEventsManager();
+        $this->attachEvents();
         foreach ($this->di->getShared('config')->appBundles as $bundle) {
             $this->di->getShared($bundle)->register();
         }
@@ -141,11 +141,9 @@ class ServiceApplication
         $this->handle()->send();
     }
 
-    private function initEventsManager()
+    private function attachEvents()
     {
-        /**
-         * @var \Phalcon\Events\Manager
-         */
+        /* @var \Phalcon\Events\Manager $eventsManager */
         $eventsManager = $this->di->getShared('eventsManager');
         $eventsManager->attach('dispatch:afterDispatchLoop', function (Event $event, Dispatcher $dispatcher): void {
             $returnedValue = $dispatcher->getReturnedValue();

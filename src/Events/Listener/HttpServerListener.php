@@ -16,6 +16,8 @@ namespace Eelly\Events\Listener;
 use Eelly\Exception\RequestException;
 use Eelly\Http\SwoolePhalconRequest;
 use Eelly\Network\HttpServer;
+use Phalcon\Events\Event;
+use Phalcon\Mvc\Router;
 use Swoole\Server;
 use swoole_http_request as SwooleHttpRequest;
 use swoole_http_response as SwooleHttpResponse;
@@ -52,6 +54,15 @@ class HttpServerListener
         $server->registerRouter();
         $this->server = $server;
         $server->getDi()->setShared('server', $server);
+        /* @var \Phalcon\Events\Manager $eventsManager */
+        $eventsManager = $server->getDi()->getShared('eventsManager');
+        $eventsManager->attach('router:afterCheckRoutes', function (Event $event, Router $router) use ($server): void {
+            /* @var \Eelly\Http\ServiceRequest $request */
+            $request = $server->getDi()->getShared('request');
+            if ($request->isPost()) {
+                $router->setParams($request->getRouteParams());
+            }
+        });
     }
 
     public function onWorkerStop(HttpServer $server, int $workerId): void
