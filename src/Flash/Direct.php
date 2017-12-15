@@ -42,6 +42,7 @@ class Direct extends FlashDirect
     public function getOutput(bool $remove = true): string
     {
         $str = '';
+        !is_array($this->_messages) && $this->_messages = [];
         foreach ($this->_messages as $message) {
             $str .= $message;
         }
