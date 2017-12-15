@@ -100,7 +100,6 @@ class HttpServerListener
             $dispatcher->setActionName($router->getActionName());
 
             try {
-                $dispatcher->setParams($router->getParams());
                 $controller = $dispatcher->dispatch();
                 $possibleResponse = $dispatcher->getReturnedValue();
                 if ($possibleResponse instanceof \Phalcon\Mvc\View) {

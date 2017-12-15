@@ -105,7 +105,7 @@ class HttpServer extends SwooleHttpServer
         }
         // service api
         foreach ($this->di->getShared('config')->moduleList as $moduleName) {
-            $namespace = ucfirst($moduleName);
+            $namespace = ucfirst($moduleName).'\\Logic';
             $router->addPost('/'.$moduleName.'/:controller/:action', [
                 'namespace'  => $namespace,
                 'module'     => $moduleName,
@@ -184,7 +184,7 @@ class HttpServer extends SwooleHttpServer
                 return $mdduleClientMap[$moduleName]['client'];
             } else {
                 // 强制关闭
-                $mdduleClientMap[$module]['client']->close(true);
+                $mdduleClientMap[$moduleName]['client']->close(true);
                 unset($mdduleClientMap[$module]);
             }
         }

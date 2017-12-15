@@ -44,6 +44,7 @@ class TcpServerListner
             opcache_reset();
         }
         $server->registerModule();
+        $server->registerRouter();
     }
 
     public function onWorkerStop(): void
@@ -56,16 +57,24 @@ class TcpServerListner
 
     public function onReceive(TcpServer $server, int $fd, int $reactorId, string $data): void
     {
-        $data = json_decode($data, true);
-        $handlerClass = $data['class'];
+        $data = \GuzzleHttp\json_decode($data, true);
+        $uri = $data['uri'];
         $actionMethod = $data['method'];
         $params = $data['params'];
-        $handler = $server->getDi()->getShared($handlerClass);
-
-        $data = call_user_func_array([$handler, $actionMethod], $params);
-        $server->send($fd, json_encode([
-            'data' => $data,
-        ]));
+        $di = $server->getDi();
+        /* @var \Eelly\Router\ServiceRouter $router */
+        $router = $di->getShared('router');
+        $router->handle($uri);
+        $router->setParams($params);
+        /* @var \Phalcon\Mvc\Dispatcher $dispatcher */
+        $dispatcher = $di->getShared('dispatcher');
+        $dispatcher->setModuleName($router->getModuleName());
+        $dispatcher->setNamespaceName($router->getNamespaceName());
+        $dispatcher->setControllerName($router->getControllerName());
+        $dispatcher->setActionName($router->getActionName());
+        $controller = $dispatcher->dispatch();
+        $possibleResponse = $dispatcher->getReturnedValue();
+        $server->send($fd, json_encode(['data' => $possibleResponse]));
     }
 
     public function onPacket(): void

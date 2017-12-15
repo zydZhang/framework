@@ -114,6 +114,23 @@ class TcpServer extends Server
     }
 
     /**
+     * register router.
+     */
+    public function registerRouter(): void
+    {
+        /* @var \Phalcon\Mvc\Router $router */
+        $router = $this->di->getShared('router');
+        $moduleName = $this->module;
+        $namespace = ucfirst($moduleName).'\\Logic';
+        $router->add('/'.$moduleName.'/:controller/:action', [
+            'namespace'  => $namespace,
+            'module'     => $moduleName,
+            'controller' => 1,
+            'action'     => 2,
+        ]);
+    }
+
+    /**
      * @return string
      */
     public function getModule(): string
