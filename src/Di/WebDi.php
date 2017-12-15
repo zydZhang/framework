@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Eelly\Di;
 
 use Phalcon\Di\Service;
-use Phalcon\Session\Adapter\Files as Session;
 
 /**
  * Class WebDi.
@@ -31,12 +30,6 @@ class WebDi extends FactoryDefault
         $this->_services['response'] = new Service('response', 'Phalcon\\Http\\Response', true);
         $this->_services['request'] = new Service('request', 'Phalcon\\Http\\Request', true);
         $this->_services['security'] = new Service('security', 'Phalcon\\Security', true);
-        $this->_services['session'] = new Service('session', function () {
-            $session = new Session();
-            $session->start();
-
-            return $session;
-        }, true);
         $this->_services['url'] = new Service('url', 'Phalcon\\Mvc\\Url', true);
         $this->_services['view'] = new Service('view', 'Eelly\\Mvc\\View', true);
     }
