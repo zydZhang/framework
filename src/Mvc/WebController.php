@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Eelly\Mvc;
 
+use Eelly\Exception\LogicException;
 use Eelly\SDK\User\Api\User;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 
@@ -56,7 +57,12 @@ class WebController extends Controller
             }
             $this->eellyClient->setAccessToken($accessToken);
             $user = new User();
-            $this->view->user = $this->user = $user->getInfo();
+            try{
+                $this->view->user = $this->user = $user->getInfo();
+             }catch (LogicException $e) {
+                $this->session->set('accessToken', null);
+                $this->response->redirect('/user/login')->send();
+            }
         }
     }
 
