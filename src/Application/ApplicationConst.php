@@ -111,17 +111,18 @@ final class ApplicationConst
      */
     public static function appendRuntimeEnv(int $runtimeEnv):void
     {
-        ApplicationConst::$runtimeEnv |= $runtimeEnv;
+        self::$runtimeEnv |= $runtimeEnv;
     }
 
     /**
      * Has runtime environment.
      *
      * @param int $runtimeEnv
+     *
      * @return bool
      */
     public static function hasRuntimeEnv(int $runtimeEnv):bool
     {
-        return $runtimeEnv == (ApplicationConst::$runtimeEnv & $runtimeEnv);
+        return $runtimeEnv == (self::$runtimeEnv & $runtimeEnv);
     }
 }
