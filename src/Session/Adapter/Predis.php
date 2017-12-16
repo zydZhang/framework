@@ -43,6 +43,7 @@ class Predis extends Adapter
         $cacheOptions['options'] = [
             'prefix' => $options['prefix'] ?? '',
         ];
+        isset($options['cluster']) && $cacheOptions['options']['cluster'] = $options['cluster'];
         $this->_redis = new CachePredis(new \Phalcon\Cache\Frontend\Igbinary([
             "lifetime" => $this->_lifetime
         ]), $cacheOptions);
