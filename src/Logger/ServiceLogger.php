@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Eelly\Logger;
 
-use Eelly\Application\ApplicationConst;
 use Eelly\Logger\Handler\DingDingHandler;
 use Monolog\Logger;
 use Phalcon\Di\InjectionAwareInterface;
