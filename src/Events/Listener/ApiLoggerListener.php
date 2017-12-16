@@ -118,7 +118,7 @@ class ApiLoggerListener extends AbstractListener
         $this->requestData['controllerClass'] = $controllerClass;
         $this->requestData['actionName'] = $actionName;
         $this->requestData['params'] = $this->router->getParams();
-        $this->requestData['appEnv'] = ApplicationConst::$env;
+        $this->requestData['appEnv'] = APP['env'];
     }
 
     /**

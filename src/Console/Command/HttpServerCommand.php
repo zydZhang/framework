@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Eelly\Console\Command;
 
+use Eelly\Application\ApplicationConst;
 use Eelly\Di\InjectionAwareInterface;
 use Eelly\Di\Traits\InjectableTrait;
 use Eelly\Exception\InvalidArgumentException;
@@ -53,6 +54,7 @@ class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterfac
         $this->setHelp('Builtin http server powered by swoole.'.$help);
         $this->addOption('daemonize', '-d', InputOption::VALUE_NONE, '是否守护进程化');
         $this->addOption('signal', '-s', InputOption::VALUE_OPTIONAL, sprintf('系统信号(%s)', implode('|', array_keys(self::SIGNALS))), 'start');
+        ApplicationConst::appendRuntimeEnv(ApplicationConst::RUNTIME_ENV_SWOOLE);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): void

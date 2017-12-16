@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Eelly\Test;
 
 use Composer\Autoload\ClassLoader;
+use Eelly\Application\ApplicationConst;
 use Eelly\Di\InjectionAwareInterface;
 use Eelly\Di\ServiceDi;
 use Phalcon\Config;
@@ -55,8 +56,8 @@ class UnitTestCase extends TestCase implements InjectionAwareInterface
             'rootPath' => $arrayConfig['rootPath'],
             'timezone' => $arrayConfig['timezone'],
         ]);
+        ApplicationConst::appendRuntimeEnv(ApplicationConst::RUNTIME_ENV_CLI);
         $di->setShared('config', new Config($arrayConfig));
-        \Eelly\Application\ApplicationConst::$env = $appEnv;
         list($moduleName) = explode('\\', static::class);
         $loader->addPsr4($moduleName.'\\', 'src/'.$moduleName);
         $loader->register();

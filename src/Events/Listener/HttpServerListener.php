@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Eelly\Events\Listener;
 
+use Eelly\Error\Handler as ErrorHandler;
 use Eelly\Exception\RequestException;
 use Eelly\Http\SwoolePhalconRequest;
 use Eelly\Network\HttpServer;
@@ -63,6 +64,8 @@ class HttpServerListener
                 $router->setParams($request->getRouteParams());
             }
         });
+        $errorHandler = $server->getDi()->getShared(ErrorHandler::class);
+        $errorHandler->register();
     }
 
     public function onWorkerStop(HttpServer $server, int $workerId): void
@@ -98,6 +101,7 @@ class HttpServerListener
             $dispatcher->setNamespaceName($router->getNamespaceName());
             $dispatcher->setControllerName($router->getControllerName());
             $dispatcher->setActionName($router->getActionName());
+            $dispatcher->setParams($router->getParams());
 
             try {
                 $controller = $dispatcher->dispatch();

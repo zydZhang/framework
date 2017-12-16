@@ -51,29 +51,19 @@ class ServiceHandler extends AbstractProcessingHandler implements InjectionAware
 
     protected function write(array $record): void
     {
-        $content['error'] = $record['message'];
-        switch (ApplicationConst::$env) {
+        $content['error'] = 'server error';
+        switch (APP['env']) {
             case ApplicationConst::ENV_TEST:
             case ApplicationConst::ENV_DEVELOPMENT:
                 $content['context'] = $record['context'];
+                $content['error'] = $record['message'];
                 break;
         }
         /* @var \Eelly\Http\Response $response */
         $response = $this->getDI()->getResponse();
         $response = $response->setStatusCode(500, $record['level_name']);
         $response = $response->setJsonContent($content);
-        if ('swoole' == APP['env']) {
-            /* @var \Eelly\Http\Server $server */
-            $server = $this->getDI()->getShared('swooleServer');
-            $swooleHttpResponse = $server->getSwooleHttpResponse();
-            $content = $response->getContent();
-            $headers = $response->getHeaders();
-            $swooleHttpResponse->status($response->getStatusCode());
-            foreach ($headers->toArray() as $key => $value) {
-                $swooleHttpResponse->header($key, (string) $value);
-            }
-            $swooleHttpResponse->end($content);
-        } else {
+        if (ApplicationConst::hasRuntimeEnv(ApplicationConst::RUNTIME_ENV_FPM)) {
             $response->send();
         }
     }

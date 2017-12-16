@@ -120,7 +120,7 @@ class RequestException extends \RuntimeException
         $this->handlerContext = $handlerContext;
         $response->setStatusCode($code);
         $content = ['error' => $message];
-        switch (ApplicationConst::$env) {
+        switch (APP['env']) {
             case ApplicationConst::ENV_TEST:
             case ApplicationConst::ENV_DEVELOPMENT:
                 $content['context'] = $handlerContext;

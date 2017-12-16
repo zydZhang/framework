@@ -73,6 +73,7 @@ class ServiceApplication
             'key'      => $appKey,
             'timezone' => $arrayConfig['timezone'],
         ]);
+        ApplicationConst::appendRuntimeEnv(ApplicationConst::RUNTIME_ENV_FPM);
         $this->di->setShared('config', new Config($arrayConfig));
         date_default_timezone_set(APP['timezone']);
         $this->application = $this->di->getShared(Application::class);

@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace Eelly\Application;
 
 /**
+ * Application const variable and static variable.
+ *
  * @author hehui<hehui@eelly.net>
  */
 final class ApplicationConst
@@ -61,11 +63,32 @@ final class ApplicationConst
     public const APP_VERSION = '1.0';
 
     /**
-     * app env.
+     * fpm runtime environment.
      *
-     * @var string
+     * @var int
      */
-    public static $env = self::ENV_PRODUCTION;
+    public const RUNTIME_ENV_FPM = 1;
+
+    /**
+     * cli runtime environment.
+     *
+     * @var int
+     */
+    public const RUNTIME_ENV_CLI = 2;
+
+    /**
+     * swoole runtime environment.
+     *
+     * @var int
+     */
+    public const RUNTIME_ENV_SWOOLE = 4;
+
+    /**
+     * app runtime environment.
+     *
+     * @var int
+     */
+    public static $runtimeEnv = 0;
 
     /**
      * app name.
@@ -80,4 +103,25 @@ final class ApplicationConst
      * @var array
      */
     public static $oauth;
+
+    /**
+     * Append runtime environment.
+     *
+     * @param int $runtimeEnv
+     */
+    public static function appendRuntimeEnv(int $runtimeEnv):void
+    {
+        ApplicationConst::$runtimeEnv |= $runtimeEnv;
+    }
+
+    /**
+     * Has runtime environment.
+     *
+     * @param int $runtimeEnv
+     * @return bool
+     */
+    public static function hasRuntimeEnv(int $runtimeEnv):bool
+    {
+        return $runtimeEnv == (ApplicationConst::$runtimeEnv & $runtimeEnv);
+    }
 }

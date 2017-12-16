@@ -27,7 +27,7 @@ class ServiceLogger extends Logger implements InjectionAwareInterface
 
     public function __construct()
     {
-        parent::__construct(ApplicationConst::$env);
+        parent::__construct(APP['env']);
     }
 
     public function afterServiceResolve(): void
