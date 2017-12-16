@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace Eelly\Events\Listener;
 
 use Eelly\Network\TcpServer;
+use Phalcon\Dispatcher;
+use Phalcon\Events\Event;
 
 /**
  * Class TcpServerListner.
@@ -45,6 +47,30 @@ class TcpServerListner
         }
         $server->registerModule();
         $server->registerRouter();
+        /* @var \Phalcon\Events\Manager $eventsManager */
+        $eventsManager = $server->getDi()->getShared('eventsManager');
+        $eventsManager->attach('dispatch:afterDispatchLoop', function (Event $event, Dispatcher $dispatcher) use ($server): void {
+            $returnedValue = $dispatcher->getReturnedValue();
+            /* @var \Phalcon\Http\Response $response */
+            $response = $server->getDi()->getShared('response');
+            if (is_object($returnedValue)) {
+                $response->setHeader('returnType', get_class($returnedValue));
+                if ($returnedValue instanceof \JsonSerializable) {
+                    $response->setJsonContent(['data' => $returnedValue, 'returnType' => get_class($returnedValue)]);
+                }
+            } elseif (is_array($returnedValue)) {
+                $response->setHeader('returnType', 'array');
+                $response->setJsonContent(['data' => $returnedValue, 'returnType' => 'array']);
+            } elseif (is_scalar($returnedValue)) {
+                $response->setHeader('returnType', gettype($returnedValue));
+                $response->setJsonContent(
+                    ['data' => $returnedValue, 'returnType' => gettype($returnedValue)]
+                );
+                if (is_string($returnedValue)) {
+                    $dispatcher->setReturnedValue($response->getContent());
+                }
+            }
+        });
     }
 
     public function onWorkerStop(): void
@@ -57,6 +83,7 @@ class TcpServerListner
 
     public function onReceive(TcpServer $server, int $fd, int $reactorId, string $data): void
     {
+        $server->getRequestCount()->add(1);
         $data = \GuzzleHttp\json_decode($data, true);
         $uri = $data['uri'];
         $actionMethod = $data['method'];
@@ -73,8 +100,11 @@ class TcpServerListner
         $dispatcher->setControllerName($router->getControllerName());
         $dispatcher->setActionName($router->getActionName());
         $controller = $dispatcher->dispatch();
-        $possibleResponse = $dispatcher->getReturnedValue();
-        $server->send($fd, json_encode(['data' => $possibleResponse]));
+        $response = $di->getShared('response');
+        /* @var \Phalcon\Http\Response $response */
+        $server->send($fd, '{"content":'.$response->getContent().',"headers":'.json_encode($response->getHeaders()->toArray())."}\r\n\r\n");
+        $response->resetHeaders();
+        $response->setContent('');
     }
 
     public function onPacket(): void

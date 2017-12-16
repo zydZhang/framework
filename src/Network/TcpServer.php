@@ -15,6 +15,7 @@ namespace Eelly\Network;
 
 use Eelly\Events\Listener\TcpServerListner;
 use Phalcon\DiInterface;
+use Swoole\Atomic\Long;
 use Swoole\Lock;
 use Swoole\Server;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -62,7 +63,15 @@ class TcpServer extends Server
      */
     private $di;
 
+    /**
+     * @var Lock
+     */
     private $lock;
+
+    /**
+     * @var Long
+     */
+    private $requestCount;
 
     /**
      * TcpServer constructor.
@@ -77,6 +86,7 @@ class TcpServer extends Server
         parent::__construct($host, $port, $mode, $sockType);
         $this->listner = new TcpServerListner();
         $this->lock = new Lock(SWOOLE_MUTEX);
+        $this->requestCount = new Long();
         foreach (self::EVENTS as $event) {
             $this->on($event, [$this->listner, 'on'.$event]);
         }
@@ -176,5 +186,13 @@ class TcpServer extends Server
     public function setDi(DiInterface $di): void
     {
         $this->di = $di;
+    }
+
+    /**
+     * @return Long
+     */
+    public function getRequestCount()
+    {
+        return $this->requestCount;
     }
 }

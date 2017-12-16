@@ -16,6 +16,7 @@ namespace Eelly\Network;
 use Eelly\Events\Listener\HttpServerListener;
 use Eelly\Exception\RequestException;
 use Phalcon\DiInterface;
+use Swoole\Atomic\Long;
 use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Lock;
 use Swoole\Table;
@@ -76,12 +77,18 @@ class HttpServer extends SwooleHttpServer
      */
     private $moduleMap;
 
+    /**
+     * @var Long
+     */
+    private $requestCount;
+
     public function __construct(string $host, int $port)
     {
         parent::__construct($host, $port);
         $this->listner = new HttpServerListener();
         $this->lock = new Lock(SWOOLE_MUTEX);
         $this->moduleMap = $this->createModuleMap();
+        $this->requestCount = new Long();
         foreach (self::EVENTS as $event) {
             $this->on($event, [$this->listner, 'on'.$event]);
         }
@@ -185,10 +192,15 @@ class HttpServer extends SwooleHttpServer
             } else {
                 // 强制关闭
                 $mdduleClientMap[$moduleName]['client']->close(true);
-                unset($mdduleClientMap[$module]);
+                unset($mdduleClientMap[$moduleName]);
             }
         }
         $client = new \swoole_client(SWOOLE_TCP | SWOOLE_KEEP);
+        $client->set([
+            'open_eof_check' => true,
+            'package_eof' => "\r\n\r\n",
+            'package_max_length' => 1024 * 1024 * 2,
+        ]);
         $client->connect($module['ip'], $module['port']);
         $mdduleClientMap[$moduleName] = [
             'ip'     => $module['ip'],
@@ -229,6 +241,14 @@ class HttpServer extends SwooleHttpServer
     public function setDi(DiInterface $di): void
     {
         $this->di = $di;
+    }
+
+    /**
+     * @return Long
+     */
+    public function getRequestCount()
+    {
+        return $this->requestCount;
     }
 
     /**

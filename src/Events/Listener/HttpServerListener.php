@@ -22,6 +22,7 @@ use Phalcon\Mvc\Router;
 use Swoole\Server;
 use swoole_http_request as SwooleHttpRequest;
 use swoole_http_response as SwooleHttpResponse;
+use ErrorException;
 
 class HttpServerListener
 {
@@ -130,25 +131,41 @@ class HttpServerListener
             }
         } else {
             // service api
+            $this->server->getRequestCount()->add(1);
             try {
                 /* @var \swoole_client $moduleClient */
                 $moduleClient = $this->server->getModuleClient($moduleName);
                 $moduleClient->send(json_encode([
                     'uri'    => $router->getRewriteUri(),
                     'params' => $router->getParams(),
-                ]));
+                ])."\r\n");
                 $response->setContentType('application/json');
-                $content = $moduleClient->recv();
-                if (false === $content) {
+                $tryTimes = 5;
+                while (true) {
+                    try {
+                        $recvData = $moduleClient->recv();
+                        break;
+                    } catch (ErrorException $e) {
+                        if (0 == --$tryTimes) {
+                            throw $e;
+                        }
+                        usleep(100000);
+                    }
+                }
+                if (false === $recvData) {
                     $response->setStatusCode(500);
                     $content = json_encode(['error' => 'Server error('.$moduleClient->errCode.')']);
                 }
-                $response->setContent($content);
+                $data = \GuzzleHttp\json_decode($recvData, true);
+                $response->setJsonContent($data['content']);
+                foreach ($data['headers'] as $key => $value) {
+                    $response->setHeader($key, $value);
+                }
             } catch (RequestException $e) {
                 $response = $e->getResponse();
             } catch (\Exception $e) {
                 $response->setStatusCode(500);
-                $response->setJsonContent(['error' => $e->getMessage()]);
+                $response->setJsonContent(['error' => $e->getMessage(), 'returnType' => get_class($e)]);
             }
         }
         // swollow output
@@ -157,6 +174,9 @@ class HttpServerListener
             $swooleHttpResponse->header($key, (string) $value);
         }
         $swooleHttpResponse->end($response->getContent());
+
+        $response->resetHeaders();
+        $response->setContent('');
     }
 
     public function onPacket(): void
