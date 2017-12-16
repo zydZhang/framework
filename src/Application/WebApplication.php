@@ -19,6 +19,7 @@ use Eelly\Loader\Loader;
 use Eelly\Mvc\Application;
 use Eelly\SDK\EellyClient;
 use Phalcon\Config;
+use Eelly\Session\Factory;
 
 /**
  * Class WebApplication.
@@ -73,6 +74,15 @@ class WebApplication
         date_default_timezone_set(APP['timezone']);
         $this->application = $this->di->getShared(Application::class);
         $this->di->setShared('application', $this->application);
+        $this->di->setShared('session', function() use($arrayConfig) {
+            $options = $arrayConfig['session'] ?? [];
+            throwIf(empty($options), \RuntimeException::class, 'session config cannot be empty');
+
+            $session = Factory::load($options);
+            $session->start();
+
+            return $session;
+        });
     }
 
     /**

@@ -21,6 +21,7 @@ use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
  * Class WebController.
  *
  * @property \Eelly\SDK\EellyClient $eellyClient
+ * @property \Phalcon\Session\Adapter $session
  */
 class WebController extends Controller
 {
