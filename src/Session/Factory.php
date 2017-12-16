@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Eelly\Session;
 
-use Phalcon\Session\Factory as SessionFactory;
 use Phalcon\Session\AdapterInterface;
+use Phalcon\Session\Factory as SessionFactory;
 
 class Factory extends SessionFactory
 {
@@ -23,6 +23,6 @@ class Factory extends SessionFactory
      */
     public static function load($config): AdapterInterface
     {
-        return self::loadClass("Eelly\\Session\\Adapter", $config);
+        return self::loadClass('Eelly\\Session\\Adapter', $config);
     }
 }
