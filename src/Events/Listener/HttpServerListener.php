@@ -17,12 +17,12 @@ use Eelly\Error\Handler as ErrorHandler;
 use Eelly\Exception\RequestException;
 use Eelly\Http\SwoolePhalconRequest;
 use Eelly\Network\HttpServer;
+use ErrorException;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Router;
 use Swoole\Server;
 use swoole_http_request as SwooleHttpRequest;
 use swoole_http_response as SwooleHttpResponse;
-use ErrorException;
 
 class HttpServerListener
 {
@@ -132,6 +132,7 @@ class HttpServerListener
         } else {
             // service api
             $this->server->getRequestCount()->add(1);
+
             try {
                 /* @var \swoole_client $moduleClient */
                 $moduleClient = $this->server->getModuleClient($moduleName);
