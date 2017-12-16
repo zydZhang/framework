@@ -197,8 +197,8 @@ class HttpServer extends SwooleHttpServer
         }
         $client = new \swoole_client(SWOOLE_TCP | SWOOLE_KEEP);
         $client->set([
-            'open_eof_check' => true,
-            'package_eof' => "\r\n\r\n",
+            'open_eof_check'     => true,
+            'package_eof'        => "\r\n\r\n",
             'package_max_length' => 1024 * 1024 * 2,
         ]);
         $client->connect($module['ip'], $module['port']);
