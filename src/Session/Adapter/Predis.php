@@ -18,24 +18,14 @@ use Phalcon\Session\Adapter;
 
 class Predis extends Adapter
 {
-    protected $_redis = null;
+    protected $_redis;
 
     protected $_lifetime = 1440;
-
-    public function getRedis()
-    {
-        return $this->_redis;
-    }
-
-    public function getLifetime()
-    {
-        return $this->_lifetime;
-    }
 
     public function __construct(array $options = [])
     {
         $lifetime;
-        if ($lifetime = $options["lifetime"] ?? '') {
+        if ($lifetime = $options['lifetime'] ?? '') {
             $this->_lifetime = $lifetime;
         }
 
@@ -45,19 +35,29 @@ class Predis extends Adapter
         ];
         isset($options['cluster']) && $cacheOptions['options']['cluster'] = $options['cluster'];
         $this->_redis = new CachePredis(new \Phalcon\Cache\Frontend\Igbinary([
-            "lifetime" => $this->_lifetime
+            'lifetime' => $this->_lifetime,
         ]), $cacheOptions);
 
         session_set_save_handler(
-            [$this, "open"],
-            [$this, "close"],
-            [$this, "read"],
-            [$this, "write"],
-            [$this, "destroy"],
-            [$this, "gc"]
+            [$this, 'open'],
+            [$this, 'close'],
+            [$this, 'read'],
+            [$this, 'write'],
+            [$this, 'destroy'],
+            [$this, 'gc']
             );
 
         parent::__construct($options);
+    }
+
+    public function getRedis()
+    {
+        return $this->_redis;
+    }
+
+    public function getLifetime()
+    {
+        return $this->_lifetime;
     }
 
     /**
