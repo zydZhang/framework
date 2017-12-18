@@ -47,6 +47,7 @@ class TcpServerListner
         }
         $server->registerModule();
         $server->registerRouter();
+        $server->getDi()->setShared('server', $server);
         /* @var \Phalcon\Events\Manager $eventsManager */
         $eventsManager = $server->getDi()->getShared('eventsManager');
         $eventsManager->attach('dispatch:afterDispatchLoop', function (Event $event, Dispatcher $dispatcher) use ($server): void {
@@ -86,7 +87,6 @@ class TcpServerListner
         $server->getRequestCount()->add(1);
         $data = \GuzzleHttp\json_decode($data, true);
         $uri = $data['uri'];
-        $actionMethod = $data['method'];
         $params = $data['params'];
         $di = $server->getDi();
         /* @var \Eelly\Router\ServiceRouter $router */
@@ -99,6 +99,7 @@ class TcpServerListner
         $dispatcher->setNamespaceName($router->getNamespaceName());
         $dispatcher->setControllerName($router->getControllerName());
         $dispatcher->setActionName($router->getActionName());
+        $dispatcher->setParams($params);
         $controller = $dispatcher->dispatch();
         $response = $di->getShared('response');
         /* @var \Phalcon\Http\Response $response */

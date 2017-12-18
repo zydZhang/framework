@@ -52,7 +52,7 @@ class SwoolePhalconRequest extends HttpRequest
     public function getRouteParams(): array
     {
         if (0 === strpos($this->getHeader('Content-Type'), 'application/json')) {
-            $json = $this->getRawBody();
+            $json = $this->swooleHttpRequest->rawContent();
 
             try {
                 $params = \GuzzleHttp\json_decode($json, true);
@@ -63,6 +63,7 @@ class SwoolePhalconRequest extends HttpRequest
             $params = $this->getPost();
         }
         $uploadFiles = ServerRequest::normalizeFiles($_FILES);
+        $params = (array)$params;
         $params = array_replace_recursive($params, $uploadFiles);
         $this->sortNestedArrayAssoc($params);
 

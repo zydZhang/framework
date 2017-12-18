@@ -13,11 +13,14 @@ declare(strict_types=1);
 
 namespace Eelly\Network;
 
+use Eelly\Client\TcpClient;
 use Eelly\Events\Listener\TcpServerListner;
+use Eelly\Exception\RequestException;
 use Phalcon\DiInterface;
 use Swoole\Atomic\Long;
 use Swoole\Lock;
 use Swoole\Server;
+use Swoole\Table;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class TcpServer extends Server
@@ -46,6 +49,14 @@ class TcpServer extends Server
         'ManagerStop',
     ];
 
+    /**
+     * max module map count.
+     */
+    private const MAX_MODULE_MAP_COUNT = 50;
+
+    /**
+     * @var TcpServerListner
+     */
     private $listner;
 
     /**
@@ -74,6 +85,11 @@ class TcpServer extends Server
     private $requestCount;
 
     /**
+     * @var Table
+     */
+    private $moduleMap;
+
+    /**
      * TcpServer constructor.
      *
      * @param string $host
@@ -87,6 +103,7 @@ class TcpServer extends Server
         $this->listner = new TcpServerListner();
         $this->lock = new Lock(SWOOLE_MUTEX);
         $this->requestCount = new Long();
+        $this->moduleMap = $this->createModuleMap();
         foreach (self::EVENTS as $event) {
             $this->on($event, [$this->listner, 'on'.$event]);
         }
@@ -124,6 +141,24 @@ class TcpServer extends Server
     }
 
     /**
+     * register remote module.
+     *
+     * @param string $module
+     * @param string $ip
+     * @param int    $port
+     */
+    public function registerRemoteModule(string $module, string $ip, int $port): void
+    {
+        if ($module == $this->module) {
+            return;
+        }
+        $record = $this->moduleMap->get($module);
+        $created = false == $record ? time() : $record['created'];
+        $this->moduleMap->set($module, ['ip' => $ip, 'port' => $port, 'created' => $created, 'updated' => time()]);
+        $this->writeln(sprintf('register module(%s) %s:%d', $module, $ip, $port), OutputInterface::VERBOSITY_DEBUG);
+    }
+
+    /**
      * register router.
      */
     public function registerRouter(): void
@@ -141,13 +176,50 @@ class TcpServer extends Server
     }
 
     /**
+     * @param string $moduleName
+     *
+     * @return TcpClient
+     */
+    public function getModuleClient(string $moduleName)
+    {
+        $module = $this->moduleMap->get($moduleName);
+        if (false === $module) {
+            throw new RequestException(404, 'Module not found', $this->di->getShared('request'), $this->di->getShared('response'));
+        }
+        static $mdduleClientMap = [];
+        if (isset($mdduleClientMap[$moduleName])) {
+            if ($mdduleClientMap[$moduleName]['ip'] == $module['ip']
+                && $mdduleClientMap[$moduleName]['port'] == $module['port']) {
+                if (!$mdduleClientMap[$moduleName]['client']->isConnected()) {
+                    $mdduleClientMap[$moduleName]['client']->connect($module['ip'], $module['port']);
+                }
+
+                return $mdduleClientMap[$moduleName]['client'];
+            } else {
+                // force close
+                $mdduleClientMap[$moduleName]['client']->close(true);
+                unset($mdduleClientMap[$moduleName]);
+            }
+        }
+        $client = new TcpClient(SWOOLE_TCP | SWOOLE_KEEP);
+        $client->connect($module['ip'], $module['port']);
+        $mdduleClientMap[$moduleName] = [
+            'ip'     => $module['ip'],
+            'port'   => $module['port'],
+            'client' => $client,
+        ];
+
+        return $client;
+    }
+
+    /**
      * @param int    $fd
      * @param string $data
      * @param int    $fromId
      *
      * @return bool
      */
-    public function send(int $fd, string $data, $fromId = 0):bool
+    public function send($fd, $data, $fromId = 0): bool
     {
         return parent::send($fd, $data."\r\n", $fromId);
     }
@@ -206,5 +278,20 @@ class TcpServer extends Server
     public function getRequestCount()
     {
         return $this->requestCount;
+    }
+
+    /**
+     * @return Table
+     */
+    private function createModuleMap()
+    {
+        $moduleMap = new Table(self::MAX_MODULE_MAP_COUNT);
+        $moduleMap->column('ip', Table::TYPE_STRING, 15);
+        $moduleMap->column('port', Table::TYPE_INT);
+        $moduleMap->column('created', Table::TYPE_INT);
+        $moduleMap->column('updated', Table::TYPE_INT);
+        $moduleMap->create();
+
+        return $moduleMap;
     }
 }

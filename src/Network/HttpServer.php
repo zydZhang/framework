@@ -61,6 +61,9 @@ class HttpServer extends SwooleHttpServer
      */
     private $output;
 
+    /**
+     * @var HttpServerListener
+     */
     private $listner;
 
     /**
@@ -191,7 +194,7 @@ class HttpServer extends SwooleHttpServer
 
                 return $mdduleClientMap[$moduleName]['client'];
             } else {
-                // 强制关闭
+                // force close
                 $mdduleClientMap[$moduleName]['client']->close(true);
                 unset($mdduleClientMap[$moduleName]);
             }

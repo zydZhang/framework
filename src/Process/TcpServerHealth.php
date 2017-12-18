@@ -75,10 +75,13 @@ class TcpServerHealth extends Process
                 $this->server->writeln(
                     sprintf(
                         'register module(%s) to 0.0.0.0:%d %s',
-                        $this->server->getModule(), $port, (string) $response->getBody()
+                        $this->server->getModule(), $port, $body = (string) $response->getBody()
                     ),
                     OutputInterface::VERBOSITY_DEBUG
                 );
+                foreach (\GuzzleHttp\json_decode($body, true) as $module => $value) {
+                    $this->server->registerRemoteModule($module, $value['ip'], $value['port']);
+                }
             }
         } catch (ConnectException $e) {
             $this->server->writeln($e->getMessage());
