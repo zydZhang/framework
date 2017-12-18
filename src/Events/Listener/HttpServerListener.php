@@ -22,7 +22,6 @@ use Phalcon\Mvc\Router;
 use Swoole\Server;
 use swoole_http_request as SwooleHttpRequest;
 use swoole_http_response as SwooleHttpResponse;
-use ErrorException;
 
 class HttpServerListener
 {
@@ -133,6 +132,7 @@ class HttpServerListener
             // service api
             $this->server->getRequestCount()->add(1);
             $response->setContentType('application/json');
+
             try {
                 $moduleClient = $this->server->getModuleClient($moduleName);
                 $moduleClient->sendJson([
