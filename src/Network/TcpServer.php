@@ -141,9 +141,10 @@ class TcpServer extends Server
     }
 
     /**
-     * @param int $fd
+     * @param int    $fd
      * @param string $data
-     * @param int $fromId
+     * @param int    $fromId
+     *
      * @return bool
      */
     public function send(int $fd, string $data, $fromId = 0):bool

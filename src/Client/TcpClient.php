@@ -1,16 +1,20 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: heui
- * Date: 2017/12/18
- * Time: 11:51
+
+declare(strict_types=1);
+
+/*
+ * This file is part of eelly package.
+ *
+ * (c) eelly.com
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Eelly\Client;
 
-
-use Swoole\Client;
 use ErrorException;
+use Swoole\Client;
 
 class TcpClient extends Client
 {
@@ -18,8 +22,8 @@ class TcpClient extends Client
     {
         parent::__construct($sockType, $syncType, $connectionKey);
         $this->set([
-            'open_eof_check' => true,
-            'package_eof' => "\r\n",
+            'open_eof_check'     => true,
+            'package_eof'        => "\r\n",
             'package_max_length' => 1024 * 1024 * 2,
         ]);
     }
@@ -28,6 +32,7 @@ class TcpClient extends Client
      * send data as json.
      *
      * @param array $data
+     *
      * @return bool
      */
     public function sendJson(array $data)
@@ -38,8 +43,9 @@ class TcpClient extends Client
     /**
      * receive json data.
      *
-     * @return mixed
      * @throws ErrorException
+     *
+     * @return mixed
      */
     public function recvJson()
     {
@@ -57,6 +63,7 @@ class TcpClient extends Client
         if (false === $recvData) {
             throw new ErrorException('Server error('.$this->errCode.'))');
         }
+
         return \GuzzleHttp\json_decode($recvData, true);
     }
 }
