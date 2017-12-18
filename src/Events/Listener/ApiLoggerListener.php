@@ -145,9 +145,7 @@ class ApiLoggerListener extends AbstractListener
                 'method' => 'log',
                 'params' => [$this->traceId, $this->requestData, $this->responseData, $this->extrasData],
             ]);
-            dump(1111);
         } else {
-            dump(2222);
             (new ApiLogger())->log($this->traceId, $this->requestData, $this->responseData, $this->extrasData);
         }
     }
