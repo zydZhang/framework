@@ -132,31 +132,14 @@ class HttpServerListener
         } else {
             // service api
             $this->server->getRequestCount()->add(1);
+            $response->setContentType('application/json');
             try {
-                /* @var \swoole_client $moduleClient */
                 $moduleClient = $this->server->getModuleClient($moduleName);
-                $moduleClient->send(json_encode([
+                $moduleClient->sendJson([
                     'uri'    => $router->getRewriteUri(),
                     'params' => $router->getParams(),
-                ])."\r\n");
-                $response->setContentType('application/json');
-                $tryTimes = 5;
-                while (true) {
-                    try {
-                        $recvData = $moduleClient->recv();
-                        break;
-                    } catch (ErrorException $e) {
-                        if (0 == --$tryTimes) {
-                            throw $e;
-                        }
-                        usleep(100000);
-                    }
-                }
-                if (false === $recvData) {
-                    $response->setStatusCode(500);
-                    $content = json_encode(['error' => 'Server error('.$moduleClient->errCode.')']);
-                }
-                $data = \GuzzleHttp\json_decode($recvData, true);
+                ]);
+                $data = $moduleClient->recvJson();
                 $response->setJsonContent($data['content']);
                 foreach ($data['headers'] as $key => $value) {
                     $response->setHeader($key, $value);

@@ -102,7 +102,7 @@ class TcpServerListner
         $controller = $dispatcher->dispatch();
         $response = $di->getShared('response');
         /* @var \Phalcon\Http\Response $response */
-        $server->send($fd, '{"content":'.$response->getContent().',"headers":'.json_encode($response->getHeaders()->toArray())."}\r\n\r\n");
+        $server->send($fd, '{"content":'.$response->getContent().',"headers":'.json_encode($response->getHeaders()->toArray()).'}');
         $response->resetHeaders();
         $response->setContent('');
     }

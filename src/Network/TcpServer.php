@@ -141,6 +141,17 @@ class TcpServer extends Server
     }
 
     /**
+     * @param int $fd
+     * @param string $data
+     * @param int $fromId
+     * @return bool
+     */
+    public function send(int $fd, string $data, $fromId = 0):bool
+    {
+        return parent::send($fd, $data."\r\n", $fromId);
+    }
+
+    /**
      * @return string
      */
     public function getModule(): string

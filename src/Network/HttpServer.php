@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Eelly\Network;
 
+use Eelly\Client\TcpClient;
 use Eelly\Events\Listener\HttpServerListener;
 use Eelly\Exception\RequestException;
 use Phalcon\DiInterface;
@@ -172,7 +173,7 @@ class HttpServer extends SwooleHttpServer
     /**
      * @param string $moduleName
      *
-     * @return \swoole_client
+     * @return TcpClient
      */
     public function getModuleClient(string $moduleName)
     {
@@ -195,12 +196,7 @@ class HttpServer extends SwooleHttpServer
                 unset($mdduleClientMap[$moduleName]);
             }
         }
-        $client = new \swoole_client(SWOOLE_TCP | SWOOLE_KEEP);
-        $client->set([
-            'open_eof_check' => true,
-            'package_eof' => "\r\n\r\n",
-            'package_max_length' => 1024 * 1024 * 2,
-        ]);
+        $client = new TcpClient(SWOOLE_TCP | SWOOLE_KEEP);
         $client->connect($module['ip'], $module['port']);
         $mdduleClientMap[$moduleName] = [
             'ip'     => $module['ip'],

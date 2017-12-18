@@ -62,6 +62,8 @@ class TcpServerCommand extends SymfonyCommand implements InjectionAwareInterface
         $module = (string) $input->getArgument('module');
         $options = require 'var/config/'.APP['env'].'/'.$module.'/tcpServer.php';
         $options['daemonize'] = $input->hasParameterOption(['--daemonize', '-d'], true);
+        $options['open_eof_check'] = true; //打开EOF检测
+        $options['package_eof'] = "\r\n"; //设置EOF
         $tcpServer->set($options);
         $tcpServer->setDi($this->getDI());
         $tcpServer->setModule($module);
