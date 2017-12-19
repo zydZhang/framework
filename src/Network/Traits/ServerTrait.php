@@ -96,21 +96,6 @@ trait ServerTrait
         $this->moduleMap->set($module, ['ip' => $ip, 'port' => $port, 'created' => $created, 'updated' => time()]);
         $this->writeln(sprintf('register module(%s) %s:%d', $module, $ip, $port), OutputInterface::VERBOSITY_DEBUG);
     }
-    
-    /**
-     * @return Table
-     */
-    private function createModuleMap()
-    {
-        $moduleMap = new Table(self::MAX_MODULE_MAP_COUNT);
-        $moduleMap->column('ip', Table::TYPE_STRING, 15);
-        $moduleMap->column('port', Table::TYPE_INT);
-        $moduleMap->column('created', Table::TYPE_INT);
-        $moduleMap->column('updated', Table::TYPE_INT);
-        $moduleMap->create();
-
-        return $moduleMap;
-    }
 
     /**
      * @return array
@@ -167,5 +152,20 @@ trait ServerTrait
     public function setDi(DiInterface $di): void
     {
         $this->di = $di;
+    }
+
+    /**
+     * @return Table
+     */
+    private function createModuleMap()
+    {
+        $moduleMap = new Table(self::MAX_MODULE_MAP_COUNT);
+        $moduleMap->column('ip', Table::TYPE_STRING, 15);
+        $moduleMap->column('port', Table::TYPE_INT);
+        $moduleMap->column('created', Table::TYPE_INT);
+        $moduleMap->column('updated', Table::TYPE_INT);
+        $moduleMap->create();
+
+        return $moduleMap;
     }
 }

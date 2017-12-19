@@ -13,16 +13,10 @@ declare(strict_types=1);
 
 namespace Eelly\Network;
 
-use Eelly\Client\TcpClient;
 use Eelly\Events\Listener\HttpServerListener;
-use Eelly\Exception\RequestException;
 use Eelly\Network\Traits\ServerTrait;
-use Phalcon\DiInterface;
-use Swoole\Atomic\Long;
 use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Lock;
-use Swoole\Table;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class Server.
@@ -68,7 +62,7 @@ class HttpServer extends SwooleHttpServer
      * HttpServer constructor.
      *
      * @param string $host
-     * @param int $port
+     * @param int    $port
      */
     public function __construct(string $host, int $port)
     {

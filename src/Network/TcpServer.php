@@ -13,20 +13,13 @@ declare(strict_types=1);
 
 namespace Eelly\Network;
 
-use Eelly\Client\TcpClient;
 use Eelly\Events\Listener\TcpServerListner;
-use Eelly\Exception\RequestException;
 use Eelly\Network\Traits\ServerTrait;
-use Phalcon\DiInterface;
-use Swoole\Atomic\Long;
 use Swoole\Lock;
 use Swoole\Server;
-use Swoole\Table;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class TcpServer
- * @package Eelly\Network
+ * Class TcpServer.
  */
 class TcpServer extends Server
 {
@@ -92,6 +85,7 @@ class TcpServer extends Server
 
     /**
      * Set process name.
+     *
      * @param string $name
      */
     public function setProcessName(string $name): void
