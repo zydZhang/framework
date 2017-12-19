@@ -85,24 +85,6 @@ if (!function_exists('throwIf')) {
     }
 }
 
-if (!function_exists('errorexit')) {
-    /**
-     * 错误退出.
-     *
-     * 此函数用于兼容swoole禁止使用exit/die的场景
-     *
-     * @param int|string $status
-     */
-    function errorexit($status): void
-    {
-        $status = (string) $status;
-        if ('swoole' == APP['env']) {
-            throw new \Error($status);
-        } else {
-            exit($status);
-        }
-    }
-}
 if (!function_exists('formatTime')) {
     /**
      * 获取当前时间.
@@ -118,9 +100,8 @@ if (!function_exists('formatTime')) {
         if (null !== $timezone) {
             $dateTime->setTimezone(new \DateTimeZone($timezone));
         }
-        $time = $dateTime->format($format);
 
-        return $time;
+        return $dateTime->format($format);
     }
 }
 

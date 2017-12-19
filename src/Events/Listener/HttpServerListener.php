@@ -130,7 +130,6 @@ class HttpServerListener
             }
         } else {
             // service api
-            $this->server->getRequestCount()->add(1);
             $response->setContentType('application/json');
 
             try {

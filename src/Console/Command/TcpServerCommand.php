@@ -68,7 +68,7 @@ class TcpServerCommand extends SymfonyCommand implements InjectionAwareInterface
         $options['package_eof'] = "\r\n"; //设置EOF
         $tcpServer->set($options);
         $tcpServer->setDi($this->getDI());
-        $tcpServer->setModule($module);
+        $tcpServer->setModuleName($module);
         $tcpServer->setOutput($output);
         $tcpServer->addProcess(new TcpServerHealth($tcpServer));
         $tcpServer->start();

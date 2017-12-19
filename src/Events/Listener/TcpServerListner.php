@@ -25,7 +25,7 @@ class TcpServerListner
     public function onStart(TcpServer $server): void
     {
         $server->setProcessName('server');
-        $info = sprintf('%s tcp server was started and listening on <info>%d</info>', $server->getModule(), $server->port);
+        $info = sprintf('%s tcp server was started and listening on <info>%d</info>', $server->getModuleName(), $server->port);
         $server->writeln($info);
     }
 
@@ -84,7 +84,6 @@ class TcpServerListner
 
     public function onReceive(TcpServer $server, int $fd, int $reactorId, string $data): void
     {
-        $server->getRequestCount()->add(1);
         $data = \GuzzleHttp\json_decode($data, true);
         $uri = $data['uri'];
         $params = $data['params'];

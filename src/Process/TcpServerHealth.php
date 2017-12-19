@@ -64,7 +64,7 @@ class TcpServerHealth extends Process
                 '0.0.0.0:'.$port.'/_/tcpServer/register',
                 [
                     'form_params' => [
-                        'module'  => $this->server->getModule(),
+                        'module'  => $this->server->getModuleName(),
                         'port'    => $this->server->port,
                         'pid'     => $this->server->master_pid,
                         'updated' => time(),
@@ -75,7 +75,7 @@ class TcpServerHealth extends Process
                 $this->server->writeln(
                     sprintf(
                         'register module(%s) to 0.0.0.0:%d %s',
-                        $this->server->getModule(), $port, $body = (string) $response->getBody()
+                        $this->server->getModuleName(), $port, $body = (string) $response->getBody()
                     ),
                     OutputInterface::VERBOSITY_DEBUG
                 );
