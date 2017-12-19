@@ -102,6 +102,7 @@ class TcpServerListner
         $dispatcher->setParams($params);
         /* @var \Phalcon\Http\Response $response */
         $response = $di->getShared('response');
+
         try {
             $controller = $dispatcher->dispatch();
         } catch (Exception $e) {
