@@ -17,6 +17,7 @@ use Eelly\Error\Handler as ErrorHandler;
 use Eelly\Exception\RequestException;
 use Eelly\Http\SwoolePhalconRequest;
 use Eelly\Network\HttpServer;
+use Exception;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Router;
 use Swoole\Server;
@@ -145,7 +146,7 @@ class HttpServerListener
                 }
             } catch (RequestException $e) {
                 $response = $e->getResponse();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $response->setStatusCode(500);
                 $response->setJsonContent(['error' => $e->getMessage(), 'returnType' => get_class($e)]);
             }

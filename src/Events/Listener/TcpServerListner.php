@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Eelly\Events\Listener;
 
 use Eelly\Network\TcpServer;
+use Exception;
 use Phalcon\Dispatcher;
 use Phalcon\Events\Event;
 
@@ -99,9 +100,15 @@ class TcpServerListner
         $dispatcher->setControllerName($router->getControllerName());
         $dispatcher->setActionName($router->getActionName());
         $dispatcher->setParams($params);
-        $controller = $dispatcher->dispatch();
-        $response = $di->getShared('response');
         /* @var \Phalcon\Http\Response $response */
+        $response = $di->getShared('response');
+        try {
+            $controller = $dispatcher->dispatch();
+        } catch (Exception $e) {
+            $response->setStatusCode(500);
+            $response->setJsonContent(['error' => $e->getMessage(), 'returnType' => get_class($e)]);
+        }
+
         $server->send($fd, '{"content":'.$response->getContent().',"headers":'.json_encode($response->getHeaders()->toArray()).'}');
         $response->resetHeaders();
         $response->setContent('');
