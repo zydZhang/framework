@@ -80,7 +80,7 @@ class TcpServerHealth extends Process
                     OutputInterface::VERBOSITY_DEBUG
                 );
                 foreach (\GuzzleHttp\json_decode($body, true) as $module => $value) {
-                    $this->server->registerRemoteModule($module, $value['ip'], $value['port']);
+                    $this->server->registerModule($module, $value['ip'], $value['port']);
                 }
             }
         } catch (ConnectException $e) {

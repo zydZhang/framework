@@ -129,9 +129,9 @@ class TcpServer extends Server
     }
 
     /**
-     * register module.
+     * Initialize module.
      */
-    public function registerModule(): void
+    public function initializeModule(): void
     {
         $module = ucfirst($this->module).'\\Module';
         /* @var \Eelly\Mvc\AbstractModule $moduleInstance */
@@ -147,7 +147,7 @@ class TcpServer extends Server
      * @param string $ip
      * @param int    $port
      */
-    public function registerRemoteModule(string $module, string $ip, int $port): void
+    public function registerModule(string $module, string $ip, int $port): void
     {
         if ($module == $this->module) {
             return;

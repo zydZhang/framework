@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Eelly\Console\Command;
 
+use Eelly\Application\ApplicationConst;
 use Eelly\Di\InjectionAwareInterface;
 use Eelly\Di\Traits\InjectableTrait;
 use Eelly\Network\TcpServer;
@@ -54,6 +55,7 @@ class TcpServerCommand extends SymfonyCommand implements InjectionAwareInterface
         $this->addOption('daemonize', '-d', InputOption::VALUE_NONE, '是否守护进程化');
         $this->addOption('port', '-p', InputOption::VALUE_OPTIONAL, '监听端口', 0);
         $this->addOption('signal', '-s', InputOption::VALUE_OPTIONAL, sprintf('系统信号(%s)', implode('|', array_keys(self::SIGNALS))), 'start');
+        ApplicationConst::appendRuntimeEnv(ApplicationConst::RUNTIME_ENV_SWOOLE);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): void

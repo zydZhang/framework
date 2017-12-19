@@ -45,7 +45,7 @@ class TcpServerListner
         if (function_exists('opcache_reset')) {
             opcache_reset();
         }
-        $server->registerModule();
+        $server->initializeModule();
         $server->registerRouter();
         $server->getDi()->setShared('server', $server);
         /* @var \Phalcon\Events\Manager $eventsManager */
