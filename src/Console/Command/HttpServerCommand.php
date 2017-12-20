@@ -68,6 +68,7 @@ class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterfac
             $config = $this->getDI()->getShared('config');
             $httpServer = new HttpServer('0.0.0.0', $config['httpServer']['port']);
             $options = $config['httpServer']['swoole'];
+            $options['pid_file'] = $config['httpServer']['pidFilePath'].'/httpserver.pid';
             $options['daemonize'] = $input->hasParameterOption(['--daemonize', '-d'], true);
             $httpServer->set($options->toArray());
             $httpServer->setDi($this->getDI());

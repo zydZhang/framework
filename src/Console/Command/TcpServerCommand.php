@@ -29,32 +29,17 @@ class TcpServerCommand extends SymfonyCommand implements InjectionAwareInterface
 {
     use InjectableTrait;
 
-    private const SIGNALS = [
-        'start'    => '启动服务',
-        'reload'   => '重启服务',
-        'plist'    => '进程列表',
-        'clist'    => '连接列表',
-        'shutdown' => '关闭服务器',
-        'stats'    => '服务状态',
-    ];
-
     protected function configure(): void
     {
         $this->setName('api:tcpserver')
             ->setDescription('Tcp server');
 
-        $help = "\n\n系统信号选项说明\n";
-        $rows = [];
-        foreach (self::SIGNALS as $key => $value) {
-            $rows[] = [$key, $value];
-        }
         $help .= consoleTableStream(['名称', '说明'], $rows);
         $this->setHelp('Builtin tcp server powered by swoole.'.$help);
 
         $this->addArgument('module', InputArgument::REQUIRED, '模块名，如: example');
         $this->addOption('daemonize', '-d', InputOption::VALUE_NONE, '是否守护进程化');
         $this->addOption('port', '-p', InputOption::VALUE_OPTIONAL, '监听端口', 0);
-        $this->addOption('signal', '-s', InputOption::VALUE_OPTIONAL, sprintf('系统信号(%s)', implode('|', array_keys(self::SIGNALS))), 'start');
         ApplicationConst::appendRuntimeEnv(ApplicationConst::RUNTIME_ENV_SWOOLE);
     }
 
@@ -62,7 +47,9 @@ class TcpServerCommand extends SymfonyCommand implements InjectionAwareInterface
     {
         $tcpServer = new TcpServer('0.0.0.0', (int) $input->getOption('port'));
         $module = (string) $input->getArgument('module');
-        $options = require 'var/config/'.APP['env'].'/'.$module.'/tcpServer.php';
+        $config = require 'var/config/'.APP['env'].'/'.$module.'/tcpServer.php';
+        $options = $config['swoole'];
+        $options['pid_file'] = $config['pidFilePath'].'/tcpserver_'.$module.'.pid';
         $options['daemonize'] = $input->hasParameterOption(['--daemonize', '-d'], true);
         $options['open_eof_check'] = true; //打开EOF检测
         $options['package_eof'] = "\r\n"; //设置EOF
