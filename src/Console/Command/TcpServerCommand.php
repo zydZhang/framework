@@ -33,10 +33,6 @@ class TcpServerCommand extends SymfonyCommand implements InjectionAwareInterface
     {
         $this->setName('api:tcpserver')
             ->setDescription('Tcp server');
-
-        $help .= consoleTableStream(['名称', '说明'], $rows);
-        $this->setHelp('Builtin tcp server powered by swoole.'.$help);
-
         $this->addArgument('module', InputArgument::REQUIRED, '模块名，如: example');
         $this->addOption('daemonize', '-d', InputOption::VALUE_NONE, '是否守护进程化');
         $this->addOption('port', '-p', InputOption::VALUE_OPTIONAL, '监听端口', 0);
