@@ -16,17 +16,13 @@ namespace Eelly\Console\Command;
 use Eelly\Application\ApplicationConst;
 use Eelly\Di\InjectionAwareInterface;
 use Eelly\Di\Traits\InjectableTrait;
-use Eelly\Exception\InvalidArgumentException;
 use Eelly\Network\HttpServer;
 use Eelly\Process\HttpServerHealth;
-use Eelly\Process\Process;
-use Eelly\Process\ServerMonitor;
 use Phalcon\Events\EventsAwareInterface;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class HttpServerCommand extends SymfonyCommand implements InjectionAwareInterface, EventsAwareInterface
 {

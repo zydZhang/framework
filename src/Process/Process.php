@@ -13,9 +13,7 @@ declare(strict_types=1);
 
 namespace Eelly\Process;
 
-use Eelly\Exception\InvalidArgumentException;
 use Swoole\Process as SwooleProcess;
-use function GuzzleHttp\json_decode;
 
 class Process extends SwooleProcess
 {
