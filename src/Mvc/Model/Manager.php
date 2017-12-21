@@ -11,9 +11,9 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Mvc\Model;
+namespace Shadon\Mvc\Model;
 
-use Eelly\Mvc\Model\Query\Builder;
+use Shadon\Mvc\Model\Query\Builder;
 use Phalcon\Mvc\Model\Manager as ModelManager;
 
 class Manager extends ModelManager

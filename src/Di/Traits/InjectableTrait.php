@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Di\Traits;
+namespace Shadon\Di\Traits;
 
 trait InjectableTrait
 {

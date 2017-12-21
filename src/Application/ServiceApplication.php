@@ -11,14 +11,14 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Application;
+namespace Shadon\Application;
 
 use Composer\Autoload\ClassLoader;
-use Eelly\Di\ServiceDi;
-use Eelly\Error\Handler as ErrorHandler;
-use Eelly\Exception\LogicException;
-use Eelly\Exception\RequestException;
-use Eelly\Mvc\Application;
+use Shadon\Di\ServiceDi;
+use Shadon\Error\Handler as ErrorHandler;
+use Shadon\Exception\LogicException;
+use Shadon\Exception\RequestException;
+use Shadon\Mvc\Application;
 use ErrorException;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Phalcon\Config;
@@ -27,7 +27,7 @@ use Phalcon\Events\Event;
 use Phalcon\Mvc\Router;
 
 /**
- * @property \Eelly\Mvc\Application $application
+ * @property \Shadon\Mvc\Application $application
  *
  * @author hehui<hehui@eelly.net>
  */
@@ -168,7 +168,7 @@ class ServiceApplication
             }
         });
         $eventsManager->attach('router:afterCheckRoutes', function (Event $event, Router $router): void {
-            /* @var \Eelly\Http\ServiceRequest $request */
+            /* @var \Shadon\Http\ServiceRequest $request */
             $request = $this->di->getShared('request');
             if ($request->isPost()) {
                 $router->setParams($request->getRouteParams());

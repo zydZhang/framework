@@ -11,9 +11,9 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Mvc\User;
+namespace Shadon\Mvc\User;
 
-use Eelly\Di\Injectable;
+use Shadon\Di\Injectable;
 
 class Repository extends Injectable
 {

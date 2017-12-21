@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Process;
+namespace Shadon\Process;
 
 use Swoole\Process as SwooleProcess;
 

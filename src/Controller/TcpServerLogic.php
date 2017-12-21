@@ -11,14 +11,14 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Controller;
+namespace Shadon\Controller;
 
-use Eelly\Mvc\Controller;
+use Shadon\Mvc\Controller;
 
 /**
  * Class TcpServerLogic.
  *
- * @property \Eelly\Network\HttpServer $server
+ * @property \Shadon\Network\HttpServer $server
  */
 class TcpServerLogic extends Controller
 {

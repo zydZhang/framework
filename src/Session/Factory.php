@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Session;
+namespace Shadon\Session;
 
 use Phalcon\Session\AdapterInterface;
 use Phalcon\Session\Factory as SessionFactory;
@@ -23,6 +23,6 @@ class Factory extends SessionFactory
      */
     public static function load($config): AdapterInterface
     {
-        return self::loadClass('Eelly\\Session\\Adapter', $config);
+        return self::loadClass('Shadon\\Session\\Adapter', $config);
     }
 }

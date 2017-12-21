@@ -11,31 +11,31 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Mvc\Model\Query;
+namespace Shadon\Mvc\Model\Query;
 
 use Phalcon\Mvc\Model\Query\Builder as QueryBuilder;
 
 /**
  * @author Administrator
  *
- * @method \Eelly\Mvc\Model\Query\Builder distinct($distinct)
- * @method \Eelly\Mvc\Model\Query\Builder columns($columns)
- * @method \Eelly\Mvc\Model\Query\Builder join($model, $conditions = null, $alias = null, $type = null)
- * @method \Eelly\Mvc\Model\Query\Builder innerJoin($model, $conditions = null, $alias = null)
- * @method \Eelly\Mvc\Model\Query\Builder leftJoin($model, $conditions = null, $alias = null)
- * @method \Eelly\Mvc\Model\Query\Builder rightJoin($model, $conditions = null, $alias = null)
- * @method \Eelly\Mvc\Model\Query\Builder where($conditions, $bindParams = null, $bindTypes = null)
- * @method \Eelly\Mvc\Model\Query\Builder andWhere($conditions, $bindParams = null, $bindTypes = null)
- * @method \Eelly\Mvc\Model\Query\Builder orWhere($conditions, $bindParams = null, $bindTypes = null)
- * @method \Eelly\Mvc\Model\Query\Builder betweenWhere($expr, $minimum, $maximum, $operator = BuilderInterface::OPERATOR_AND)
- * @method \Eelly\Mvc\Model\Query\Builder notBetweenWhere($expr, $minimum, $maximum, $operator = BuilderInterface::OPERATOR_AND)
- * @method \Eelly\Mvc\Model\Query\Builder inWhere($expr, array $values, $operator = BuilderInterface::OPERATOR_AND)
- * @method \Eelly\Mvc\Model\Query\Builder notInWhere($expr, array $values, $operator = BuilderInterface::OPERATOR_AND)
- * @method \Eelly\Mvc\Model\Query\Builder orderBy($orderBy)
- * @method \Eelly\Mvc\Model\Query\Builder having($having)
- * @method \Eelly\Mvc\Model\Query\Builder forUpdate($forUpdate)
- * @method \Eelly\Mvc\Model\Query\Builder limit($limit, $offset = null)
- * @method \Eelly\Mvc\Model\Query\Builder groupBy($group)
+ * @method \Shadon\Mvc\Model\Query\Builder distinct($distinct)
+ * @method \Shadon\Mvc\Model\Query\Builder columns($columns)
+ * @method \Shadon\Mvc\Model\Query\Builder join($model, $conditions = null, $alias = null, $type = null)
+ * @method \Shadon\Mvc\Model\Query\Builder innerJoin($model, $conditions = null, $alias = null)
+ * @method \Shadon\Mvc\Model\Query\Builder leftJoin($model, $conditions = null, $alias = null)
+ * @method \Shadon\Mvc\Model\Query\Builder rightJoin($model, $conditions = null, $alias = null)
+ * @method \Shadon\Mvc\Model\Query\Builder where($conditions, $bindParams = null, $bindTypes = null)
+ * @method \Shadon\Mvc\Model\Query\Builder andWhere($conditions, $bindParams = null, $bindTypes = null)
+ * @method \Shadon\Mvc\Model\Query\Builder orWhere($conditions, $bindParams = null, $bindTypes = null)
+ * @method \Shadon\Mvc\Model\Query\Builder betweenWhere($expr, $minimum, $maximum, $operator = BuilderInterface::OPERATOR_AND)
+ * @method \Shadon\Mvc\Model\Query\Builder notBetweenWhere($expr, $minimum, $maximum, $operator = BuilderInterface::OPERATOR_AND)
+ * @method \Shadon\Mvc\Model\Query\Builder inWhere($expr, array $values, $operator = BuilderInterface::OPERATOR_AND)
+ * @method \Shadon\Mvc\Model\Query\Builder notInWhere($expr, array $values, $operator = BuilderInterface::OPERATOR_AND)
+ * @method \Shadon\Mvc\Model\Query\Builder orderBy($orderBy)
+ * @method \Shadon\Mvc\Model\Query\Builder having($having)
+ * @method \Shadon\Mvc\Model\Query\Builder forUpdate($forUpdate)
+ * @method \Shadon\Mvc\Model\Query\Builder limit($limit, $offset = null)
+ * @method \Shadon\Mvc\Model\Query\Builder groupBy($group)
  */
 class Builder extends QueryBuilder
 {

@@ -11,10 +11,10 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Events\Listener;
+namespace Shadon\Events\Listener;
 
-use Eelly\Exception\InvalidArgumentException;
-use Eelly\Validation\Validation;
+use Shadon\Exception\InvalidArgumentException;
+use Shadon\Validation\Validation;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;
 use RuntimeException;
@@ -49,7 +49,7 @@ class ValidationAnnotationListener extends AbstractListener
             $validation = new Validation();
             foreach ($annotations->get(self::ANNOTATIONS_NAME)->getArguments() as $annotation) {
                 list($field, $args) = $annotation->getArguments();
-                $validatorName = '\\Eelly\\Validation\\Validator\\'.$annotation->getName();
+                $validatorName = '\\Shadon\\Validation\\Validator\\'.$annotation->getName();
                 if (!class_exists($validatorName)) {
                     $validatorName = '\\Phalcon\\Validation\\Validator\\'.$annotation->getName();
                     if (!class_exists($validatorName)) {

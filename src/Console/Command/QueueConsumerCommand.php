@@ -11,11 +11,11 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Console\Command;
+namespace Shadon\Console\Command;
 
-use Eelly\Di\InjectionAwareInterface;
-use Eelly\Di\Traits\InjectableTrait;
-use Eelly\Process\Process;
+use Shadon\Di\InjectionAwareInterface;
+use Shadon\Di\Traits\InjectableTrait;
+use Shadon\Process\Process;
 use InvalidArgumentException;
 use Phalcon\Events\EventsAwareInterface;
 use Swoole\Atomic;
@@ -177,7 +177,7 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                     throw new InvalidArgumentException('Not found exchange: '.$exchange);
                 }
                 /**
-                 * @var \Eelly\Mvc\AbstractModule
+                 * @var \Shadon\Mvc\AbstractModule
                  */
                 $moduleObject = $this->di->getShared($moduleName);
                 /*
@@ -185,7 +185,7 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                      */
                 $moduleObject->registerAutoloaders($this->di);
                 $moduleObject->registerServices($this->di);
-                /* @var \Eelly\Queue\Adapter\Consumer $consumer */
+                /* @var \Shadon\Queue\Adapter\Consumer $consumer */
                 $queueFactory = $this->di->get('queueFactory');
                 $consumer = $queueFactory->createConsumer();
                 $consumer->setExchangeOptions(['name' => $exchange, 'type' => 'topic']);

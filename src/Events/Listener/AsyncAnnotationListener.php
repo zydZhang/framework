@@ -11,9 +11,9 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Events\Listener;
+namespace Shadon\Events\Listener;
 
-use Eelly\SDK\EellyClient;
+use Shadon\SDK\EellyClient;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;
 

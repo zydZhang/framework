@@ -11,9 +11,9 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Events\Listener;
+namespace Shadon\Events\Listener;
 
-use Eelly\Di\Injectable;
+use Shadon\Di\Injectable;
 
 abstract class AbstractListener extends Injectable
 {

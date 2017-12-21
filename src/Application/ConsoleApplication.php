@@ -11,15 +11,15 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Application;
+namespace Shadon\Application;
 
 use Composer\Autoload\ClassLoader;
-use Eelly\Console\Application;
-use Eelly\Console\Command\FlushCacheCommand;
-use Eelly\Console\Command\HttpServerCommand;
-use Eelly\Console\Command\QueueConsumerCommand;
-use Eelly\Console\Command\TcpServerCommand;
-use Eelly\Di\ConsoleDi;
+use Shadon\Console\Application;
+use Shadon\Console\Command\FlushCacheCommand;
+use Shadon\Console\Command\HttpServerCommand;
+use Shadon\Console\Command\QueueConsumerCommand;
+use Shadon\Console\Command\TcpServerCommand;
+use Shadon\Di\ConsoleDi;
 use Phalcon\Config;
 
 /**

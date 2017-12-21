@@ -11,9 +11,9 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Logger;
+namespace Shadon\Logger;
 
-use Eelly\Logger\Handler\DingDingHandler;
+use Shadon\Logger\Handler\DingDingHandler;
 use Monolog\Logger;
 use Phalcon\Di\InjectionAwareInterface;
 

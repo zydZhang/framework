@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Mvc;
+namespace Shadon\Mvc;
 
 use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\Unserializable;
@@ -84,7 +84,7 @@ abstract class MongoCollection extends PhalconCollection implements Unserializab
      *
      * @param array $data
      *
-     * @return \Eelly\Mvc\MongoCollection
+     * @return \Shadon\Mvc\MongoCollection
      */
     public static function hydrator(array $data = [])
     {

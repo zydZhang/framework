@@ -11,10 +11,10 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Di;
+namespace Shadon\Di;
 
-use Eelly\Db\Adapter\Pdo\Mysql as Connection;
-use Eelly\Queue\Adapter\AMQPFactory;
+use Shadon\Db\Adapter\Pdo\Mysql as Connection;
+use Shadon\Queue\Adapter\AMQPFactory;
 use Phalcon\Di\Injectable as DiInjectable;
 
 /**
@@ -59,10 +59,10 @@ abstract class Injectable extends DiInjectable implements InjectionAwareInterfac
         });
 
         // add trace id
-        if (class_exists('Eelly\SDK\EellyClient')) {
+        if (class_exists('Shadon\SDK\EellyClient')) {
             $this->eventsManager->attach('db:afterConnect', function (Connection $connection): void {
                 $connection->execute('SELECT trace_?', [
-                    \Eelly\SDK\EellyClient::$traceId,
+                    \Shadon\SDK\EellyClient::$traceId,
                 ]);
             });
         }

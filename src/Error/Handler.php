@@ -11,10 +11,10 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Error;
+namespace Shadon\Error;
 
-use Eelly\Application\ApplicationConst;
-use Eelly\Error\Handler\ServiceHandler;
+use Shadon\Application\ApplicationConst;
+use Shadon\Error\Handler\ServiceHandler;
 use ErrorException;
 use Monolog\Handler\AbstractHandler;
 use Monolog\Handler\StreamHandler;

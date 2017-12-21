@@ -11,12 +11,12 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Test;
+namespace Shadon\Test;
 
 use Composer\Autoload\ClassLoader;
-use Eelly\Application\ApplicationConst;
-use Eelly\Di\InjectionAwareInterface;
-use Eelly\Di\ServiceDi;
+use Shadon\Application\ApplicationConst;
+use Shadon\Di\InjectionAwareInterface;
+use Shadon\Di\ServiceDi;
 use Phalcon\Config;
 use Phalcon\Di;
 use Phalcon\DiInterface;

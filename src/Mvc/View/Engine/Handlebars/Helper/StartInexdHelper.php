@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Mvc\View\Engine\Handlebars\Helper;
+namespace Shadon\Mvc\View\Engine\Handlebars\Helper;
 
 use Handlebars\Context;
 use Handlebars\Helper;

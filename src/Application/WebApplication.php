@@ -11,20 +11,20 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Application;
+namespace Shadon\Application;
 
 use Composer\Autoload\ClassLoader;
-use Eelly\Di\WebDi;
-use Eelly\Loader\Loader;
-use Eelly\Mvc\Application;
-use Eelly\SDK\EellyClient;
-use Eelly\Session\Factory;
+use Shadon\Di\WebDi;
+use Shadon\Loader\Loader;
+use Shadon\Mvc\Application;
+use Shadon\SDK\EellyClient;
+use Shadon\Session\Factory;
 use Phalcon\Config;
 
 /**
  * Class WebApplication.
  *
- * @property \Eelly\Mvc\Application $application
+ * @property \Shadon\Mvc\Application $application
  */
 class WebApplication
 {

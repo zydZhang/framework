@@ -11,9 +11,9 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Process;
+namespace Shadon\Process;
 
-use Eelly\Network\TcpServer as Server;
+use Shadon\Network\TcpServer as Server;
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Exception\ConnectException;
 use Symfony\Component\Console\Output\OutputInterface;

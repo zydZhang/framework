@@ -11,12 +11,12 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Mvc;
+namespace Shadon\Mvc;
 
-use Eelly\Application\ApplicationConst;
-use Eelly\Di\Injectable;
-use Eelly\Events\Listener\ValidateAccessTokenListener;
-use Eelly\SDK\EellyClient;
+use Shadon\Application\ApplicationConst;
+use Shadon\Di\Injectable;
+use Shadon\Events\Listener\ValidateAccessTokenListener;
+use Shadon\SDK\EellyClient;
 use Phalcon\Config;
 use Phalcon\DiInterface as Di;
 use Phalcon\Mvc\ModuleDefinitionInterface;
@@ -127,9 +127,9 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
     /**
      * 注入模块支持的命令.
      *
-     * @param \Eelly\Console\Application $app
+     * @param \Shadon\Console\Application $app
      */
-    public function registerCommands(\Eelly\Console\Application $app): void
+    public function registerCommands(\Shadon\Console\Application $app): void
     {
         /* @var \Composer\Autoload\ClassLoader $loader */
         $loader = $this->loader;
@@ -140,7 +140,7 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
     /**
      * Registers user commands.
      *
-     * @param \Eelly\Console\Application $app
+     * @param \Shadon\Console\Application $app
      */
-    abstract public function registerUserCommands(\Eelly\Console\Application $app): void;
+    abstract public function registerUserCommands(\Shadon\Console\Application $app): void;
 }

@@ -11,12 +11,12 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Events\Listener;
+namespace Shadon\Events\Listener;
 
-use Eelly\Error\Handler as ErrorHandler;
-use Eelly\Exception\RequestException;
-use Eelly\Http\SwoolePhalconRequest;
-use Eelly\Network\HttpServer;
+use Shadon\Error\Handler as ErrorHandler;
+use Shadon\Exception\RequestException;
+use Shadon\Http\SwoolePhalconRequest;
+use Shadon\Network\HttpServer;
 use Exception;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Router;
@@ -59,7 +59,7 @@ class HttpServerListener
         /* @var \Phalcon\Events\Manager $eventsManager */
         $eventsManager = $server->getDi()->getShared('eventsManager');
         $eventsManager->attach('router:afterCheckRoutes', function (Event $event, Router $router) use ($server): void {
-            /* @var \Eelly\Http\ServiceRequest $request */
+            /* @var \Shadon\Http\ServiceRequest $request */
             $request = $server->getDi()->getShared('request');
             if ($request->isPost()) {
                 $router->setParams($request->getRouteParams());
@@ -87,7 +87,7 @@ class HttpServerListener
         $phalconHttpRequest = $di->get('request');
         $phalconHttpRequest->initialWithSwooleHttpRequest($swooleHttpRequest);
 
-        /* @var \Eelly\Router\ServiceRouter $router */
+        /* @var \Shadon\Router\ServiceRouter $router */
         $router = $di->getShared('router');
         $router->handle();
         $moduleName = $router->getModuleName();

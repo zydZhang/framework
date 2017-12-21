@@ -1,17 +1,17 @@
 {
-	"name": "eelly/framework",
-	"description": "eelly php framework",
+	"name": "shadon/framework",
+	"description": "shadon php framework",
 	"keywords": [
 		"api",
 		"phalcon",
 		"modules"
 	],
 	"type": "library",
-	"license": "MPL2.0",
+	"license": "MIT",
 	"authors": [
 		{
-			"name": "Eelly",
-			"homepage": "https://www.eelly.com"
+			"name": "Shadon",
+			"homepage": "https://www.shadon.org"
 		}
 	],
 	"require": {
@@ -34,7 +34,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Eelly\\": "src"
+			"Shadon\\": "src"
 		},
 		"files": [
 			"Resources/functions/functions_include.php"

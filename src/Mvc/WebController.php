@@ -11,22 +11,22 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Mvc;
+namespace Shadon\Mvc;
 
-use Eelly\Exception\LogicException;
-use Eelly\SDK\User\Api\User;
+use Shadon\Exception\LogicException;
+use Shadon\SDK\User\Api\User;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 
 /**
  * Class WebController.
  *
- * @property \Eelly\SDK\EellyClient $eellyClient
+ * @property \Shadon\SDK\EellyClient $eellyClient
  * @property \Phalcon\Session\Adapter $session
  */
 class WebController extends Controller
 {
     /**
-     * @var \Eelly\DTO\UserDTO
+     * @var \Shadon\DTO\UserDTO
      */
     protected $user;
 

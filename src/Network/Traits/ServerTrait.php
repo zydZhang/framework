@@ -11,10 +11,10 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Network\Traits;
+namespace Shadon\Network\Traits;
 
-use Eelly\Client\TcpClient;
-use Eelly\Exception\RequestException;
+use Shadon\Client\TcpClient;
+use Shadon\Exception\RequestException;
 use Phalcon\DiInterface;
 use Swoole\Lock;
 use Swoole\Table;

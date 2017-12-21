@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Mailer;
+namespace Shadon\Mailer;
 
 use Phalcon\Config;
 use Phalcon\Mvc\User\Component;

@@ -11,10 +11,10 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Console\Command;
+namespace Shadon\Console\Command;
 
-use Eelly\Di\InjectionAwareInterface;
-use Eelly\Di\Traits\InjectableTrait;
+use Shadon\Di\InjectionAwareInterface;
+use Shadon\Di\Traits\InjectableTrait;
 use Phalcon\Events\EventsAwareInterface;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputArgument;

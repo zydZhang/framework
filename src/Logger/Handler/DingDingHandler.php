@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Logger\Handler;
+namespace Shadon\Logger\Handler;
 
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;

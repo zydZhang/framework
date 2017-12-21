@@ -11,9 +11,9 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Mvc\View\Engine;
+namespace Shadon\Mvc\View\Engine;
 
-use Eelly\Mvc\View;
+use Shadon\Mvc\View;
 use Handlebars\Loader\FilesystemLoader;
 use Phalcon\DiInterface;
 use Phalcon\Mvc\View\Engine;

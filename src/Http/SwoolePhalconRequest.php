@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Http;
+namespace Shadon\Http;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use Phalcon\Http\Request as HttpRequest;

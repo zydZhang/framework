@@ -11,10 +11,10 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Network;
+namespace Shadon\Network;
 
-use Eelly\Events\Listener\TcpServerListner;
-use Eelly\Network\Traits\ServerTrait;
+use Shadon\Events\Listener\TcpServerListner;
+use Shadon\Network\Traits\ServerTrait;
 use Swoole\Lock;
 use Swoole\Server;
 
@@ -101,7 +101,7 @@ class TcpServer extends Server
     public function initializeModule(): void
     {
         $module = ucfirst($this->moduleName).'\\Module';
-        /* @var \Eelly\Mvc\AbstractModule $moduleInstance */
+        /* @var \Shadon\Mvc\AbstractModule $moduleInstance */
         $moduleInstance = $this->di->getShared($module);
         $moduleInstance->registerAutoloaders($this->di);
         $moduleInstance->registerServices($this->di);

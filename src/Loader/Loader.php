@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Loader;
+namespace Shadon\Loader;
 
 use Phalcon\Loader as PhalconLoader;
 
