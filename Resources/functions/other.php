@@ -235,38 +235,42 @@ if (!function_exists('isAssoc')) {
     }
 }
 
-
 if (!function_exists('emailHide')) {
     /**
      * 隐藏邮箱
-     * 2343243@eelly.com =》 2****3@eelly.com
+     * 2343243@eelly.com =》 2****3@eelly.com.
+     *
      * @param string $email 邮箱
+     *
      * @return string
      */
     function emailHide(string $email):string
     {
         $myEmail = explode('@', $email);
-        if (! empty($myEmail[1])) {
-            $myEmail[0] = substr($myEmail[0], 0, 1) . str_repeat("*", strlen($myEmail[0]) - 2) . substr($myEmail[0], - 1);
-            $email = $myEmail[0] . '@' . $myEmail[1];
+        if (!empty($myEmail[1])) {
+            $myEmail[0] = substr($myEmail[0], 0, 1).str_repeat('*', strlen($myEmail[0]) - 2).substr($myEmail[0], -1);
+            $email = $myEmail[0].'@'.$myEmail[1];
         }
+
         return $email;
     }
 }
 
 if (!function_exists('mobileHide')) {
     /**
-     * 隐藏手机
+     * 隐藏手机.
      *
      * 13127223448 >13*******48
+     *
      * @param string $mobile
+     *
      * @return string
      */
     function mobileHide(string $mobile): string
     {
         $mobileLen = strlen($mobile);
-        return $mobileLen > 4 ? substr($mobile, 0, 2) . str_repeat("*", strlen($mobile) - 4) .
+
+        return $mobileLen > 4 ? substr($mobile, 0, 2).str_repeat('*', strlen($mobile) - 4).
             substr($mobile, -2) : $mobile;
     }
 }
-
