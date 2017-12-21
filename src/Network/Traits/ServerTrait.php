@@ -54,7 +54,7 @@ trait ServerTrait
     {
         $module = $this->moduleMap->get($moduleName);
         if (false === $module) {
-            throw new RequestException(404, 'Module not found', $this->di->getShared('request'), $this->di->getShared('response'));
+            throw new RequestException(404, 'Module ('.$moduleName.') not found', $this->di->getShared('request'), $this->di->getShared('response'));
         }
         static $mdduleClientMap = [];
         if (isset($mdduleClientMap[$moduleName])) {

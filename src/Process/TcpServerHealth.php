@@ -66,7 +66,6 @@ class TcpServerHealth extends Process
                     'form_params' => [
                         'module'  => $this->server->getModuleName(),
                         'port'    => $this->server->port,
-                        'pid'     => $this->server->master_pid,
                         'updated' => time(),
                     ],
                 ]

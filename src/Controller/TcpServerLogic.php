@@ -27,8 +27,7 @@ class TcpServerLogic extends Controller
         $module = $this->request->getPost('module');
         $ip = $this->request->getPost('ip', null, $this->request->getClientAddress());
         $port = (int) $this->request->getPost('port');
-        $pid = (int) $this->request->getPost('pid');
-        $this->server->registerModule($module, $ip, $port, $pid);
+        $this->server->registerModule($module, $ip, $port);
 
         return $this->server->getModuleMap();
     }
