@@ -107,9 +107,7 @@ class Handler extends Injectable
 
     public function registerExceptionHandler(): void
     {
-        if ('swoole' != APP['env']) {
-            set_exception_handler([$this, 'handleException']);
-        }
+        set_exception_handler([$this, 'handleException']);
     }
 
     public function registerFatalHandler($reservedMemorySize = 20): void
