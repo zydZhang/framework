@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Shadon\Annotations\Adapter;
 
-use Shadon\Cache\Backend\Predis as BackendRedis;
 use Phalcon\Cache\Frontend\Data as FrontendData;
+use Shadon\Cache\Backend\Predis as BackendRedis;
 
 /**
  * Class Predis.

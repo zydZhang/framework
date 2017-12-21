@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace Shadon\Queue\Adapter;
 
-use Shadon\Queue\QueueFactoryInterface;
 use Phalcon\Di\Injectable;
 use PhpAmqpLib\Connection\AMQPLazyConnection;
+use Shadon\Queue\QueueFactoryInterface;
 use Thumper\ConnectionRegistry;
 
 /**

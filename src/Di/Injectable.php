@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace Shadon\Di;
 
+use Phalcon\Di\Injectable as DiInjectable;
 use Shadon\Db\Adapter\Pdo\Mysql as Connection;
 use Shadon\Queue\Adapter\AMQPFactory;
-use Phalcon\Di\Injectable as DiInjectable;
 
 /**
  * @author hehui<hehui@eelly.net>

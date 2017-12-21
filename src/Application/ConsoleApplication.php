@@ -14,13 +14,13 @@ declare(strict_types=1);
 namespace Shadon\Application;
 
 use Composer\Autoload\ClassLoader;
+use Phalcon\Config;
 use Shadon\Console\Application;
 use Shadon\Console\Command\FlushCacheCommand;
 use Shadon\Console\Command\HttpServerCommand;
 use Shadon\Console\Command\QueueConsumerCommand;
 use Shadon\Console\Command\TcpServerCommand;
 use Shadon\Di\ConsoleDi;
-use Phalcon\Config;
 
 /**
  * @author hehui<hehui@eelly.net>

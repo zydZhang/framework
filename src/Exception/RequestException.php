@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace Shadon\Exception;
 
-use Shadon\Application\ApplicationConst;
 use Phalcon\Http\RequestInterface;
 use Phalcon\Http\ResponseInterface;
+use Shadon\Application\ApplicationConst;
 
 class RequestException extends \RuntimeException
 {

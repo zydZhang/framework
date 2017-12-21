@@ -13,13 +13,13 @@ declare(strict_types=1);
 
 namespace Shadon\Mvc;
 
+use Phalcon\Config;
+use Phalcon\DiInterface as Di;
+use Phalcon\Mvc\ModuleDefinitionInterface;
 use Shadon\Application\ApplicationConst;
 use Shadon\Di\Injectable;
 use Shadon\Events\Listener\ValidateAccessTokenListener;
 use Shadon\SDK\EellyClient;
-use Phalcon\Config;
-use Phalcon\DiInterface as Di;
-use Phalcon\Mvc\ModuleDefinitionInterface;
 
 /**
  * @author hehui<hehui@eelly.net>

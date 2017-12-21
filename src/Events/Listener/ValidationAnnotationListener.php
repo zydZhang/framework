@@ -13,11 +13,11 @@ declare(strict_types=1);
 
 namespace Shadon\Events\Listener;
 
-use Shadon\Exception\InvalidArgumentException;
-use Shadon\Validation\Validation;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;
 use RuntimeException;
+use Shadon\Exception\InvalidArgumentException;
+use Shadon\Validation\Validation;
 
 /**
  * validation annotation listner.

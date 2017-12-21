@@ -13,11 +13,11 @@ declare(strict_types=1);
 
 namespace Shadon\Console\Command;
 
+use InvalidArgumentException;
+use Phalcon\Events\EventsAwareInterface;
 use Shadon\Di\InjectionAwareInterface;
 use Shadon\Di\Traits\InjectableTrait;
 use Shadon\Process\Process;
-use InvalidArgumentException;
-use Phalcon\Events\EventsAwareInterface;
 use Swoole\Atomic;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputArgument;

@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Shadon\Session\Adapter;
 
-use Shadon\Cache\Backend\Predis as CachePredis;
 use Phalcon\Session\Adapter;
+use Shadon\Cache\Backend\Predis as CachePredis;
 
 class Predis extends Adapter
 {

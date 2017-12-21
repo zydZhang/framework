@@ -14,17 +14,17 @@ declare(strict_types=1);
 namespace Shadon\Application;
 
 use Composer\Autoload\ClassLoader;
-use Shadon\Di\ServiceDi;
-use Shadon\Error\Handler as ErrorHandler;
-use Shadon\Exception\LogicException;
-use Shadon\Exception\RequestException;
-use Shadon\Mvc\Application;
 use ErrorException;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Phalcon\Config;
 use Phalcon\Dispatcher;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Router;
+use Shadon\Di\ServiceDi;
+use Shadon\Error\Handler as ErrorHandler;
+use Shadon\Exception\LogicException;
+use Shadon\Exception\RequestException;
+use Shadon\Mvc\Application;
 
 /**
  * @property \Shadon\Mvc\Application $application

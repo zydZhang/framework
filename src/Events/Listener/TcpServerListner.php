@@ -13,10 +13,10 @@ declare(strict_types=1);
 
 namespace Shadon\Events\Listener;
 
-use Shadon\Network\TcpServer;
 use Exception;
 use Phalcon\Dispatcher;
 use Phalcon\Events\Event;
+use Shadon\Network\TcpServer;
 
 /**
  * Class TcpServerListner.
