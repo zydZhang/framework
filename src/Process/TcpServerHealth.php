@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace Shadon\Process;
 
-use Shadon\Network\TcpServer as Server;
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Exception\ConnectException;
+use Shadon\Network\TcpServer as Server;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**

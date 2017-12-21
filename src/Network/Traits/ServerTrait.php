@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace Shadon\Network\Traits;
 
+use Phalcon\DiInterface;
 use Shadon\Client\TcpClient;
 use Shadon\Exception\RequestException;
-use Phalcon\DiInterface;
 use Swoole\Lock;
 use Swoole\Table;
 use Symfony\Component\Console\Output\OutputInterface;

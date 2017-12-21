@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Shadon\Http;
 
-use Shadon\Application\ApplicationConst;
 use Phalcon\Http\Response as HttpResponse;
+use Shadon\Application\ApplicationConst;
 
 class PhalconServiceResponse extends HttpResponse
 {

@@ -13,12 +13,12 @@ declare(strict_types=1);
 
 namespace Shadon\Console\Command;
 
+use Phalcon\Events\EventsAwareInterface;
 use Shadon\Application\ApplicationConst;
 use Shadon\Di\InjectionAwareInterface;
 use Shadon\Di\Traits\InjectableTrait;
 use Shadon\Network\HttpServer;
 use Shadon\Process\HttpServerHealth;
-use Phalcon\Events\EventsAwareInterface;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;

@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace Shadon\Mvc\Model\MetaData;
 
-use Shadon\Cache\Backend\Predis as BackendRedis;
 use Phalcon\Cache\Frontend\Data as FrontendData;
 use Phalcon\Mvc\Model\MetaData\Redis;
+use Shadon\Cache\Backend\Predis as BackendRedis;
 
 /**
  * class Predis.

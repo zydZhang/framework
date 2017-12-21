@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Shadon\Di;
 
+use Phalcon\Di\Service;
 use Shadon\Dispatcher\EventDispatcher;
 use Shadon\Dispatcher\ServiceDispatcher;
 use Shadon\Http\PhalconServiceResponse;
@@ -22,7 +23,6 @@ use Shadon\Mvc\Collection\Manager as CollectionManager;
 use Shadon\Mvc\Model\Manager as ModelsManager;
 use Shadon\Mvc\Model\Transaction\Manager as TransactionManager;
 use Shadon\Router\ServiceRouter;
-use Phalcon\Di\Service;
 
 /**
  * @author hehui<hehui@eelly.net>

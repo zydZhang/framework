@@ -14,12 +14,12 @@ declare(strict_types=1);
 namespace Shadon\Application;
 
 use Composer\Autoload\ClassLoader;
+use Phalcon\Config;
 use Shadon\Di\WebDi;
 use Shadon\Loader\Loader;
 use Shadon\Mvc\Application;
 use Shadon\SDK\EellyClient;
 use Shadon\Session\Factory;
-use Phalcon\Config;
 
 /**
  * Class WebApplication.

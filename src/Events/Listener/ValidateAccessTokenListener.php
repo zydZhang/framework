@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Shadon\Events\Listener;
 
-use Shadon\Application\ApplicationConst;
-use Shadon\Dispatcher\ServiceDispatcher;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\ValidationData;
@@ -22,6 +20,8 @@ use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Phalcon\Events\Event;
 use Phalcon\Http\RequestInterface;
+use Shadon\Application\ApplicationConst;
+use Shadon\Dispatcher\ServiceDispatcher;
 
 /**
  * Class ValidateAccessTokenListener.

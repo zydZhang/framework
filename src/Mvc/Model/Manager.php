@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Shadon\Mvc\Model;
 
-use Shadon\Mvc\Model\Query\Builder;
 use Phalcon\Mvc\Model\Manager as ModelManager;
+use Shadon\Mvc\Model\Query\Builder;
 
 class Manager extends ModelManager
 {

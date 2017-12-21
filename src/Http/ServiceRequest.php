@@ -13,10 +13,10 @@ declare(strict_types=1);
 
 namespace Shadon\Http;
 
-use Shadon\Exception\RequestException;
 use GuzzleHttp\Psr7\ServerRequest;
 use InvalidArgumentException;
 use Phalcon\Http\Request as HttpRequest;
+use Shadon\Exception\RequestException;
 
 /**
  * @author hehui<hehui@eelly.net>

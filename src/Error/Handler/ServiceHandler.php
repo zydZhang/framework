@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace Shadon\Error\Handler;
 
-use Shadon\Application\ApplicationConst;
 use Monolog\Handler\AbstractProcessingHandler;
 use Phalcon\Di\InjectionAwareInterface;
+use Shadon\Application\ApplicationConst;
 
 /**
  * @author hehui<hehui@eelly.net>

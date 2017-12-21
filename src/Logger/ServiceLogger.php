@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace Shadon\Logger;
 
-use Shadon\Logger\Handler\DingDingHandler;
 use Monolog\Logger;
 use Phalcon\Di\InjectionAwareInterface;
+use Shadon\Logger\Handler\DingDingHandler;
 
 /**
  * @author hehui<hehui@eelly.net>

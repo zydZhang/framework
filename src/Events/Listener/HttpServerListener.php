@@ -13,13 +13,13 @@ declare(strict_types=1);
 
 namespace Shadon\Events\Listener;
 
+use Exception;
+use Phalcon\Events\Event;
+use Phalcon\Mvc\Router;
 use Shadon\Error\Handler as ErrorHandler;
 use Shadon\Exception\RequestException;
 use Shadon\Http\SwoolePhalconRequest;
 use Shadon\Network\HttpServer;
-use Exception;
-use Phalcon\Events\Event;
-use Phalcon\Mvc\Router;
 use Swoole\Server;
 use swoole_http_request as SwooleHttpRequest;
 use swoole_http_response as SwooleHttpResponse;

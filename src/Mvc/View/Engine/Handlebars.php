@@ -13,12 +13,12 @@ declare(strict_types=1);
 
 namespace Shadon\Mvc\View\Engine;
 
-use Shadon\Mvc\View;
 use Handlebars\Loader\FilesystemLoader;
 use Phalcon\DiInterface;
 use Phalcon\Mvc\View\Engine;
 use Phalcon\Mvc\View\EngineInterface;
 use Phalcon\Mvc\ViewBaseInterface;
+use Shadon\Mvc\View;
 
 /**
  * Phalcon\Mvc\View\Engine\Handlebars

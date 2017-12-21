@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Shadon\Mvc;
 
-use Shadon\Di\Injectable;
 use Phalcon\Mvc\ControllerInterface;
+use Shadon\Di\Injectable;
 
 /**
  * @author hehui<hehui@eelly.net>

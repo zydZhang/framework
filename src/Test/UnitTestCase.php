@@ -14,13 +14,13 @@ declare(strict_types=1);
 namespace Shadon\Test;
 
 use Composer\Autoload\ClassLoader;
-use Shadon\Application\ApplicationConst;
-use Shadon\Di\InjectionAwareInterface;
-use Shadon\Di\ServiceDi;
 use Phalcon\Config;
 use Phalcon\Di;
 use Phalcon\DiInterface;
 use PHPUnit\Framework\TestCase;
+use Shadon\Application\ApplicationConst;
+use Shadon\Di\InjectionAwareInterface;
+use Shadon\Di\ServiceDi;
 
 /**
  * Class UnitTestCase.
