@@ -11,11 +11,11 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Queue\Adapter;
+namespace Shadon\Queue\Adapter;
 
-use Eelly\Queue\QueueFactoryInterface;
 use Phalcon\Di\Injectable;
 use PhpAmqpLib\Connection\AMQPLazyConnection;
+use Shadon\Queue\QueueFactoryInterface;
 use Thumper\ConnectionRegistry;
 
 /**

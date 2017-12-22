@@ -11,12 +11,12 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Events\Listener;
+namespace Shadon\Events\Listener;
 
-use Eelly\Network\TcpServer;
 use Exception;
 use Phalcon\Dispatcher;
 use Phalcon\Events\Event;
+use Shadon\Network\TcpServer;
 
 /**
  * Class TcpServerListner.
@@ -89,7 +89,7 @@ class TcpServerListner
         $uri = $data['uri'];
         $params = $data['params'];
         $di = $server->getDi();
-        /* @var \Eelly\Router\ServiceRouter $router */
+        /* @var \Shadon\Router\ServiceRouter $router */
         $router = $di->getShared('router');
         $router->handle($uri);
         $router->setParams($params);

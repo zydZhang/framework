@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Acl\Adapter;
+namespace Shadon\Acl\Adapter;
 
 use Phalcon\Acl;
 use Phalcon\Acl\Adapter;

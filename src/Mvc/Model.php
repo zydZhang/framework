@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Mvc;
+namespace Shadon\Mvc;
 
 use Phalcon\Di;
 use Phalcon\Mvc\Model as MvcModel;
@@ -38,7 +38,7 @@ abstract class Model extends MvcModel
      * @param mixed  $models
      * @param string $alias  设置别名，用于连表别名
      *
-     * @return \Eelly\Mvc\Model\Query\Builder
+     * @return \Shadon\Mvc\Model\Query\Builder
      */
     public static function createBuilder($models = null, $alias = null)
     {

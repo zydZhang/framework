@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Validation\Validator;
+namespace Shadon\Validation\Validator;
 
 use Phalcon\Validation;
 use Phalcon\Validation\Message;

@@ -11,17 +11,17 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Mvc\Model\MetaData;
+namespace Shadon\Mvc\Model\MetaData;
 
-use Eelly\Cache\Backend\Predis as BackendRedis;
 use Phalcon\Cache\Frontend\Data as FrontendData;
 use Phalcon\Mvc\Model\MetaData\Redis;
+use Shadon\Cache\Backend\Predis as BackendRedis;
 
 /**
  * class Predis.
  *
  * ```
- * use Eelly\Mvc\Model\MetaData\Predis;
+ * use Shadon\Mvc\Model\MetaData\Predis;
  *
  * $modelMetaData = new Predis([
  *  'parameters' => [

@@ -11,10 +11,10 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Mvc;
+namespace Shadon\Mvc;
 
-use Eelly\Di\Injectable;
 use Phalcon\Mvc\ControllerInterface;
+use Shadon\Di\Injectable;
 
 /**
  * @author hehui<hehui@eelly.net>

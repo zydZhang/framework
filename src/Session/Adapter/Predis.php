@@ -11,10 +11,10 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Session\Adapter;
+namespace Shadon\Session\Adapter;
 
-use Eelly\Cache\Backend\Predis as CachePredis;
 use Phalcon\Session\Adapter;
+use Shadon\Cache\Backend\Predis as CachePredis;
 
 class Predis extends Adapter
 {

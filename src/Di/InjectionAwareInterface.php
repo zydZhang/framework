@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Di;
+namespace Shadon\Di;
 
 use Phalcon\Di\InjectionAwareInterface as DiInjectionAwareInterface;
 
@@ -20,12 +20,12 @@ use Phalcon\Di\InjectionAwareInterface as DiInjectionAwareInterface;
  * @property \Phalcon\Mvc\Application $application
  * @property \Phalcon\Config $config 系统配置
  * @property \Eelly\SDK\EellyClient $eellyClient
- * @property \Eelly\Dispatcher\EventDispatcher $eventDispatcher
+ * @property \Shadon\Dispatcher\EventDispatcher $eventDispatcher
  * @property \Phalcon\Loader $loader
  * @property \Psr\Log\LoggerInterface $logger 日志对象
  * @property \Phalcon\Config $moduleConfig 模块配置
- * @property \Eelly\Queue\Adapter\AMQPFactory|\Eelly\Queue\QueueFactoryInterface $queueFactory
- * @property \Eelly\Network\HttpServer|\Eelly\Network\TcpServer $server
+ * @property \Shadon\Queue\Adapter\AMQPFactory|\Shadon\Queue\QueueFactoryInterface $queueFactory
+ * @property \Shadon\Network\HttpServer|\Shadon\Network\TcpServer $server
  *
  * @author hehui<hehui@eelly.net>
  */

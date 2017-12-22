@@ -1,12 +1,12 @@
-# Eelly framework
+# Shadon framework
 
-[![Latest Stable Version](https://poser.pugx.org/eelly/framework/v/stable.png)](https://packagist.org/packages/eelly/framework)
-[![Total Downloads](https://poser.pugx.org/eelly/framework/downloads.png)](https://packagist.org/packages/eelly/framework)
+[![Latest Stable Version](https://poser.pugx.org/shadon/framework/v/stable.png)](https://packagist.org/packages/shadon/framework)
+[![Total Downloads](https://poser.pugx.org/shadon/framework/downloads.png)](https://packagist.org/packages/shadon/framework)
 [![StyleCI](https://styleci.io/repos/94968797/shield?branch=master)](https://styleci.io/repos/94968797)
 
-## About Eelly framework
+## About Shadon framework
 
-Eelly framework is developed by php7.1, phalcon3 swoole symfony and so on. It brings you a new experience of modern PHP development, and the first choice for large-scale project development.
+Shadon framework is developed by php7.1, phalcon3 swoole symfony and so on. It brings you a new experience of modern PHP development, and the first choice for large-scale project development.
 
 ## Require
 
@@ -19,7 +19,7 @@ SWOOLE_VERSION = 1.9.x
 ## Install
 
 ```bash
-composer require eelly/framework
+composer require shadon/framework
 ```
 
 ## Documents
@@ -29,7 +29,7 @@ composer require eelly/framework
 
 Welcome to join us!
 
-[Issues](https://github.com/EellyDev/framework/issues)
+[Issues](https://github.com/ShadonDev/framework/issues)
 
-[Pull requests](https://github.com/EellyDev/framework/pulls)
+[Pull requests](https://github.com/ShadonDev/framework/pulls)
 

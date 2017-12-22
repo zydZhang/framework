@@ -11,10 +11,10 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Network;
+namespace Shadon\Network;
 
-use Eelly\Events\Listener\HttpServerListener;
-use Eelly\Network\Traits\ServerTrait;
+use Shadon\Events\Listener\HttpServerListener;
+use Shadon\Network\Traits\ServerTrait;
 use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Lock;
 
@@ -84,7 +84,7 @@ class HttpServer extends SwooleHttpServer
         $router = $this->di->getShared('router');
         // system
         $router->addPost('/_/:controller/:action', [
-            'namespace'  => 'Eelly\\Controller',
+            'namespace'  => 'Shadon\\Controller',
             'controller' => 1,
             'action'     => 2,
         ]);

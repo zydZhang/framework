@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Mvc\Model\Transaction;
+namespace Shadon\Mvc\Model\Transaction;
 
 use Phalcon\Mvc\Model\Transaction\Manager as TransactionManager;
 

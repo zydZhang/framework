@@ -11,11 +11,11 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Exception;
+namespace Shadon\Exception;
 
-use Eelly\Application\ApplicationConst;
 use Phalcon\Http\RequestInterface;
 use Phalcon\Http\ResponseInterface;
+use Shadon\Application\ApplicationConst;
 
 class RequestException extends \RuntimeException
 {

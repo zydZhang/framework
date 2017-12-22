@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Mvc\User\Traits;
+namespace Shadon\Mvc\User\Traits;
 
 /**
  * 结果集转换.

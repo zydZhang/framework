@@ -11,10 +11,8 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Events\Listener;
+namespace Shadon\Events\Listener;
 
-use Eelly\Application\ApplicationConst;
-use Eelly\Dispatcher\ServiceDispatcher;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\ValidationData;
@@ -22,6 +20,8 @@ use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Phalcon\Events\Event;
 use Phalcon\Http\RequestInterface;
+use Shadon\Application\ApplicationConst;
+use Shadon\Dispatcher\ServiceDispatcher;
 
 /**
  * Class ValidateAccessTokenListener.

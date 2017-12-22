@@ -11,17 +11,17 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Annotations\Adapter;
+namespace Shadon\Annotations\Adapter;
 
-use Eelly\Cache\Backend\Predis as BackendRedis;
 use Phalcon\Cache\Frontend\Data as FrontendData;
+use Shadon\Cache\Backend\Predis as BackendRedis;
 
 /**
  * Class Predis.
  *
  *
  * ```
- * use Eelly\Annotations\Adapter\Predis;
+ * use Shadon\Annotations\Adapter\Predis;
  *
  * $annotations = new Predis([
  *  'parameters' => [

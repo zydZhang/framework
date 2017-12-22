@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Cache\Backend;
+namespace Shadon\Cache\Backend;
 
 use Predis\Client as PredisClient;
 

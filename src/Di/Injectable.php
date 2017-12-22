@@ -11,11 +11,11 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Di;
+namespace Shadon\Di;
 
-use Eelly\Db\Adapter\Pdo\Mysql as Connection;
-use Eelly\Queue\Adapter\AMQPFactory;
 use Phalcon\Di\Injectable as DiInjectable;
+use Shadon\Db\Adapter\Pdo\Mysql as Connection;
+use Shadon\Queue\Adapter\AMQPFactory;
 
 /**
  * @author hehui<hehui@eelly.net>

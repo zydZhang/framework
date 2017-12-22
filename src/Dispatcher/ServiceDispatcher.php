@@ -11,14 +11,14 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Dispatcher;
+namespace Shadon\Dispatcher;
 
-use Eelly\DTO\UidDTO;
-use Eelly\Exception\InvalidArgumentException;
-use Eelly\Exception\RequestException;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;
 use Phalcon\Mvc\Dispatcher\Exception as DispatchException;
+use Shadon\DTO\UidDTO;
+use Shadon\Exception\InvalidArgumentException;
+use Shadon\Exception\RequestException;
 
 /**
  * @author hehui<hehui@eelly.net>
@@ -78,7 +78,7 @@ class ServiceDispatcher extends Dispatcher
         $class = $this->getControllerClass();
         $method = $this->getActionName();
         /**
-         * @var \Eelly\Http\ServiceRequest $request
+         * @var \Shadon\Http\ServiceRequest $request
          */
         $request = $this->getDI()->getShared('request');
         if (!class_exists($class) || !method_exists($class, $method)) {

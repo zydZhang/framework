@@ -11,13 +11,13 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Mvc\View\Engine;
+namespace Shadon\Mvc\View\Engine;
 
-use Eelly\Mvc\View;
 use Phalcon\DiInterface;
 use Phalcon\Mvc\View\Engine;
 use Phalcon\Mvc\View\EngineInterface;
 use Phalcon\Mvc\ViewBaseInterface;
+use Shadon\Mvc\View;
 
 /**
  * Phalcon\Mvc\View\Engine\Mustache

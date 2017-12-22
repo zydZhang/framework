@@ -11,10 +11,10 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Http;
+namespace Shadon\Http;
 
-use Eelly\Application\ApplicationConst;
 use Phalcon\Http\Response as HttpResponse;
+use Shadon\Application\ApplicationConst;
 
 class PhalconServiceResponse extends HttpResponse
 {

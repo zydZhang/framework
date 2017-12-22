@@ -11,17 +11,17 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Eelly\Di;
+namespace Shadon\Di;
 
-use Eelly\Dispatcher\ServiceDispatcher;
-use Eelly\Http\PhalconServiceResponse as ServiceResponse;
-use Eelly\Http\ServiceRequest;
-use Eelly\Logger\ServiceLogger;
-use Eelly\Mvc\Collection\Manager as CollectionManager;
-use Eelly\Mvc\Model\Manager as ModelsManager;
-use Eelly\Mvc\Model\Transaction\Manager as TransactionManager;
-use Eelly\Router\ServiceRouter;
 use Phalcon\Di\Service;
+use Shadon\Dispatcher\ServiceDispatcher;
+use Shadon\Http\PhalconServiceResponse as ServiceResponse;
+use Shadon\Http\ServiceRequest;
+use Shadon\Logger\ServiceLogger;
+use Shadon\Mvc\Collection\Manager as CollectionManager;
+use Shadon\Mvc\Model\Manager as ModelsManager;
+use Shadon\Mvc\Model\Transaction\Manager as TransactionManager;
+use Shadon\Router\ServiceRouter;
 
 /**
  * @author hehui<hehui@eelly.net>
