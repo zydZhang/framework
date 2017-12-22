@@ -29,7 +29,7 @@ composer require shadon/framework
 
 Welcome to join us!
 
-[Issues](https://github.com/ShadonDev/framework/issues)
+[Issues](https://github.com/EellyDev/framework/issues)
 
-[Pull requests](https://github.com/ShadonDev/framework/pulls)
+[Pull requests](https://github.com/EellyDev/framework/pulls)
 
