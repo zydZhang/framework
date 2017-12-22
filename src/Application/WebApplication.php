@@ -18,7 +18,7 @@ use Phalcon\Config;
 use Shadon\Di\WebDi;
 use Shadon\Loader\Loader;
 use Shadon\Mvc\Application;
-use Shadon\SDK\EellyClient;
+use Eelly\SDK\EellyClient;
 use Shadon\Session\Factory;
 
 /**

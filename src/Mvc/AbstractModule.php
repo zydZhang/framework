@@ -19,7 +19,7 @@ use Phalcon\Mvc\ModuleDefinitionInterface;
 use Shadon\Application\ApplicationConst;
 use Shadon\Di\Injectable;
 use Shadon\Events\Listener\ValidateAccessTokenListener;
-use Shadon\SDK\EellyClient;
+use Eelly\SDK\EellyClient;
 
 /**
  * @author hehui<hehui@eelly.net>

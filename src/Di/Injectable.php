@@ -59,10 +59,10 @@ abstract class Injectable extends DiInjectable implements InjectionAwareInterfac
         });
 
         // add trace id
-        if (class_exists('Shadon\SDK\EellyClient')) {
+        if (class_exists('Eelly\SDK\EellyClient')) {
             $this->eventsManager->attach('db:afterConnect', function (Connection $connection): void {
                 $connection->execute('SELECT trace_?', [
-                    \Shadon\SDK\EellyClient::$traceId,
+                    \Eelly\SDK\EellyClient::$traceId,
                 ]);
             });
         }

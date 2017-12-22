@@ -15,7 +15,7 @@ namespace Shadon\Events\Listener;
 
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;
-use Shadon\SDK\EellyClient;
+use Eelly\SDK\EellyClient;
 
 /**
  * async annotation listener.

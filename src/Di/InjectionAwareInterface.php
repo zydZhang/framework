@@ -19,7 +19,7 @@ use Phalcon\Di\InjectionAwareInterface as DiInjectionAwareInterface;
  * @property \Phalcon\Cache\Backend $cache
  * @property \Phalcon\Mvc\Application $application
  * @property \Phalcon\Config $config 系统配置
- * @property \Shadon\SDK\EellyClient $eellyClient
+ * @property \Eelly\SDK\EellyClient $eellyClient
  * @property \Shadon\Dispatcher\EventDispatcher $eventDispatcher
  * @property \Phalcon\Loader $loader
  * @property \Psr\Log\LoggerInterface $logger 日志对象

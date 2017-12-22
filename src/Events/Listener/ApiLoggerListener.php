@@ -20,7 +20,7 @@ use Phalcon\Http\Response\Headers;
 use Phalcon\Mvc\Application;
 use Phalcon\Mvc\Dispatcher;
 use Shadon\Application\ApplicationConst;
-use Shadon\SDK\Logger\Api\ApiLogger;
+use Eelly\SDK\Logger\Api\ApiLogger;
 
 /**
  * api 日志.

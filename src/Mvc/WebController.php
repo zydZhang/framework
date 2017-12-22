@@ -20,7 +20,7 @@ use Shadon\SDK\User\Api\User;
 /**
  * Class WebController.
  *
- * @property \Shadon\SDK\EellyClient $eellyClient
+ * @property \Eelly\SDK\EellyClient $eellyClient
  * @property \Phalcon\Session\Adapter $session
  */
 class WebController extends Controller
