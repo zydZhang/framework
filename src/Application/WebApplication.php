@@ -14,11 +14,11 @@ declare(strict_types=1);
 namespace Shadon\Application;
 
 use Composer\Autoload\ClassLoader;
+use Eelly\SDK\EellyClient;
 use Phalcon\Config;
 use Shadon\Di\WebDi;
 use Shadon\Loader\Loader;
 use Shadon\Mvc\Application;
-use Eelly\SDK\EellyClient;
 use Shadon\Session\Factory;
 
 /**
