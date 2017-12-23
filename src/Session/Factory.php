@@ -23,6 +23,12 @@ class Factory extends SessionFactory
      */
     public static function load($config): AdapterInterface
     {
-        return self::loadClass('Shadon\\Session\\Adapter', $config);
+        if (class_exists('Shadon\\Session\\Adapter\\'.$config['adapter'])) {
+            $adapter = self::loadClass('Shadon\\Session\\Adapter', $config);
+        } else {
+            $adapter = parent::load($config);
+        }
+
+        return $adapter;
     }
 }

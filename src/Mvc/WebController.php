@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace Shadon\Mvc;
 
+use Eelly\Exception\LogicException;
+use Eelly\SDK\User\Api\User;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use Shadon\Exception\LogicException;
-use Shadon\SDK\User\Api\User;
 
 /**
  * Class WebController.
@@ -26,7 +26,7 @@ use Shadon\SDK\User\Api\User;
 class WebController extends Controller
 {
     /**
-     * @var \Shadon\DTO\UserDTO
+     * @var \Eelly\DTO\UserDTO
      */
     protected $user;
 
