@@ -16,7 +16,7 @@ namespace Shadon\Dispatcher;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;
 use Phalcon\Mvc\Dispatcher\Exception as DispatchException;
-use Shadon\DTO\UidDTO;
+use Eelly\DTO\UidDTO;
 use Shadon\Exception\InvalidArgumentException;
 use Shadon\Exception\RequestException;
 
