@@ -28,7 +28,7 @@ class PhalconServiceResponse extends HttpResponse
     /**
      * {@inheritdoc}
      */
-    public function setJsonContent($content, int $jsonOptions = 0, int $depth = 512): HttpResponse
+    public function setJsonContent($content, $jsonOptions = NULL, $depth = 512): HttpResponse
     {
         $this->setContentType('application/json', 'UTF-8');
         $json = \json_encode($content, $jsonOptions, $depth);
