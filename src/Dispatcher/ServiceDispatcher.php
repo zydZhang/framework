@@ -13,11 +13,11 @@ declare(strict_types=1);
 
 namespace Shadon\Dispatcher;
 
+use Eelly\DTO\UidDTO;
+use InvalidArgumentException;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;
 use Phalcon\Mvc\Dispatcher\Exception as DispatchException;
-use Eelly\DTO\UidDTO;
-use Shadon\Exception\InvalidArgumentException;
 use Shadon\Exception\RequestException;
 
 /**

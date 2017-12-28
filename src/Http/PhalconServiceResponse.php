@@ -16,6 +16,9 @@ namespace Shadon\Http;
 use Phalcon\Http\Response as HttpResponse;
 use Shadon\Application\ApplicationConst;
 
+/**
+ * Class PhalconServiceResponse.
+ */
 class PhalconServiceResponse extends HttpResponse
 {
     public function __construct($content = null, $code = null, $status = null)

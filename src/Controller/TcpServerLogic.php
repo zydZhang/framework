@@ -22,7 +22,7 @@ use Shadon\Mvc\Controller;
  */
 class TcpServerLogic extends Controller
 {
-    public function register():array
+    public function register(): array
     {
         $module = $this->request->getPost('module');
         $ip = $this->request->getPost('ip', null, $this->request->getClientAddress());

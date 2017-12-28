@@ -114,7 +114,7 @@ trait ServerTrait
      * @param string $string
      * @param int    $option
      */
-    public function writeln(string $string, $option = 0)
+    public function writeln(string $string, $option = 0): void
     {
         $info = sprintf('[%s %d] %s', formatTime(), getmypid(), $string);
         $this->lock->lock();

@@ -19,6 +19,8 @@ use function GuzzleHttp\Psr7\stream_for;
 
 /**
  * @author hehui<hehui@eelly.net>
+ *
+ * @deprecated
  */
 class Response extends Psr7Response implements InjectionAwareInterface
 {

@@ -101,7 +101,7 @@ class Predis extends Adapter
     {
         $id;
 
-        if ($sessionId === null) {
+        if (null === $sessionId) {
             $id = $this->getId();
         } else {
             $id = $sessionId;

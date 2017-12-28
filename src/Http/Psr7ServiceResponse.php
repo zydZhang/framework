@@ -17,6 +17,8 @@ use Shadon\Application\ApplicationConst;
 
 /**
  * @author hehui<hehui@eelly.net>
+ *
+ * @deprecated
  */
 class Psr7ServiceResponse extends Response
 {

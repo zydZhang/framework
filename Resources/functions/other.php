@@ -244,7 +244,7 @@ if (!function_exists('emailHide')) {
      *
      * @return string
      */
-    function emailHide(string $email):string
+    function emailHide(string $email): string
     {
         $myEmail = explode('@', $email);
         if (!empty($myEmail[1])) {

@@ -16,13 +16,13 @@ namespace Shadon\Application;
 use Composer\Autoload\ClassLoader;
 use ErrorException;
 use League\OAuth2\Server\Exception\OAuthServerException;
+use LogicException;
 use Phalcon\Config;
 use Phalcon\Dispatcher;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Router;
 use Shadon\Di\ServiceDi;
 use Shadon\Error\Handler as ErrorHandler;
-use Shadon\Exception\LogicException;
 use Shadon\Exception\RequestException;
 use Shadon\Mvc\Application;
 
@@ -115,7 +115,7 @@ class ServiceApplication
         } catch (LogicException $e) {
             $response->setHeader('returnType', get_class($e));
             $content = ['error' => $e->getMessage(), 'returnType' => get_class($e)];
-            $content['context'] = $e->getContext();
+            //$content['context'] = $e->getContext();
             $response->setJsonContent($content);
         } catch (RequestException $e) {
             $response = $e->getResponse();

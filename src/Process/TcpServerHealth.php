@@ -54,7 +54,7 @@ class TcpServerHealth extends Process
         });
     }
 
-    public function registerModule()
+    public function registerModule(): void
     {
         $di = $this->server->getDi();
         $port = $di->getShared('config')->httpServer->port;
