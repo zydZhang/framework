@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Shadon\Dispatcher;
 
-use Eelly\DTO\UidDTO;
 use InvalidArgumentException;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;
@@ -25,11 +24,6 @@ use Shadon\Exception\RequestException;
  */
 class ServiceDispatcher extends Dispatcher
 {
-    /**
-     * @var UidDTO
-     */
-    public static $uidDTO;
-
     public function __construct()
     {
         $this->setControllerSuffix('Logic');
@@ -142,10 +136,12 @@ class ServiceDispatcher extends Dispatcher
                     unset($routeParams[$paramName]);
                 } elseif ($parameter->isDefaultValueAvailable()) {
                     // 存在默认值参数
-                    if (UidDTO::class == $expectedType) {
-                        $routeParams[$position] = self::$uidDTO = new UidDTO();
-                    } else {
+                    $routeParamsObject = new \ArrayObject($routeParams);
+                    $status = $this->getEventsManager()->fire('dispatcher:setDefaultParamValue', $routeParamsObject, $position);
+                    if ($status) {
                         $routeParams[$position] = $parameter->getDefaultValue();
+                    } else {
+                        $routeParams = $routeParamsObject->getArrayCopy();
                     }
                     $checkedParameter = true;
                 } else {

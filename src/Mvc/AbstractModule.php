@@ -18,7 +18,6 @@ use Phalcon\DiInterface as Di;
 use Phalcon\Mvc\ModuleDefinitionInterface;
 use Shadon\Application\ApplicationConst;
 use Shadon\Di\Injectable;
-use Shadon\Events\Listener\ValidateAccessTokenListener;
 
 /**
  * @author hehui<hehui@eelly.net>
@@ -90,7 +89,11 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
         $eventsManager->enablePriorities(true);
         // token 校验
         if (!ApplicationConst::hasRuntimeEnv(ApplicationConst::RUNTIME_ENV_SWOOLE)) {
-            $eventsManager->attach('dispatch', $di->getShared(ValidateAccessTokenListener::class), 10000);
+            $eventsManager->attach('application', $di->getShared(ValidateAccessTokenListener::class, [
+                [
+                    'authorization_server/accessToken',
+                ],
+            ]), 10000);
         }
         // attach events
         $this->attachUserEvents($di);
