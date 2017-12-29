@@ -17,6 +17,7 @@ use ErrorException;
 use GuzzleHttp\Psr7\MultipartStream;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Token\AccessToken;
+use Shadon\OAuth2\Client\Provider\ShadonProvider;
 
 /**
  * Class ShadonSDKClient.
@@ -60,12 +61,12 @@ class ShadonSDKClient
     /**
      * ShadonSDKClient constructor.
      *
-     * @param AbstractProvider $provider
-     * @param array            $serviceMap
-     * @param string           $grant
-     * @param array            $requestOptions
+     * @param ShadonProvider $provider
+     * @param array          $serviceMap
+     * @param string         $grant
+     * @param array          $requestOptions
      */
-    private function __construct(AbstractProvider $provider, array $serviceMap, $grant = 'client_credentials', array $requestOptions = [])
+    private function __construct(ShadonProvider $provider, array $serviceMap, $grant = 'client_credentials', array $requestOptions = [])
     {
         $this->provider = $provider;
         $this->serviceMap = array_replace($this->serviceMap, $serviceMap);
@@ -74,14 +75,14 @@ class ShadonSDKClient
     }
 
     /**
-     * @param AbstractProvider $provider
-     * @param array            $serviceMap
-     * @param string           $grant
-     * @param array            $requestOptions
+     * @param ShadonProvider $provider
+     * @param array          $serviceMap
+     * @param string         $grant
+     * @param array          $requestOptions
      *
      * @return ShadonSDKClient
      */
-    public static function fromProvider(AbstractProvider $provider, array $serviceMap, $grant = 'client_credentials', array $requestOptions = []): self
+    public static function fromProvider(ShadonProvider $provider, array $serviceMap, $grant = 'client_credentials', array $requestOptions = []): self
     {
         if (null === self::$self) {
             self::$self = new static($provider, $serviceMap, $grant, $requestOptions);
@@ -91,7 +92,7 @@ class ShadonSDKClient
     }
 
     /**
-     * @return AbstractProvider
+     * @return ShadonProvider
      */
     public function getProvider()
     {

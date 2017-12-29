@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Shadon\Mvc;
 
-use Eelly\SDK\EellyClient;
 use Phalcon\Config;
 use Phalcon\DiInterface as Di;
 use Phalcon\Mvc\ModuleDefinitionInterface;
@@ -84,21 +83,6 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
             $config = $this->getModuleConfig()->annotations->toArray();
 
             return $this->get($config['adapter'], [$config['options'][$config['adapter']]]);
-        });
-        // eelly client service
-        $di->setShared('eellyClient', function () {
-            $options = $this->getModuleConfig()->oauth2Client->eelly->toArray();
-            if (ApplicationConst::ENV_PRODUCTION === APP['env']) {
-                $eellyClient = EellyClient::init($options['options']);
-            } else {
-                $collaborators = [
-                    'httpClient' => new \GuzzleHttp\Client(['verify' => false]),
-                ];
-                $eellyClient = EellyClient::init($options['options'], $collaborators, $options['providerUri']);
-            }
-            $eellyClient->getProvider()->setAccessTokenCache($this->getCache());
-
-            return $eellyClient;
         });
         // register user services
         $this->registerUserServices($di);
