@@ -87,14 +87,6 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
         $this->registerUserServices($di);
         $eventsManager = $this->eventsManager;
         $eventsManager->enablePriorities(true);
-        // token 校验
-        if (!ApplicationConst::hasRuntimeEnv(ApplicationConst::RUNTIME_ENV_SWOOLE)) {
-            $eventsManager->attach('application', $di->getShared(ValidateAccessTokenListener::class, [
-                [
-                    'authorization_server/accessToken',
-                ],
-            ]), 10000);
-        }
         // attach events
         $this->attachUserEvents($di);
     }

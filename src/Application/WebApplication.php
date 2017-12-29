@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Shadon\Application;
 
 use Composer\Autoload\ClassLoader;
-use Eelly\SDK\EellyClient;
 use Phalcon\Config;
 use Shadon\Di\WebDi;
 use Shadon\Loader\Loader;
@@ -137,23 +136,6 @@ class WebApplication
     private function registerServices()
     {
         $this->di->setShared('router', $this->di->getShared('config')->routes);
-        // eelly client service
-        $this->di->setShared('eellyClient', function () {
-            $options = $this->getConfig()->oauth2Client->eelly->toArray();
-            if (ApplicationConst::ENV_PRODUCTION === APP['env']) {
-                $eellyClient = EellyClient::init($options['options']);
-            } else {
-                $collaborators = [
-                    'httpClient' => new \GuzzleHttp\Client(['verify' => false]),
-                ];
-                $eellyClient = EellyClient::init($options['options'], $collaborators, $options['providerUri']);
-            }
-            if ($this->has('cache')) {
-                $eellyClient->getProvider()->setAccessTokenCache($this->getCache());
-            }
-
-            return $eellyClient;
-        });
 
         return $this;
     }

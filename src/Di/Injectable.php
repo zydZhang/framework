@@ -57,15 +57,6 @@ abstract class Injectable extends DiInjectable implements InjectionAwareInterfac
                 $config['options'][$config['adapter']],
             ]);
         });
-
-        // add trace id
-        if (class_exists('Eelly\SDK\EellyClient')) {
-            $this->eventsManager->attach('db:afterConnect', function (Connection $connection): void {
-                $connection->execute('SELECT trace_?', [
-                    \Eelly\SDK\EellyClient::$traceId,
-                ]);
-            });
-        }
     }
 
     /**

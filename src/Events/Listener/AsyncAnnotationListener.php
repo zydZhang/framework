@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Shadon\Events\Listener;
 
-use Eelly\SDK\EellyClient;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;
 
@@ -51,7 +50,6 @@ class AsyncAnnotationListener extends AbstractListener
                 'class'   => $dispatcher->getControllerClass(),
                 'method'  => $dispatcher->getActiveMethod(),
                 'params'  => $dispatcher->getParams(),
-                'traceId' => EellyClient::$traceId,
                 'time'    => microtime(true),
             ];
             $producer = $this->queueFactory->createProducer();
