@@ -13,9 +13,6 @@ declare(strict_types=1);
 
 namespace Shadon\Mvc;
 
-use LogicException;
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-
 /**
  * Class WebController.
  *
@@ -23,7 +20,6 @@ use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
  */
 class WebController extends Controller
 {
-
     public function onConstruct(): void
     {
         // add cache service

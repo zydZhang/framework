@@ -16,7 +16,6 @@ namespace Shadon\Mvc;
 use Phalcon\Config;
 use Phalcon\DiInterface as Di;
 use Phalcon\Mvc\ModuleDefinitionInterface;
-use Shadon\Application\ApplicationConst;
 use Shadon\Di\Injectable;
 
 /**
