@@ -19,7 +19,7 @@ use Shadon\Queue\QueueFactoryInterface;
 use Thumper\ConnectionRegistry;
 
 /**
- * AMQP队列工厂实现.
+ * AMQP factory.
  *
  * create Producer and Consumer
  *
@@ -55,7 +55,7 @@ class AMQPFactory extends Injectable implements QueueFactoryInterface
     /**
      * constuct.
      *
-     * $connectionOptions 示例
+     * $connectionOptions example
      * ```
      * [
      *     'default' => [.
@@ -68,9 +68,9 @@ class AMQPFactory extends Injectable implements QueueFactoryInterface
      * ];
      * ```
      *
-     * @param array  $connectionOptions 连接信息
-     * @param string $defaultProducer   默认生产者
-     * @param string $defaultConsumer   默认消费�
+     * @param array  $connectionOptions
+     * @param string $defaultProducer
+     * @param string $defaultConsumer
      */
     public function __construct(array $connectionOptions, string $defaultProducer = 'default', string $defaultConsumer = 'default')
     {
