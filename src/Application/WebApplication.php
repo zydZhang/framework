@@ -75,7 +75,9 @@ class WebApplication
         $this->di->setShared('application', $this->application);
         $this->di->setShared('session', function () use ($arrayConfig) {
             $options = $arrayConfig['session'] ?? [];
-            throwIf(empty($options), \RuntimeException::class, 'session config cannot be empty');
+            if (empty($options)) {
+                throw new \RuntimeException('session config cannot be empty');
+            }
 
             $session = Factory::load($options);
             $session->start();

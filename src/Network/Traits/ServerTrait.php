@@ -16,6 +16,7 @@ namespace Shadon\Network\Traits;
 use Phalcon\DiInterface;
 use Shadon\Client\TcpClient;
 use Shadon\Exception\RequestException;
+use Shadon\Utils\DateTime;
 use Swoole\Lock;
 use Swoole\Table;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -116,7 +117,7 @@ trait ServerTrait
      */
     public function writeln(string $string, $option = 0): void
     {
-        $info = sprintf('[%s %d] %s', formatTime(), getmypid(), $string);
+        $info = sprintf('[%s %d] %s', DateTime::formatTime(), getmypid(), $string);
         $this->lock->lock();
         $this->output->writeln($info, $option);
         $this->lock->unlock();
