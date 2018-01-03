@@ -87,6 +87,7 @@ class ServiceApplication
      */
     public function handle($uri = null)
     {
+        /* @var ErrorHandler $errorHandler */
         $errorHandler = $this->di->getShared(ErrorHandler::class);
         $errorHandler->register();
         $this->attachEvents();

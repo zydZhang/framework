@@ -16,7 +16,7 @@ namespace Shadon\Application;
 use Composer\Autoload\ClassLoader;
 use Phalcon\Config;
 use Shadon\Di\WebDi;
-use Shadon\Loader\Loader;
+use Shadon\Error\Handler as ErrorHandler;
 use Shadon\Mvc\Application;
 use Shadon\Session\Factory;
 
@@ -93,6 +93,9 @@ class WebApplication
      */
     public function handle($uri = null)
     {
+        /* @var ErrorHandler $errorHandler */
+        $errorHandler = $this->di->getShared(ErrorHandler::class);
+        $errorHandler->register();
         $this->initAutoload()
             ->initEventsManager()
             ->registerServices();

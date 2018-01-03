@@ -21,6 +21,7 @@ use Phalcon\Di\Injectable;
 use Psr\Log\LogLevel;
 use Shadon\Application\ApplicationConst;
 use Shadon\Error\Handler\ServiceHandler;
+use Throwable;
 
 /**
  * @author hehui<hehui@eelly.net>
@@ -135,7 +136,7 @@ class Handler extends Injectable
         throw new ErrorException($message, 0, $code, $file, $line);
     }
 
-    public function handleException(\Throwable $e): void
+    public function handleException(Throwable $e): void
     {
         $errorLevelMap = $this->defaultErrorLevelMap();
         $level = $errorLevelMap[$e->getCode()] ?? LogLevel::ERROR;
