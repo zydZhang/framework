@@ -202,7 +202,7 @@ class ShadonSDKClient
         $multipart = [];
         foreach ($params as $key => $value) {
             $p = null === $prefix ? $key : $prefix.'['.$key.']';
-            $p = (string)$p;
+            $p = (string) $p;
             if ($value instanceof UploadedFileInterface) {
                 $multipart[] = [
                     'name'     => $p,
