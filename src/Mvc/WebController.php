@@ -15,7 +15,6 @@ namespace Shadon\Mvc;
 
 /**
  * Class WebController.
- *
  */
 class WebController extends Controller
 {
