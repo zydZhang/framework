@@ -165,7 +165,7 @@ class Handler extends Injectable
                     'message' => $lastError['message'],
                     'class'   => 'ErrorException',
                     'file'    => $lastError['file'],
-                    'line'    => $lastError['line']，
+                    'line'    => $lastError['line'],
                 ]
             );
 
