@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Shadon\Application;
 
 use Composer\Autoload\ClassLoader;
-use ErrorException;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use LogicException;
 use Phalcon\Config;
@@ -128,8 +127,6 @@ class ServiceApplication
                 'message' => $e->getMessage(),
                 'hint'    => $e->getHint(),
             ]);
-        } catch (ErrorException $e) {
-            //...
         }
 
         return $response;

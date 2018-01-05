@@ -52,6 +52,7 @@ class ServiceHandler extends AbstractProcessingHandler implements InjectionAware
     protected function write(array $record): void
     {
         $content['error'] = 'server error';
+        $content['returnType'] = $record['context']['class'];
         switch (APP['env']) {
             case ApplicationConst::ENV_TEST:
             case ApplicationConst::ENV_DEVELOPMENT:

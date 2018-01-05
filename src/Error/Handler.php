@@ -140,9 +140,9 @@ class Handler extends Injectable
     {
         $errorLevelMap = $this->defaultErrorLevelMap();
         $level = $errorLevelMap[$e->getCode()] ?? LogLevel::ERROR;
-        $this->getLogger()->log($level, 'Uncaught Exception: '.$e->getMessage(), [
+        $this->getLogger()->log($level, 'Uncaught Exception: '.get_class($e), [
             'code'          => $e->getCode(),
-            'message'       => $e->getMessage(),
+            'message'       => utf8_encode($e->getMessage()),
             'class'         => get_class($e),
             'file'          => $e->getFile(),
             'line'          => $e->getLine(),
@@ -160,7 +160,13 @@ class Handler extends Injectable
             $logger->log(
                 LogLevel::ALERT,
                 'Fatal Error ('.self::codeToString($lastError['type']).'): '.$lastError['message'],
-                ['code' => $lastError['type'], 'message' => $lastError['message'], 'file' => $lastError['file'], 'line' => $lastError['line']]
+                [
+                    'code'    => $lastError['type'],
+                    'message' => $lastError['message'],
+                    'class'   => 'ErrorException',
+                    'file'    => $lastError['file'],
+                    'line'    => $lastError['line'],
+                ]
             );
 
             if ($logger instanceof Logger) {
