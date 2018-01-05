@@ -140,9 +140,9 @@ class Handler extends Injectable
     {
         $errorLevelMap = $this->defaultErrorLevelMap();
         $level = $errorLevelMap[$e->getCode()] ?? LogLevel::ERROR;
-        $this->getLogger()->log($level, 'Uncaught Exception: '.$e->getMessage(), [
+        $this->getLogger()->log($level, 'Uncaught Exception: '.get_class($e), [
             'code'          => $e->getCode(),
-            'message'       => $e->getMessage(),
+            'message'       => utf8_encode($e->getMessage()),
             'class'         => get_class($e),
             'file'          => $e->getFile(),
             'line'          => $e->getLine(),
