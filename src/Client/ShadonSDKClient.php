@@ -83,8 +83,7 @@ class ShadonSDKClient
         $this->serviceMap = array_replace($this->serviceMap, $serviceMap);
         $this->grant = $grant;
         $this->requestOptions = $requestOptions;
-        $this->handlerStack = new HandlerStack();
-        $this->handlerStack->setHandler(\GuzzleHttp\choose_handler());
+        $this->handlerStack = HandlerStack::create();
     }
 
     /**
