@@ -160,7 +160,13 @@ class Handler extends Injectable
             $logger->log(
                 LogLevel::ALERT,
                 'Fatal Error ('.self::codeToString($lastError['type']).'): '.$lastError['message'],
-                ['code' => $lastError['type'], 'message' => $lastError['message'], 'file' => $lastError['file'], 'line' => $lastError['line']]
+                [
+                    'code'    => $lastError['type'],
+                    'message' => $lastError['message'],
+                    'class'   => 'ErrorException',
+                    'file'    => $lastError['file'],
+                    'line'    => $lastError['line']，
+                ]
             );
 
             if ($logger instanceof Logger) {
