@@ -53,7 +53,6 @@ class UnitTestCase extends TestCase implements InjectionAwareInterface
         define('APP', [
             'env'      => $appEnv,
             'key'      => $appKey,
-            'rootPath' => $arrayConfig['rootPath'],
             'timezone' => $arrayConfig['timezone'],
         ]);
         ApplicationConst::appendRuntimeEnv(ApplicationConst::RUNTIME_ENV_CLI);
