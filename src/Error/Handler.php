@@ -20,7 +20,7 @@ use Monolog\Logger;
 use Phalcon\Di\Injectable;
 use Psr\Log\LogLevel;
 use Shadon\Application\ApplicationConst;
-use Shadon\Error\Handler\ServiceHandler;
+use Shadon\Logger\Handler\ServiceHandler;
 use Throwable;
 
 /**

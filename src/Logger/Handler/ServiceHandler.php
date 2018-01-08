@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Shadon\Error\Handler;
+namespace Shadon\Logger\Handler;
 
 use Monolog\Handler\AbstractProcessingHandler;
 use Phalcon\Di\InjectionAwareInterface;
@@ -60,7 +60,7 @@ class ServiceHandler extends AbstractProcessingHandler implements InjectionAware
                 $content['error'] = $record['message'];
                 break;
         }
-        /* @var \Shadon\Http\Response $response */
+        /* @var \Phalcon\Http\Response $response */
         $response = $this->getDI()->getResponse();
         $response = $response->setStatusCode(500, $record['level_name']);
         $response = $response->setJsonContent($content);

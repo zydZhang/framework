@@ -27,6 +27,7 @@ class WebDi extends FactoryDefault
         $this->_services['dispatcher'] = new Service('dispatcher', 'Shadon\\Dispatcher\\WebDispatcher', true);
         $this->_services['escaper'] = new Service('escaper', 'Phalcon\\Escaper', true);
         $this->_services['flash'] = new Service('flash', 'Shadon\\Flash\\Direct', true);
+        $this->_services['logger'] = new Service('logger', 'Shadon\\Logger\\ServiceLogger', true);
         $this->_services['response'] = new Service('response', 'Phalcon\\Http\\Response', true);
         $this->_services['request'] = new Service('request', 'Phalcon\\Http\\Request', true);
         $this->_services['security'] = new Service('security', 'Phalcon\\Security', true);
