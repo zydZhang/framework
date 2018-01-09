@@ -84,6 +84,13 @@ final class ApplicationConst
     public const RUNTIME_ENV_SWOOLE = 4;
 
     /**
+     * service runtime environment.
+     *
+     * @var int
+     */
+    public const RUNTIME_ENV_SERVICE = 8;
+
+    /**
      * app runtime environment.
      *
      * @var int

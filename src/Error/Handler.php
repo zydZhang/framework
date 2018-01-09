@@ -89,10 +89,11 @@ class Handler extends Injectable
             $di = $this->getDI();
             $this->logger = $di->getLogger();
 
-            if (ApplicationConst::RUNTIME_ENV_CLI == ApplicationConst::$runtimeEnv) {
+            if (ApplicationConst::hasRuntimeEnv(ApplicationConst::RUNTIME_ENV_CLI)) {
                 $streamHandler = new StreamHandler('php://stdout');
                 $this->logger->pushHandler($streamHandler);
-            } else {
+            }
+            if (ApplicationConst::hasRuntimeEnv(ApplicationConst::RUNTIME_ENV_SERVICE)) {
                 $serviceHandler = $di->getShared(ServiceHandler::class);
                 $this->logger->pushHandler($serviceHandler);
             }

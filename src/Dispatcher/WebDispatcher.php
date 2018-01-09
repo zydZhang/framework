@@ -43,12 +43,19 @@ class WebDispatcher extends Dispatcher
                     $dispatcher->forward([
                         'controller' => 'error',
                         'action'     => 'notFound',
+                        'params'     => ['message' => $exception->getMessage()],
                     ]);
 
                     return false;
             }
-
-            return true;
         }
+
+        $dispatcher->forward([
+            'controller' => 'error',
+            'action'     => 'whoops',
+            'params'     => ['exception' => $exception],
+        ]);
+
+        return false;
     }
 }
