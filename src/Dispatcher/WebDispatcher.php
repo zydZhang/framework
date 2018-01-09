@@ -44,6 +44,7 @@ class WebDispatcher extends Dispatcher
                         'controller' => 'error',
                         'action'     => 'notFound',
                     ]);
+
                     return false;
             }
 
