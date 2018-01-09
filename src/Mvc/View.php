@@ -25,7 +25,7 @@ class View extends MvcView
         $this->setViewsDir('var/views');
         $this->registerEngines(
             [
-                '.phtml'   => 'Phalcon\Mvc\View\Engine\Php',
+                '.phtml'    => 'Phalcon\Mvc\View\Engine\Php',
                 '.hbs'      => 'Shadon\Mvc\View\Engine\Handlebars',
             ]
         );

@@ -24,7 +24,6 @@ use Shadon\Exception\RequestException;
  */
 class ServiceDispatcher extends Dispatcher
 {
-
     /**
      * ServiceDispatcher constructor.
      */
