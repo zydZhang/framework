@@ -24,6 +24,9 @@ use Shadon\Exception\RequestException;
  */
 class ServiceDispatcher extends Dispatcher
 {
+    /**
+     * ServiceDispatcher constructor.
+     */
     public function __construct()
     {
         $this->setControllerSuffix('Logic');
@@ -57,7 +60,7 @@ class ServiceDispatcher extends Dispatcher
                 case Dispatcher::EXCEPTION_ACTION_NOT_FOUND:
                     $notFoundFuntion();
 
-                    return true;
+                    return false;
             }
 
             return true;
