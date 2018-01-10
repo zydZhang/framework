@@ -62,9 +62,8 @@ class ServiceDispatcher extends Dispatcher
 
                     return false;
             }
-
-            return true;
         }
+        return true;
     }
 
     /**
