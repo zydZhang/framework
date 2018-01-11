@@ -282,6 +282,41 @@ abstract class Model extends MvcModel
         return (int) $this->getWriteConnection()->affectedRows();
     }
 
+    /*
+    **
+    * 批量更新，通过主键ID.
+    * code
+    *  $ids = [1,3,4];
+    * code.
+    *
+    * @param array $ids 一维数组的主键ID
+    *
+    * @return int
+    *
+    * @author 肖俊明<xiaojunming@eelly.net>
+    *
+    * @since 2017年10月30日
+    */
+    public function batchUpdate(array $ids, array $set)
+    {
+        $ids = array_map('intval', $ids);
+        if (empty($ids)) {
+            return 0;
+        }
+        $setSql = '';
+        //拼接条件
+        foreach ($set as $sk => $sv) {
+            $setSql .= $sk . ' = "' . $sv . '",';
+        }
+        $idStr = implode(',', $ids);
+        $tableName = $this->getSource();
+        $setSql = rtrim($setSql, ',');
+        $sql = 'UPDATE ' . $tableName . ' SET ' . $setSql . ' WHERE ' . $this->pk . ' IN (' . $idStr . ')';
+        $this->getWriteConnection()->execute($sql);
+
+        return (int)$this->getWriteConnection()->affectedRows();
+    }
+
     /**
      * 批量删除，通过主键ID.
      * code
