@@ -115,7 +115,7 @@ class ServiceApplication
         } catch (LogicException $e) {
             $response->setHeader('returnType', get_class($e));
             $content = ['error' => $e->getMessage(), 'returnType' => get_class($e)];
-            if ($e instanceof \Eelly\Exception\LogicException) {
+            if (method_exists($e, 'getContext')) {
                 $content['context'] = $e->getContext();
             }
             $response->setJsonContent($content);
