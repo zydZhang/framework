@@ -71,6 +71,7 @@ class ServiceApplication
             'env'      => $appEnv,
             'key'      => $appKey,
             'timezone' => $arrayConfig['timezone'],
+            'appname'  => $arrayConfig['appName'],
         ]);
         ApplicationConst::appendRuntimeEnv(ApplicationConst::RUNTIME_ENV_FPM | ApplicationConst::RUNTIME_ENV_SERVICE);
         $this->di->setShared('config', new Config($arrayConfig));
