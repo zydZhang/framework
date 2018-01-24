@@ -19,6 +19,7 @@ use Phalcon\Di\InjectionAwareInterface as DiInjectionAwareInterface;
  * @property \Phalcon\Cache\Backend $cache
  * @property \Phalcon\Mvc\Application $application
  * @property \Phalcon\Config $config 系统配置
+ * @property \Phalcon\Db\Profiler $dbProfiler
  * @property \Shadon\Dispatcher\EventDispatcher $eventDispatcher
  * @property \Phalcon\Loader $loader
  * @property \Psr\Log\LoggerInterface $logger 日志对象
