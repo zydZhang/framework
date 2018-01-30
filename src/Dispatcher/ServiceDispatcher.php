@@ -141,16 +141,17 @@ class ServiceDispatcher extends Dispatcher
                     // 存在默认值参数
                     $routeParamsObject = new \ArrayObject($routeParams);
                     $status = $this->getEventsManager()->fire('dispatcher:setDefaultParamValue', $routeParamsObject, $position);
-                    if ($status) {
-                        $routeParams[$position] = $parameter->getDefaultValue();
-                    } else {
+                    if (false === $status) {
                         $routeParams = $routeParamsObject->getArrayCopy();
+                    } else {
+                        $routeParams[$position] = $parameter->getDefaultValue();
                     }
                     $checkedParameter = true;
                 } else {
                     $functionOfThrowInvalidArgumentException($position, $expectedType, 'null');
                 }
             }
+
             // 校验参数
             if (array_key_exists($position, $routeParams)) {
                 if (!$checkedParameter) {
