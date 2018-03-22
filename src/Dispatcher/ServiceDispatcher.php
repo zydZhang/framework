@@ -164,7 +164,7 @@ class ServiceDispatcher extends Dispatcher
                         } else {
                             settype($routeParams[$position], $expectedType);
                         }
-                    } elseif (!is_a($routeParams[$position], $expectedType)) {
+                    } elseif (!empty($expectedType) && !is_a($routeParams[$position], $expectedType)) {
                         $functionOfThrowInvalidArgumentException($position, $expectedType, gettype($routeParams[$position]));
                     }
                 }
