@@ -194,7 +194,12 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                 $consumer->setQueueOptions(['name' => $exchange.'.'.$routingKey.'.'.$queue]);
                 $consumer->setCallback(
                     function ($msgBody): void {
-                        $this->consumerCallback(\GuzzleHttp\json_decode($msgBody, true));
+                        try {
+                            $msg = \GuzzleHttp\json_decode($msgBody, true);
+                            $this->consumerCallback($msg);
+                        } catch (\InvalidArgumentException $e) {
+                            $this->di->getShared('logger')->info($e->getMessage(), [$msgBody]);
+                        }
                     }
                 );
 
@@ -211,7 +216,11 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                 $num = $this->atomic->add(1);
                 $this->write(sprintf('%s %d %d "%s::%s()" start', DateTime::formatTime(), $pid, $num, $msg['class'], $msg['method']));
                 $start = microtime(true);
-                $return = call_user_func_array([$object, $msg['method']], $msg['params']);
+                try {
+                    $return = call_user_func_array([$object, $msg['method']], $msg['params']);
+                } catch (\TypeError $e) {
+                    $this->di->getShared('logger')->info('Fatal error: Uncaught TypeError', $msg);
+                }
                 $usedTime = microtime(true) - $start;
                 $this->write(sprintf('%s %d %d "%s::%s()" "%s" %s', DateTime::formatTime(), $pid, $num, $msg['class'], $msg['method'], json_encode($return), $usedTime));
             }
