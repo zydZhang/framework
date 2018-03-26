@@ -216,6 +216,7 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                 $num = $this->atomic->add(1);
                 $this->write(sprintf('%s %d %d "%s::%s()" start', DateTime::formatTime(), $pid, $num, $msg['class'], $msg['method']));
                 $start = microtime(true);
+
                 try {
                     $return = call_user_func_array([$object, $msg['method']], $msg['params']);
                 } catch (\TypeError $e) {
