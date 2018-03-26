@@ -15,6 +15,7 @@ namespace Shadon\Events\Listener;
 
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;
+use PhpAmqpLib\Exception\AMQPTimeoutException;
 
 /**
  * async annotation listener.
@@ -52,10 +53,23 @@ class AsyncAnnotationListener extends AbstractListener
                 'params'  => $dispatcher->getParams(),
                 'time'    => microtime(true),
             ];
-            $producer = $this->queueFactory->createProducer();
+            try {
+                /* @var \Shadon\Queue\Adapter\Producer $producer */
+                $producer = $this->queueFactory->createProducer();
+            } catch (AMQPTimeoutException | \ErrorException $e) {
+                return true;
+            }
             $producer->setExchangeOptions(['name' => $dispatcher->getModuleName(), 'type' => 'topic']);
             $routingKey = $annotation->getNamedParameter('route') ?? 'default_routing_key';
             $producer->publish(json_encode($msgBody), $routingKey);
+
+            $connection = $producer->getConnection();
+            if ($connection->isConnected()) {
+                try {
+                    $connection->close();
+                } catch (\PhpAmqpLib\Exception\AMQPRuntimeException $e) {
+                }
+            }
             if ($event->isCancelable()) {
                 $event->stop();
             }
