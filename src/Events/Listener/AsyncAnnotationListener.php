@@ -53,6 +53,7 @@ class AsyncAnnotationListener extends AbstractListener
                 'params'  => $dispatcher->getParams(),
                 'time'    => microtime(true),
             ];
+
             try {
                 /* @var \Shadon\Queue\Adapter\Producer $producer */
                 $producer = $this->queueFactory->createProducer();
