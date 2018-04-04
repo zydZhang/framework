@@ -65,10 +65,10 @@ class CacheAnnotationListener extends AbstractListener
         );
         $this->annotationsColletion = $annotations;
         if ($annotations->has(self::ANNOTATIONS_NAME)) {
+            $this->keyName = $this->keyName($dispatcher->getControllerClass(), $dispatcher->getActiveMethod(), $dispatcher->getParams());
             if ('no-cache' == $this->request->getHeader('Cache-Control')) {
                 return true;
             }
-            $this->keyName = $this->keyName($dispatcher->getControllerClass(), $dispatcher->getActiveMethod(), $dispatcher->getParams());
             $this->hited = $this->cache->exists($this->keyName);
             if ($this->hited) {
                 $returnValue = $this->cache->get($this->keyName);
