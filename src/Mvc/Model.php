@@ -15,6 +15,7 @@ namespace Shadon\Mvc;
 
 use Phalcon\Di;
 use Phalcon\Mvc\Model as MvcModel;
+use Phalcon\Mvc\Model\ResultsetInterface;
 use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 use Phalcon\Paginator\Factory;
 
@@ -30,6 +31,28 @@ abstract class Model extends MvcModel
         $this->skipAttributes([
             'update_time',
         ]);
+    }
+
+    /**
+     * @param null $parameters
+     *
+     * @return ResultsetInterface
+     */
+    public static function find($parameters = null): ResultsetInterface
+    {
+        try {
+            return parent::find($parameters);
+        } catch (\PDOException $e) {
+            if ('42S22' == $e->getCode()) {
+                $di = Di::getDefault();
+                $modelsMetadata = $di->getShared('modelsMetadata');
+                $modelsMetadata->reset();
+
+                return parent::find($parameters);
+            } else {
+                throw $e;
+            }
+        }
     }
 
     /**
