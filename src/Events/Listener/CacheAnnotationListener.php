@@ -15,6 +15,7 @@ namespace Shadon\Events\Listener;
 
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;
+use Shadon\Utils\Traits\CacheKeyTrait;
 
 /**
  * cache annotation listener.
@@ -23,6 +24,8 @@ use Phalcon\Mvc\Dispatcher;
  */
 class CacheAnnotationListener extends AbstractListener
 {
+    use CacheKeyTrait;
+
     /**
      * 注解名称.
      */
@@ -95,36 +98,5 @@ class CacheAnnotationListener extends AbstractListener
             $returnValue = $dispatcher->getReturnedValue();
             $this->cache->save($this->keyName, $returnValue, $lifetime);
         }
-    }
-
-    /**
-     * 缓存key.
-     *
-     * @param string $class
-     * @param string $method
-     * @param array  $params
-     *
-     * @return string
-     */
-    private function keyName($class, $method, array $params)
-    {
-        return sprintf('%s:%s:%s', $class, $method, $this->createKeyWithArray($params));
-    }
-
-    private function createKeyWithArray(array $parameters)
-    {
-        $uniqueKey = [];
-
-        foreach ($parameters as $key => $value) {
-            if (is_scalar($value)) {
-                $uniqueKey[] = $key.':'.$value;
-            } elseif (is_array($value)) {
-                $uniqueKey[] = $key.':['.$this->createKeyWithArray($value).']';
-            } else {
-                throw new \InvalidArgumentException('can not use cache annotation', 500);
-            }
-        }
-
-        return implode(',', $uniqueKey);
     }
 }
