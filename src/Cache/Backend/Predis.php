@@ -51,4 +51,17 @@ class Predis extends Redis
             $this->_redis = $redisClients[$clientKey] = new PredisResource($options['parameters'], $options['options']);
         }
     }
+
+    /**
+     * (non-PHPdoc).
+     *
+     * @see \Phalcon\Cache\Backend\Redis::save()
+     */
+    public function save($keyName = null, $content = null, $lifetime = null, $stopBuffer = true)
+    {
+        /* @var \Predis\Response\Status $status */
+        $status = parent::save($keyName, $content, $lifetime, $stopBuffer);
+
+        return 'OK' == (string) $status;
+    }
 }
