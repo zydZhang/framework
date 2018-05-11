@@ -60,6 +60,7 @@ class ConsoleApplication
             'env'      => $appEnv,
             'key'      => $appKey,
             'timezone' => $arrayConfig['timezone'],
+            'appname'  => $arrayConfig['appName'],
         ]);
         ApplicationConst::appendRuntimeEnv(ApplicationConst::RUNTIME_ENV_CLI);
         $this->di->setShared('config', new Config($arrayConfig));

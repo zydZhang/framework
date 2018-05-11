@@ -15,12 +15,11 @@ namespace Shadon\Error;
 
 use ErrorException;
 use Monolog\Handler\AbstractHandler;
-use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Phalcon\Di\Injectable;
 use Psr\Log\LogLevel;
 use Shadon\Application\ApplicationConst;
-use Shadon\Logger\Handler\ServiceHandler;
+use Shadon\Logger\Handler\DingDingHandler;
 use Throwable;
 
 /**
@@ -87,16 +86,10 @@ class Handler extends Injectable
     {
         if (null === $this->logger) {
             $di = $this->getDI();
-            $this->logger = $di->getLogger();
-
-            if (ApplicationConst::hasRuntimeEnv(ApplicationConst::RUNTIME_ENV_CLI)) {
-                $streamHandler = new StreamHandler('php://stdout');
-                $this->logger->pushHandler($streamHandler);
-            }
-            if (ApplicationConst::hasRuntimeEnv(ApplicationConst::RUNTIME_ENV_SERVICE)) {
-                $serviceHandler = $di->getShared(ServiceHandler::class);
-                $this->logger->pushHandler($serviceHandler);
-            }
+            $this->logger = $di->get('logger');
+            $config = $di->getShared('config');
+            $this->logger->pushHandler(new DingDingHandler($config['dingding']));
+            $this->logger->pushHandler($di->getShared('errorViewHandler'));
         }
 
         return $this->logger;

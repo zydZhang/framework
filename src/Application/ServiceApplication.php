@@ -71,6 +71,7 @@ class ServiceApplication
             'env'      => $appEnv,
             'key'      => $appKey,
             'timezone' => $arrayConfig['timezone'],
+            'appname'  => $arrayConfig['appName'],
         ]);
         ApplicationConst::appendRuntimeEnv(ApplicationConst::RUNTIME_ENV_FPM | ApplicationConst::RUNTIME_ENV_SERVICE);
         $this->di->setShared('config', new Config($arrayConfig));
@@ -115,7 +116,9 @@ class ServiceApplication
         } catch (LogicException $e) {
             $response->setHeader('returnType', get_class($e));
             $content = ['error' => $e->getMessage(), 'returnType' => get_class($e)];
-            //$content['context'] = $e->getContext();
+            if (method_exists($e, 'getContext')) {
+                $content['context'] = $e->getContext();
+            }
             $response->setJsonContent($content);
         } catch (RequestException $e) {
             $response = $e->getResponse();

@@ -13,14 +13,10 @@ declare(strict_types=1);
 
 namespace Shadon\Test;
 
-use Composer\Autoload\ClassLoader;
-use Phalcon\Config;
 use Phalcon\Di;
 use Phalcon\DiInterface;
 use PHPUnit\Framework\TestCase;
-use Shadon\Application\ApplicationConst;
 use Shadon\Di\InjectionAwareInterface;
-use Shadon\Di\ServiceDi;
 
 /**
  * Class UnitTestCase.
@@ -32,31 +28,10 @@ class UnitTestCase extends TestCase implements InjectionAwareInterface
      */
     protected $di;
 
-    /**
-     * This method is called before a test is executed.
-     */
-    protected function setUp(): void
+    public static function setUpBeforeClass(): void
     {
-        Di::reset();
-        $di = new ServiceDi();
-        $di->setShared('loader', new ClassLoader());
-        $dotenv = new \Dotenv\Dotenv(getcwd(), '.env');
-        $dotenv->load();
-        $appEnv = getenv('APPLICATION_ENV');
-        $appKey = getenv('APPLICATION_KEY');
-        /**
-         * @var ClassLoader $loader
-         */
-        $loader = $di->getShared('loader');
-
-        $arrayConfig = require 'var/config/config.'.$appEnv.'.php';
-        define('APP', [
-            'env'      => $appEnv,
-            'key'      => $appKey,
-            'timezone' => $arrayConfig['timezone'],
-        ]);
-        ApplicationConst::appendRuntimeEnv(ApplicationConst::RUNTIME_ENV_CLI);
-        $di->setShared('config', new Config($arrayConfig));
+        $di = Di::getDefault();
+        $loader = $di->get('loader');
         list($moduleName) = explode('\\', static::class);
         $loader->addPsr4($moduleName.'\\', 'src/'.$moduleName);
         $loader->register();
@@ -64,7 +39,6 @@ class UnitTestCase extends TestCase implements InjectionAwareInterface
         $module = $di->getShared('\\'.$moduleName.'\\Module');
         $module->registerAutoloaders($di);
         $module->registerServices($di);
-        $this->di = $di;
     }
 
     /**

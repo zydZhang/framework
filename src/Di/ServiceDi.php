@@ -13,11 +13,13 @@ declare(strict_types=1);
 
 namespace Shadon\Di;
 
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Phalcon\Di\Service;
 use Shadon\Dispatcher\ServiceDispatcher;
 use Shadon\Http\PhalconServiceResponse as ServiceResponse;
 use Shadon\Http\ServiceRequest;
-use Shadon\Logger\ServiceLogger;
+use Shadon\Logger\Handler\ServiceHandler;
 use Shadon\Mvc\Collection\Manager as CollectionManager;
 use Shadon\Mvc\Model\Manager as ModelsManager;
 use Shadon\Mvc\Model\Transaction\Manager as TransactionManager;
@@ -33,7 +35,19 @@ class ServiceDi extends FactoryDefault
         parent::__construct();
         $this->_services['collectionManager'] = new Service('collectionManager', CollectionManager::class, true);
         $this->_services['dispatcher'] = new Service('dispatcher', ServiceDispatcher::class, true);
-        $this->_services['logger'] = new Service('logger', ServiceLogger::class, true);
+        $this->_services['errorViewHandler'] = new Service('errorViewHandler', function () {
+            return $this->getShared(ServiceHandler::class);
+        }, true);
+        $this->_services['logger'] = new Service('logger', function () {
+            $channel = APP['appname'].'.'.APP['env'];
+            $channel .= '.'.$this->getShared('dispatcher')->getModuleName();
+            $logger = new Logger($channel);
+            $config = $this->getShared('config');
+            $stream = realpath($config['logPath']).'/app.'.date('Ymd').'.txt';
+            $logger->pushHandler(new StreamHandler($stream));
+
+            return $logger;
+        });
         $this->_services['modelsManager'] = new Service('modelsManager', ModelsManager::class, true);
         $this->_services['request'] = new Service('request', ServiceRequest::class, true);
         $this->_services['response'] = new Service('response', ServiceResponse::class, true);

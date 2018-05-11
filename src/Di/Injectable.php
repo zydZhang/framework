@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Shadon\Di;
 
+use Phalcon\Db\Profiler;
 use Phalcon\Di\Injectable as DiInjectable;
 use Shadon\Db\Adapter\Pdo\Mysql as Connection;
 use Shadon\Queue\Adapter\AMQPFactory;
@@ -28,6 +29,9 @@ abstract class Injectable extends DiInjectable implements InjectionAwareInterfac
     public function registerDbService(): void
     {
         $di = $this->getDI();
+        $di->setShared('dbProfiler', function () {
+            return new Profiler();
+        });
         // mysql master connection service
         $di->setShared('dbMaster', function () {
             $config = $this->getModuleConfig()->mysql->master;
@@ -44,7 +48,20 @@ abstract class Injectable extends DiInjectable implements InjectionAwareInterfac
             shuffle($config);
 
             $connection = new Connection(current($config));
-            $connection->setEventsManager($this->get('eventsManager'));
+            $eventsManager = $this->get('eventsManager');
+            $connection->setEventsManager($eventsManager);
+
+            $profiler = $this->get('dbProfiler');
+            $eventsManager->attach('db', function ($event, $connection) use ($profiler): void {
+                if ('beforeQuery' === $event->getType()) {
+                    $profiler->startProfile(
+                        $connection->getSQLStatement()
+                    );
+                }
+                if ('afterQuery' === $event->getType()) {
+                    $profiler->stopProfile();
+                }
+            });
 
             return $connection;
         });
