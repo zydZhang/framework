@@ -334,7 +334,7 @@ abstract class Model extends MvcModel
         $idStr = implode(',', $ids);
         $tableName = $this->getSource();
         $setSql = rtrim($setSql, ',');
-        $sql = 'UPDATE '.$tableName.' SET '.$setSql.' WHERE '.$this->pk.' IN ('.$idStr.')';
+        $sql = 'UPDATE `'.$tableName.'` SET '.$setSql.' WHERE '.$this->pk.' IN ('.$idStr.')';
         $this->getWriteConnection()->execute($sql);
 
         return (int) $this->getWriteConnection()->affectedRows();
