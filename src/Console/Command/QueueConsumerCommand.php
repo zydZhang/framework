@@ -148,9 +148,16 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                     $worker->write(sprintf('%s %d -1 "%s"', DateTime::formatTime(), $pid, $e->getMessage()));
                     sleep(random_int(1, 10));
                     $consumer = $worker->createConsumer($exchange, $routingKey, $queue);
-                } catch (\Throwable | \Exception $e) {
-                    $worker->write(sprintf('%s %d -1 "%s"', DateTime::formatTime(), $pid, $e->getMessage()));
-                    $this->di->getShared('logger')->info($e->getMessage());
+                } catch (\Throwable | \Exception $exception) {
+                    $worker->write(sprintf('%s %d -1 "%s"', DateTime::formatTime(), $pid, $exception->getMessage()));
+                    $this->di->getShared('logger')->error('UncaughtException', [
+                        'file'  => $exception->getFile(),
+                        'line'  => $exception->getLine(),
+                        'class' => get_class($exception),
+                        'args'  => [
+                            $exception->getMessage(),
+                        ],
+                    ]);
                     break;
                 }
             }
