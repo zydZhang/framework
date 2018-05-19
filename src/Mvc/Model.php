@@ -299,7 +299,7 @@ abstract class Model extends MvcModel
 
         $setSql = rtrim($setSql, ',');
         $whereSql = rtrim($whereSql, ' AND ');
-        $sql = 'UPDATE '.$tableName.' SET '.$setSql.' WHERE '.$whereSql;
+        $sql = 'UPDATE `'.$tableName.'` SET '.$setSql.' WHERE '.$whereSql;
         $this->getDI()->get('dbMaster')->execute($sql);
 
         return (int) $this->getWriteConnection()->affectedRows();
@@ -362,7 +362,7 @@ abstract class Model extends MvcModel
         }
         $idStr = implode(',', $ids);
         $tableName = $this->getSource();
-        $sql = 'DELETE FROM '.$tableName.' WHERE '.$this->pk.' IN ('.$idStr.')';
+        $sql = 'DELETE FROM `'.$tableName.'` WHERE '.$this->pk.' IN ('.$idStr.')';
         $this->getWriteConnection()->execute($sql);
 
         return (int) $this->getWriteConnection()->affectedRows();
