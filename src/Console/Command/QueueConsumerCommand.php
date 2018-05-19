@@ -18,6 +18,7 @@ use Phalcon\Events\EventsAwareInterface;
 use Shadon\Di\InjectionAwareInterface;
 use Shadon\Di\Traits\InjectableTrait;
 use Shadon\Process\Process;
+use Shadon\Utils\DateTime;
 use Swoole\Atomic;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -128,7 +129,7 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
             $processName = $consumer->getQueueOptions()['name'].'#'.$index;
             $worker->name($processName);
             $pid = getmypid();
-            $worker->write(sprintf('%s %d -1 "worker %s"', formatTime(), $pid, $processName));
+            $worker->write(sprintf('%s %d -1 "worker %s"', DateTime::formatTime(), $pid, $processName));
             while (true) {
                 try {
                     $consumer->consume(100);
@@ -144,11 +145,19 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                         } catch (\PhpAmqpLib\Exception\AMQPRuntimeException $e) {
                         }
                     }
-                    $worker->write(sprintf('%s %d -1 "%s"', formatTime(), $pid, $e->getMessage()));
+                    $worker->write(sprintf('%s %d -1 "%s"', DateTime::formatTime(), $pid, $e->getMessage()));
                     sleep(random_int(1, 10));
                     $consumer = $worker->createConsumer($exchange, $routingKey, $queue);
-                } catch (\Exception $e) {
-                    $worker->write(sprintf('%s %d -1 "%s"', formatTime(), $pid, $e->getMessage()));
+                } catch (\Throwable | \Exception $exception) {
+                    $worker->write(sprintf('%s %d -1 "%s"', DateTime::formatTime(), $pid, $exception->getMessage()));
+                    $this->di->getShared('logger')->error('UncaughtException', [
+                        'file'  => $exception->getFile(),
+                        'line'  => $exception->getLine(),
+                        'class' => get_class($exception),
+                        'args'  => [
+                            $exception->getMessage(),
+                        ],
+                    ]);
                     break;
                 }
             }
@@ -193,7 +202,12 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                 $consumer->setQueueOptions(['name' => $exchange.'.'.$routingKey.'.'.$queue]);
                 $consumer->setCallback(
                     function ($msgBody): void {
-                        $this->consumerCallback(\GuzzleHttp\json_decode($msgBody, true));
+                        try {
+                            $msg = \GuzzleHttp\json_decode($msgBody, true);
+                            $this->consumerCallback($msg);
+                        } catch (\InvalidArgumentException $e) {
+                            $this->di->getShared('logger')->info($e->getMessage(), [$msgBody]);
+                        }
                     }
                 );
 
@@ -208,11 +222,16 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                 $object = $this->di->getShared($msg['class']);
                 $pid = getmypid();
                 $num = $this->atomic->add(1);
-                $this->write(sprintf('%s %d %d "%s::%s()" start', formatTime(), $pid, $num, $msg['class'], $msg['method']));
+                $this->write(sprintf('%s %d %d "%s::%s()" start', DateTime::formatTime(), $pid, $num, $msg['class'], $msg['method']));
                 $start = microtime(true);
-                $return = call_user_func_array([$object, $msg['method']], $msg['params']);
+
+                try {
+                    $return = call_user_func_array([$object, $msg['method']], $msg['params']);
+                } catch (\TypeError $e) {
+                    $this->di->getShared('logger')->info('Fatal error: Uncaught TypeError', $msg);
+                }
                 $usedTime = microtime(true) - $start;
-                $this->write(sprintf('%s %d %d "%s::%s()" "%s" %s', formatTime(), $pid, $num, $msg['class'], $msg['method'], json_encode($return), $usedTime));
+                $this->write(sprintf('%s %d %d "%s::%s()" "%s" %s', DateTime::formatTime(), $pid, $num, $msg['class'], $msg['method'], json_encode($return), $usedTime));
             }
 
         };

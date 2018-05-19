@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Shadon\Application;
 
 use Composer\Autoload\ClassLoader;
-use ErrorException;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use LogicException;
 use Phalcon\Config;
@@ -72,8 +71,9 @@ class ServiceApplication
             'env'      => $appEnv,
             'key'      => $appKey,
             'timezone' => $arrayConfig['timezone'],
+            'appname'  => $arrayConfig['appName'],
         ]);
-        ApplicationConst::appendRuntimeEnv(ApplicationConst::RUNTIME_ENV_FPM);
+        ApplicationConst::appendRuntimeEnv(ApplicationConst::RUNTIME_ENV_FPM | ApplicationConst::RUNTIME_ENV_SERVICE);
         $this->di->setShared('config', new Config($arrayConfig));
         date_default_timezone_set(APP['timezone']);
         $this->application = $this->di->getShared(Application::class);
@@ -87,6 +87,7 @@ class ServiceApplication
      */
     public function handle($uri = null)
     {
+        /* @var ErrorHandler $errorHandler */
         $errorHandler = $this->di->getShared(ErrorHandler::class);
         $errorHandler->register();
         $this->attachEvents();
@@ -115,7 +116,9 @@ class ServiceApplication
         } catch (LogicException $e) {
             $response->setHeader('returnType', get_class($e));
             $content = ['error' => $e->getMessage(), 'returnType' => get_class($e)];
-            //$content['context'] = $e->getContext();
+            if (method_exists($e, 'getContext')) {
+                $content['context'] = $e->getContext();
+            }
             $response->setJsonContent($content);
         } catch (RequestException $e) {
             $response = $e->getResponse();
@@ -127,8 +130,6 @@ class ServiceApplication
                 'message' => $e->getMessage(),
                 'hint'    => $e->getHint(),
             ]);
-        } catch (ErrorException $e) {
-            //...
         }
 
         return $response;

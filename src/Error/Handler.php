@@ -15,12 +15,12 @@ namespace Shadon\Error;
 
 use ErrorException;
 use Monolog\Handler\AbstractHandler;
-use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Phalcon\Di\Injectable;
 use Psr\Log\LogLevel;
 use Shadon\Application\ApplicationConst;
-use Shadon\Error\Handler\ServiceHandler;
+use Shadon\Logger\Handler\DingDingHandler;
+use Throwable;
 
 /**
  * @author hehui<hehui@eelly.net>
@@ -86,15 +86,10 @@ class Handler extends Injectable
     {
         if (null === $this->logger) {
             $di = $this->getDI();
-            $this->logger = $di->getLogger();
-
-            if (ApplicationConst::RUNTIME_ENV_CLI == ApplicationConst::$runtimeEnv) {
-                $streamHandler = new StreamHandler('php://stdout');
-                $this->logger->pushHandler($streamHandler);
-            } else {
-                $serviceHandler = $di->getShared(ServiceHandler::class);
-                $this->logger->pushHandler($serviceHandler);
-            }
+            $this->logger = $di->get('logger');
+            $config = $di->getShared('config');
+            $this->logger->pushHandler(new DingDingHandler($config['dingding']));
+            $this->logger->pushHandler($di->getShared('errorViewHandler'));
         }
 
         return $this->logger;
@@ -135,13 +130,13 @@ class Handler extends Injectable
         throw new ErrorException($message, 0, $code, $file, $line);
     }
 
-    public function handleException(\Throwable $e): void
+    public function handleException(Throwable $e): void
     {
         $errorLevelMap = $this->defaultErrorLevelMap();
         $level = $errorLevelMap[$e->getCode()] ?? LogLevel::ERROR;
-        $this->getLogger()->log($level, 'Uncaught Exception: '.$e->getMessage(), [
+        $this->getLogger()->log($level, 'Uncaught Exception: '.get_class($e), [
             'code'          => $e->getCode(),
-            'message'       => $e->getMessage(),
+            'message'       => utf8_encode($e->getMessage()),
             'class'         => get_class($e),
             'file'          => $e->getFile(),
             'line'          => $e->getLine(),
@@ -159,7 +154,13 @@ class Handler extends Injectable
             $logger->log(
                 LogLevel::ALERT,
                 'Fatal Error ('.self::codeToString($lastError['type']).'): '.$lastError['message'],
-                ['code' => $lastError['type'], 'message' => $lastError['message'], 'file' => $lastError['file'], 'line' => $lastError['line']]
+                [
+                    'code'    => $lastError['type'],
+                    'message' => $lastError['message'],
+                    'class'   => 'ErrorException',
+                    'file'    => $lastError['file'],
+                    'line'    => $lastError['line'],
+                ]
             );
 
             if ($logger instanceof Logger) {

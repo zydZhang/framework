@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Shadon\Client;
 
 use ErrorException;
+use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\MultipartStream;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Token\AccessToken;
@@ -59,6 +60,16 @@ class ShadonSDKClient
     private $accessToken;
 
     /**
+     * @var HandlerStack
+     */
+    private $handlerStack;
+
+    /**
+     * @var bool
+     */
+    private $debug = false;
+
+    /**
      * ShadonSDKClient constructor.
      *
      * @param ShadonProvider $provider
@@ -72,6 +83,7 @@ class ShadonSDKClient
         $this->serviceMap = array_replace($this->serviceMap, $serviceMap);
         $this->grant = $grant;
         $this->requestOptions = $requestOptions;
+        $this->handlerStack = HandlerStack::create();
     }
 
     /**
@@ -116,6 +128,22 @@ class ShadonSDKClient
     }
 
     /**
+     * @return HandlerStack
+     */
+    public function getHandlerStack(): HandlerStack
+    {
+        return $this->handlerStack;
+    }
+
+    /**
+     * @param bool $debug
+     */
+    public function debug($debug = true): void
+    {
+        $this->debug = $debug;
+    }
+
+    /**
      * @param string $uri
      * @param array  ...$args
      *
@@ -142,7 +170,8 @@ class ShadonSDKClient
         if (null === $this->accessToken || $this->accessToken->hasExpired()) {
             $this->accessToken = $this->getAccessToken();
         }
-        $stream = new MultipartStream($this->paramsToMultipart($args));
+        $elements = $this->paramsToMultipart($args);
+        $stream = new MultipartStream($elements);
         $options = [
             'body' => $stream,
         ];
@@ -154,7 +183,8 @@ class ShadonSDKClient
         $request = $this->provider->getAuthenticatedRequest('POST', $this->serviceMap[$serviceName].'/'.$uri, $token, $options);
         $promise = $this->provider->getHttpClient()->sendAsync($request, [
             'timeout' => 5,
-            //'debug' => true,
+            'handler' => $this->handlerStack,
+            'debug'   => $this->debug,
         ]);
 
         return $promise;
@@ -171,12 +201,20 @@ class ShadonSDKClient
         $multipart = [];
         foreach ($params as $key => $value) {
             $p = null === $prefix ? $key : $prefix.'['.$key.']';
+            $p = (string) $p;
             if ($value instanceof UploadedFileInterface) {
                 $multipart[] = [
                     'name'     => $p,
                     'contents' => $value->getStream(),
                 ];
             } elseif (is_array($value)) {
+                if (empty($value)) {
+                    $multipart[] = [
+                        'name'     => $p,
+                        'contents' => '/*_EMPTY_ARRAY_*/',
+                    ];
+                    continue;
+                }
                 $parentMultipart = $this->paramsToMultipart($value, $p);
                 foreach ($parentMultipart as $part) {
                     $multipart[] = $part;

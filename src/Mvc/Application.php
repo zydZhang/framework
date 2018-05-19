@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Shadon\Mvc;
 
+use Phalcon\DiInterface;
 use Phalcon\Mvc\Application as MvcApplication;
 
 /**
@@ -22,8 +23,9 @@ use Phalcon\Mvc\Application as MvcApplication;
  */
 class Application extends MvcApplication
 {
-    public function __construct()
+    public function __construct(DiInterface $di = null)
     {
+        parent::__construct($di);
         $this->useImplicitView(false);
     }
 

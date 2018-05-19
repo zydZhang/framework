@@ -24,6 +24,9 @@ use Shadon\Exception\RequestException;
  */
 class ServiceDispatcher extends Dispatcher
 {
+    /**
+     * ServiceDispatcher constructor.
+     */
     public function __construct()
     {
         $this->setControllerSuffix('Logic');
@@ -57,11 +60,11 @@ class ServiceDispatcher extends Dispatcher
                 case Dispatcher::EXCEPTION_ACTION_NOT_FOUND:
                     $notFoundFuntion();
 
-                    return true;
+                    return false;
             }
-
-            return true;
         }
+
+        return true;
     }
 
     /**
@@ -137,17 +140,18 @@ class ServiceDispatcher extends Dispatcher
                 } elseif ($parameter->isDefaultValueAvailable()) {
                     // 存在默认值参数
                     $routeParamsObject = new \ArrayObject($routeParams);
-                    $status = $this->getEventsManager()->fire('dispatcher:setDefaultParamValue', $routeParamsObject, $position);
-                    if ($status) {
-                        $routeParams[$position] = $parameter->getDefaultValue();
-                    } else {
+                    $status = $this->getEventsManager()->fire('dispatcher:setDefaultParamValue', $routeParamsObject, $parameter);
+                    if (false === $status) {
                         $routeParams = $routeParamsObject->getArrayCopy();
+                    } else {
+                        $routeParams[$position] = $parameter->getDefaultValue();
                     }
                     $checkedParameter = true;
                 } else {
                     $functionOfThrowInvalidArgumentException($position, $expectedType, 'null');
                 }
             }
+
             // 校验参数
             if (array_key_exists($position, $routeParams)) {
                 if (!$checkedParameter) {
@@ -160,7 +164,7 @@ class ServiceDispatcher extends Dispatcher
                         } else {
                             settype($routeParams[$position], $expectedType);
                         }
-                    } elseif (!is_a($routeParams[$position], $expectedType)) {
+                    } elseif (!empty($expectedType) && !is_a($routeParams[$position], $expectedType)) {
                         $functionOfThrowInvalidArgumentException($position, $expectedType, gettype($routeParams[$position]));
                     }
                 }

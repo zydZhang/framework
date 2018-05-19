@@ -16,7 +16,7 @@ namespace Shadon\Application;
 use Composer\Autoload\ClassLoader;
 use Phalcon\Config;
 use Shadon\Di\WebDi;
-use Shadon\Loader\Loader;
+use Shadon\Error\Handler as ErrorHandler;
 use Shadon\Mvc\Application;
 use Shadon\Session\Factory;
 
@@ -75,7 +75,9 @@ class WebApplication
         $this->di->setShared('application', $this->application);
         $this->di->setShared('session', function () use ($arrayConfig) {
             $options = $arrayConfig['session'] ?? [];
-            throwIf(empty($options), \RuntimeException::class, 'session config cannot be empty');
+            if (empty($options)) {
+                throw new \RuntimeException('session config cannot be empty');
+            }
 
             $session = Factory::load($options);
             $session->start();
@@ -91,6 +93,9 @@ class WebApplication
      */
     public function handle($uri = null)
     {
+        /* @var ErrorHandler $errorHandler */
+        $errorHandler = $this->di->getShared(ErrorHandler::class);
+        $errorHandler->register();
         $this->initAutoload()
             ->initEventsManager()
             ->registerServices();

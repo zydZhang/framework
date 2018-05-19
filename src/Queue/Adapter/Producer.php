@@ -27,4 +27,12 @@ class Producer extends \Thumper\Producer
         }
         parent::setExchangeOptions($options);
     }
+
+    /**
+     * @return \PhpAmqpLib\Connection\AbstractConnection
+     */
+    public function getConnection()
+    {
+        return $this->channel->getConnection();
+    }
 }
