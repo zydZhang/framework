@@ -56,6 +56,25 @@ abstract class Model extends MvcModel
     }
 
     /**
+     * save with transaction.
+     *
+     * @param null $data
+     * @param null $whiteList
+     */
+    public function saveWithTransaction(\Phalcon\Mvc\Model\TransactionInterface $transaction, $data = null, $whiteList = null)
+    {
+        $this->setTransaction($transaction);
+        $success = $this->save($data, $whiteList);
+        if (false == $success) {
+            foreach ($this->getMessages() as $message) {
+                $transaction->rollback($message->getMessage());
+            }
+        }
+
+        return $success;
+    }
+
+    /**
      * create builder.
      *
      * @param mixed  $models
