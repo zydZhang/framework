@@ -162,6 +162,10 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                 }
             }
         }) extends Process{
+
+            /**
+             * @var \Phalcon\Di
+             */
             private $di;
 
             /**
@@ -219,7 +223,15 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
              */
             private function consumerCallback(array $msg): void
             {
+                if (!$this->di->has($msg['class'])) {
+                    $this->di->getShared('logger')->info('Error class', $msg);
+                    return;
+                }
                 $object = $this->di->getShared($msg['class']);
+                if (!method_exists($object, $msg['method'])) {
+                    $this->di->getShared('logger')->info('Error method', $msg);
+                    return;
+                }
                 $pid = getmypid();
                 $num = $this->atomic->add(1);
                 $this->write(sprintf('%s %d %d "%s::%s()" start', DateTime::formatTime(), $pid, $num, $msg['class'], $msg['method']));
