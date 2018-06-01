@@ -225,11 +225,13 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
             {
                 if (!$this->di->has($msg['class'])) {
                     $this->di->getShared('logger')->info('Error class', $msg);
+
                     return;
                 }
                 $object = $this->di->getShared($msg['class']);
                 if (!method_exists($object, $msg['method'])) {
                     $this->di->getShared('logger')->info('Error method', $msg);
+
                     return;
                 }
                 $pid = getmypid();
