@@ -41,14 +41,14 @@ class Handler implements \SessionHandlerInterface
     public function __construct(BackendInterface $backend, array $options = [])
     {
         $this->backend = $backend;
-        $this->ttl = (int) $options['gc_maxlifetime'] ?? ini_get('session.gc_maxlifetime');
+        $this->ttl = (int) ($options['gc_maxlifetime'] ?? ini_get('session.gc_maxlifetime'));
         session_name($options['name'] ?? ini_get('session.name'));
         session_set_cookie_params(
-            (int) $options['cookie_lifetime'] ?? ini_get('session.cookie_lifetime'),
+            (int) ($options['cookie_lifetime'] ?? ini_get('session.cookie_lifetime')),
             $options['cookie_path'] ?? ini_get('session.cookie_path'),
             $options['cookie_domain'] ?? ini_get('session.cookie_domain'),
-            (bool) $options['cookie_secure'] ?? ini_get('session.cookie_secure'),
-            (bool) $options['cookie_httponly'] ?? ini_get('session.cookie_httponly')
+            (bool) ($options['cookie_secure'] ?? ini_get('session.cookie_secure')),
+            (bool) ($options['cookie_httponly'] ?? ini_get('session.cookie_httponly'))
         );
     }
 
