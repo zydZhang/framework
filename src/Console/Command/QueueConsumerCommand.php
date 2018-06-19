@@ -53,7 +53,7 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
     /**
      * @var array
      */
-    private $workers;
+    private $workers = [];
 
     /**
      * @var InputInterface
@@ -101,8 +101,8 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
         if ($input->hasParameterOption(['--daemonize', '-d'], true)) {
             \swoole_process::daemon();
         }
-        $this->createProcess();
         $this->waitProcess();
+        $this->createProcess();
     }
 
     private function createProcess(): void
@@ -250,10 +250,18 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
             }
         };
         $process->setAtomic($this->atomic);
-        $this->workers[$index] = $process->start();
         swoole_event_add($process->pipe, function ($pipe) use ($process): void {
             $this->output->writeln($process->read());
         });
+        $pid = $process->start();
+        if (false === $pid) {
+            $errorNo = swoole_errno();
+            $errorStr = swoole_strerror($errorNo);
+            $this->di->getShared('logger')->error("swoole error($errorNo) $errorStr");
+            $this->createConsumerProcess($index);
+        } else {
+            $this->workers[$index] = $pid;
+        }
     }
 
     private function waitProcess(): void

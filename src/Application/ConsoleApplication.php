@@ -71,6 +71,11 @@ class ConsoleApplication
 
     public function handle()
     {
+        /* @var \Monolog\Logger $logger */
+        $logger = $this->di->getShared('logger');
+        $dingding = $this->di->getShared('config')->dingding;
+        $logger->pushHandler(new \Shadon\Logger\Handler\DingDingHandler($dingding));
+        \Monolog\ErrorHandler::register($logger);
         // register system commands
         $this->registerBaseCommands([
             FlushCacheCommand::class,
