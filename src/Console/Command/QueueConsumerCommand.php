@@ -18,6 +18,7 @@ use Phalcon\Events\EventsAwareInterface;
 use Shadon\Di\InjectionAwareInterface;
 use Shadon\Di\Traits\InjectableTrait;
 use Shadon\Process\Process;
+use Shadon\Queue\Adapter\Consumer;
 use Shadon\Utils\DateTime;
 use Swoole\Atomic;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
@@ -124,7 +125,7 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
             $exchange = $this->input->getArgument('exchange');
             $routingKey = $this->input->getOption('routingKey');
             $queue = $this->input->getOption('queue');
-
+            /* @var \Shadon\Queue\Adapter\Consumer $consumer */
             $consumer = $worker->createConsumer($exchange, $routingKey, $queue);
             $processName = $consumer->getQueueOptions()['name'].'#'.$index;
             $worker->name($processName);
@@ -139,7 +140,7 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                 \PhpAmqpLib\Exception\AMQPTimeoutException $e
                 ) {
                     $connection = $consumer->getConnection();
-                    if ($connection->isConnected()) {
+                    if ($connection instanceof Consumer && $connection->isConnected()) {
                         try {
                             $connection->close();
                         } catch (\PhpAmqpLib\Exception\AMQPRuntimeException $e) {
@@ -162,7 +163,6 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                 }
             }
         }) extends Process{
-
             /**
              * @var \Phalcon\Di
              */
@@ -248,7 +248,6 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                 $usedTime = microtime(true) - $start;
                 $this->write(sprintf('%s %d %d "%s::%s()" "%s" %s', DateTime::formatTime(), $pid, $num, $msg['class'], $msg['method'], json_encode($return), $usedTime));
             }
-
         };
         $process->setAtomic($this->atomic);
         $this->workers[$index] = $process->start();
@@ -260,8 +259,7 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
     private function waitProcess(): void
     {
         \swoole_process::signal(SIGCHLD, function ($signo): void {
-            $status = \swoole_process::wait();
-            if ($status) {
+            while ($status = \swoole_process::wait(false)) {
                 $index = array_search($status['pid'], $this->workers);
                 $this->createConsumerProcess($index);
             }
