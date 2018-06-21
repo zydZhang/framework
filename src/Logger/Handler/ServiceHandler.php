@@ -62,7 +62,7 @@ class ServiceHandler extends AbstractProcessingHandler implements InjectionAware
         }
         /* @var \Phalcon\Http\Response $response */
         $response = $this->getDI()->getResponse();
-        $response = $response->setStatusCode(500, $record['level_name']);
+        $response = $response->setStatusCode(555, $record['level_name']);
         $response = $response->setJsonContent($content);
         if (ApplicationConst::hasRuntimeEnv(ApplicationConst::RUNTIME_ENV_FPM)) {
             $response->send();
