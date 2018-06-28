@@ -57,7 +57,7 @@ class ServiceHandler extends AbstractProcessingHandler implements InjectionAware
             case ApplicationConst::ENV_TEST:
             case ApplicationConst::ENV_DEVELOPMENT:
                 $content['context'] = $record['context'];
-                $content['error'] =  $record['message'];
+                $content['error'] = $record['message'];
                 break;
         }
         /* @var \Phalcon\Http\Response $response */
