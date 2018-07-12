@@ -41,7 +41,8 @@ class ConsoleDi extends FactoryDefault
         $this->_services['eventDispatcher'] = new Service('eventDispatcher', EventDispatcher::class, true);
         $this->_services['logger'] = new Service('logger', function () {
             $channel = APP['appname'].'.'.APP['env'];
-            $channel .= '.'.$this->getShared('dispatcher')->getModuleName();
+            $moduleName = $this->getShared('dispatcher')->getModuleName();
+            $channel .= '.'.($moduleName ? $moduleName : 'api');
             $logger = new Logger($channel);
             $config = $this->getShared('config');
             $stream = realpath($config['logPath']).'/app.'.date('Ymd').'.txt';

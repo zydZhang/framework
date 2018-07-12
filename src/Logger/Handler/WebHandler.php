@@ -62,7 +62,7 @@ class WebHandler extends AbstractProcessingHandler implements InjectionAwareInte
         }
         /* @var \Phalcon\Http\Response $response */
         $response = $this->getDI()->getResponse();
-        $response = $response->setStatusCode(500, $record['level_name']);
+        $response = $response->setStatusCode(555, $record['level_name']);
         $response = $response->setContent($content['error']);
         // TODO view
         $response->send();

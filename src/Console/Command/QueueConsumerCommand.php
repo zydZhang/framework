@@ -18,6 +18,7 @@ use Phalcon\Events\EventsAwareInterface;
 use Shadon\Di\InjectionAwareInterface;
 use Shadon\Di\Traits\InjectableTrait;
 use Shadon\Process\Process;
+use Shadon\Queue\Adapter\Consumer;
 use Shadon\Utils\DateTime;
 use Swoole\Atomic;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
@@ -52,7 +53,7 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
     /**
      * @var array
      */
-    private $workers;
+    private $workers = [];
 
     /**
      * @var InputInterface
@@ -100,8 +101,8 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
         if ($input->hasParameterOption(['--daemonize', '-d'], true)) {
             \swoole_process::daemon();
         }
-        $this->createProcess();
         $this->waitProcess();
+        $this->createProcess();
     }
 
     private function createProcess(): void
@@ -124,7 +125,7 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
             $exchange = $this->input->getArgument('exchange');
             $routingKey = $this->input->getOption('routingKey');
             $queue = $this->input->getOption('queue');
-
+            /* @var \Shadon\Queue\Adapter\Consumer $consumer */
             $consumer = $worker->createConsumer($exchange, $routingKey, $queue);
             $processName = $consumer->getQueueOptions()['name'].'#'.$index;
             $worker->name($processName);
@@ -139,7 +140,7 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                 \PhpAmqpLib\Exception\AMQPTimeoutException $e
                 ) {
                     $connection = $consumer->getConnection();
-                    if ($connection->isConnected()) {
+                    if ($connection instanceof Consumer && $connection->isConnected()) {
                         try {
                             $connection->close();
                         } catch (\PhpAmqpLib\Exception\AMQPRuntimeException $e) {
@@ -148,13 +149,23 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                     $worker->write(sprintf('%s %d -1 "%s"', DateTime::formatTime(), $pid, $e->getMessage()));
                     sleep(random_int(1, 10));
                     $consumer = $worker->createConsumer($exchange, $routingKey, $queue);
-                } catch (\Throwable | \Exception $e) {
-                    $worker->write(sprintf('%s %d -1 "%s"', DateTime::formatTime(), $pid, $e->getMessage()));
-                    $this->di->getShared('logger')->info($e->getMessage());
+                } catch (\Throwable $exception) {
+                    $worker->write(sprintf('%s %d -1 "%s"', DateTime::formatTime(), $pid, $exception->getMessage()));
+                    $this->di->getShared('logger')->error('UncaughtException', [
+                        'file'  => $exception->getFile(),
+                        'line'  => $exception->getLine(),
+                        'class' => get_class($exception),
+                        'args'  => [
+                            $exception->getMessage(),
+                        ],
+                    ]);
                     break;
                 }
             }
         }) extends Process{
+            /**
+             * @var \Phalcon\Di
+             */
             private $di;
 
             /**
@@ -212,7 +223,18 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
              */
             private function consumerCallback(array $msg): void
             {
-                $object = $this->di->getShared($msg['class']);
+                try {
+                    $object = $this->di->getShared($msg['class']);
+                } catch (\Phalcon\Di\Exception $e) {
+                    $this->di->getShared('logger')->info($e->getMessage(), $msg);
+
+                    return;
+                }
+                if (!method_exists($object, $msg['method'])) {
+                    $this->di->getShared('logger')->info('Error method', $msg);
+
+                    return;
+                }
                 $pid = getmypid();
                 $num = $this->atomic->add(1);
                 $this->write(sprintf('%s %d %d "%s::%s()" start', DateTime::formatTime(), $pid, $num, $msg['class'], $msg['method']));
@@ -226,20 +248,26 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                 $usedTime = microtime(true) - $start;
                 $this->write(sprintf('%s %d %d "%s::%s()" "%s" %s', DateTime::formatTime(), $pid, $num, $msg['class'], $msg['method'], json_encode($return), $usedTime));
             }
-
         };
         $process->setAtomic($this->atomic);
-        $this->workers[$index] = $process->start();
         swoole_event_add($process->pipe, function ($pipe) use ($process): void {
             $this->output->writeln($process->read());
         });
+        $pid = $process->start();
+        if (false === $pid) {
+            $errorNo = swoole_errno();
+            $errorStr = swoole_strerror($errorNo);
+            $this->di->getShared('logger')->error("swoole error($errorNo) $errorStr");
+            $this->createConsumerProcess($index);
+        } else {
+            $this->workers[$index] = $pid;
+        }
     }
 
     private function waitProcess(): void
     {
         \swoole_process::signal(SIGCHLD, function ($signo): void {
-            $status = \swoole_process::wait();
-            if ($status) {
+            while ($status = \swoole_process::wait(false)) {
                 $index = array_search($status['pid'], $this->workers);
                 $this->createConsumerProcess($index);
             }

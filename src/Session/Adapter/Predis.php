@@ -24,7 +24,6 @@ class Predis extends Adapter
 
     public function __construct(array $options = [])
     {
-        $lifetime;
         if ($lifetime = $options['lifetime'] ?? '') {
             $this->_lifetime = $lifetime;
         }
@@ -99,8 +98,6 @@ class Predis extends Adapter
      */
     public function destroy($sessionId = null): bool
     {
-        $id;
-
         if (null === $sessionId) {
             $id = $this->getId();
         } else {

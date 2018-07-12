@@ -134,9 +134,14 @@ class Handler extends Injectable
     {
         $errorLevelMap = $this->defaultErrorLevelMap();
         $level = $errorLevelMap[$e->getCode()] ?? LogLevel::ERROR;
+        $message = $e->getMessage();
+        $encode = mb_detect_encoding($message, 'UTF-8,GBK');
+        if ('UTF-8' != $encode) {
+            $message = mb_convert_encoding($message, 'UTF-8', $encode);
+        }
         $this->getLogger()->log($level, 'Uncaught Exception: '.get_class($e), [
             'code'          => $e->getCode(),
-            'message'       => utf8_encode($e->getMessage()),
+            'message'       => $message,
             'class'         => get_class($e),
             'file'          => $e->getFile(),
             'line'          => $e->getLine(),
