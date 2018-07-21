@@ -16,6 +16,7 @@ namespace Shadon\Error;
 use ErrorException;
 use Monolog\Handler\AbstractHandler;
 use Monolog\Logger;
+use Monolog\Processor\WebProcessor;
 use Phalcon\Di\Injectable;
 use Psr\Log\LogLevel;
 use Shadon\Application\ApplicationConst;
@@ -90,6 +91,7 @@ class Handler extends Injectable
             $config = $di->getShared('config');
             $this->logger->pushHandler(new DingDingHandler($config['dingding']));
             $this->logger->pushHandler($di->getShared('errorViewHandler'));
+            $this->logger->pushProcessor(new WebProcessor(null, ['url']));
         }
 
         return $this->logger;
