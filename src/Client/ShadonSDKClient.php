@@ -182,7 +182,7 @@ class ShadonSDKClient
         $token = $this->accessToken->getToken();
         $request = $this->provider->getAuthenticatedRequest('POST', $this->serviceMap[$serviceName].'/'.$uri, $token, $options);
         $promise = $this->provider->getHttpClient()->sendAsync($request, [
-            'timeout' => 5,
+            'timeout' => 10, // TODO config
             'handler' => $this->handlerStack,
             'debug'   => $this->debug,
         ]);
