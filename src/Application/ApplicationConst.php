@@ -21,32 +21,32 @@ namespace Shadon\Application;
 final class ApplicationConst
 {
     /**
-     * prod 线上.
+     * prod 生产环境.
      *
      * @var string
      */
     public const ENV_PRODUCTION = 'prod';
 
     /**
-     * local 待上线
+     * staging 预发布环境.
      *
      * @var string
      */
-    public const ENV_STAGING = 'local';
+    public const ENV_STAGING = 'staging';
 
     /**
-     * test 测试.
+     * test 测试环境.
      *
      * @var string
      */
     public const ENV_TEST = 'test';
 
     /**
-     * dev本地.
+     * develop 本地开发环境.
      *
      * @var string
      */
-    public const ENV_DEVELOPMENT = 'dev';
+    public const ENV_DEVELOPMENT = 'develop';
 
     /**
      * app name.
