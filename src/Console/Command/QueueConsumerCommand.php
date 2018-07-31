@@ -15,6 +15,7 @@ namespace Shadon\Console\Command;
 
 use InvalidArgumentException;
 use Phalcon\Events\EventsAwareInterface;
+use PhpAmqpLib\Connection\AbstractConnection;
 use Shadon\Di\InjectionAwareInterface;
 use Shadon\Di\Traits\InjectableTrait;
 use Shadon\Process\Process;
@@ -140,23 +141,23 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                 \PhpAmqpLib\Exception\AMQPTimeoutException $e
                 ) {
                     $connection = $consumer->getConnection();
-                    if ($connection instanceof Consumer && $connection->isConnected()) {
+                    if ($connection instanceof AbstractConnection && $connection->isConnected()) {
                         try {
                             $connection->close();
                         } catch (\PhpAmqpLib\Exception\AMQPRuntimeException $e) {
                         }
                     }
-                    $worker->write(sprintf('%s %d -1 "%s"', DateTime::formatTime(), $pid, $e->getMessage()));
+                    $worker->write(sprintf('%s %d -1 "%s line %s %s"', DateTime::formatTime(), $pid, get_class($e), __LINE__, $e->getMessage()));
                     sleep(random_int(1, 10));
                     $consumer = $worker->createConsumer($exchange, $routingKey, $queue);
-                } catch (\Throwable $exception) {
-                    $worker->write(sprintf('%s %d -1 "%s"', DateTime::formatTime(), $pid, $exception->getMessage()));
+                } catch (\Throwable $e) {
+                    $worker->write(sprintf('%s %d -1 "%s line %s %s"', DateTime::formatTime(), $pid, get_class($e), __LINE__, $e->getMessage()));
                     $this->di->getShared('logger')->error('UncaughtException', [
-                        'file'  => $exception->getFile(),
-                        'line'  => $exception->getLine(),
-                        'class' => get_class($exception),
+                        'file'  => $e->getFile(),
+                        'line'  => $e->getLine(),
+                        'class' => get_class($e),
                         'args'  => [
-                            $exception->getMessage(),
+                            $e->getMessage(),
                         ],
                     ]);
                     break;
