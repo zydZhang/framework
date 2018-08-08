@@ -118,6 +118,7 @@ class Handler extends Injectable
         if (!($code & error_reporting())) {
             return;
         }
+
         throw new ErrorException($message, 0, $code, $file, $line);
     }
 
