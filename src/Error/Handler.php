@@ -118,17 +118,6 @@ class Handler extends Injectable
         if (!($code & error_reporting())) {
             return;
         }
-        if (!in_array($code, self::FATAL_ERRORS, true)) {
-            $errorLevelMap = $this->defaultErrorLevelMap();
-            $level = $errorLevelMap[$code] ?? LogLevel::CRITICAL;
-            $this->getLogger()->log($level, self::codeToString($code).': '.$message, [
-                'code'    => $code,
-                'message' => $message,
-                'file'    => $file,
-                'line'    => $line,
-            ]);
-        }
-
         throw new ErrorException($message, 0, $code, $file, $line);
     }
 
