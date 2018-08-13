@@ -47,7 +47,7 @@ class ServiceDi extends FactoryDefault
             $logger->pushHandler(new StreamHandler($stream));
 
             return $logger;
-        });
+        }, true);
         $this->_services['modelsManager'] = new Service('modelsManager', ModelsManager::class, true);
         $this->_services['request'] = new Service('request', ServiceRequest::class, true);
         $this->_services['response'] = new Service('response', ServiceResponse::class, true);
