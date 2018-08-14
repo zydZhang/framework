@@ -126,7 +126,7 @@ class HttpServerListener
             } catch (RequestException $e) {
                 $response = $e->getResponse();
             } catch (\Exception $e) {
-                $response->setStatusCode(555);
+                $response->setStatusCode(500);
                 $response->setJsonContent(['error' => $e->getMessage()]);
             }
         } else {
@@ -147,7 +147,7 @@ class HttpServerListener
             } catch (RequestException $e) {
                 $response = $e->getResponse();
             } catch (Exception $e) {
-                $response->setStatusCode(555);
+                $response->setStatusCode(500);
                 $response->setJsonContent(['error' => $e->getMessage(), 'returnType' => get_class($e)]);
             }
         }

@@ -106,7 +106,7 @@ class TcpServerListner
         try {
             $controller = $dispatcher->dispatch();
         } catch (Exception $e) {
-            $response->setStatusCode(555);
+            $response->setStatusCode(500);
             $response->setJsonContent(['error' => $e->getMessage(), 'returnType' => get_class($e)]);
         }
 
