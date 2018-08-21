@@ -26,6 +26,7 @@ class PhalconServiceResponse extends HttpResponse
         parent::__construct($content, $code, $status);
         $this->setHeader('Access-Control-Allow-Origin', '*');
         $this->setHeader('Server', ApplicationConst::APP_NAME.'/'.ApplicationConst::APP_VERSION);
+        $this->setStatusCode(200);
     }
 
     /**
