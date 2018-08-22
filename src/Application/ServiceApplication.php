@@ -132,7 +132,7 @@ class ServiceApplication
             ]);
         }
         if (isset($e)) {
-            $this->di->getShared('eventsManager')->fire("application:beforeSendResponse", $this->application, $response);
+            $this->di->getShared('eventsManager')->fire('application:beforeSendResponse', $this->application, $response);
         }
 
         return $response;
