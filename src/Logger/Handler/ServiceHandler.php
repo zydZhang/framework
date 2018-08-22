@@ -65,6 +65,11 @@ class ServiceHandler extends AbstractProcessingHandler implements InjectionAware
         $response = $response->setStatusCode(500, $record['level_name']);
         $response = $response->setJsonContent($content);
         if (ApplicationConst::hasRuntimeEnv(ApplicationConst::RUNTIME_ENV_FPM)) {
+            $this->getDI()->getShared('eventsManager')->fire(
+                "application:beforeSendResponse", 
+                $this->getDI()->getShared('application'), 
+                $response
+            );
             $response->send();
         }
     }

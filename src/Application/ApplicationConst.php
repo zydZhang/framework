@@ -60,7 +60,7 @@ final class ApplicationConst
      *
      * @var string
      */
-    public const APP_VERSION = '1.0';
+    public const APP_VERSION = '0.2.4';
 
     /**
      * fpm runtime environment.

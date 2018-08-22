@@ -131,6 +131,9 @@ class ServiceApplication
                 'hint'    => $e->getHint(),
             ]);
         }
+        if (isset($e)) {
+            $this->di->getShared('eventsManager')->fire("application:beforeSendResponse", $this->application, $response);
+        }
 
         return $response;
     }
