@@ -202,6 +202,11 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                 /* @var \Shadon\Queue\Adapter\Consumer $consumer */
                 $queueFactory = $this->di->get('queueFactory');
                 $consumer = $queueFactory->createConsumer();
+                $consumer->setQos([
+                    'prefetch_size' => 0,
+                    'prefetch_count' => 1,
+                    'global' => false,
+                ]);
                 $consumer->setExchangeOptions(['name' => $exchange, 'type' => 'topic']);
                 $consumer->setRoutingKey($routingKey);
                 $consumer->setQueueOptions(['name' => $exchange.'.'.$routingKey.'.'.$queue]);
