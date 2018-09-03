@@ -90,7 +90,7 @@ class ServiceDispatcher extends Dispatcher
         }
         ksort($routeParams);
         $requiredParametersNumber = $classMethod->getNumberOfRequiredParameters();
-        $actualParametersNumber = count($routeParams);
+        $actualParametersNumber = \count($routeParams);
         if ($actualParametersNumber < $requiredParametersNumber) {
             $this->throwInvalidArgumentException(
                 sprintf('Too few arguments, %d passed and at least %d expected', $actualParametersNumber, $requiredParametersNumber)
@@ -155,8 +155,8 @@ class ServiceDispatcher extends Dispatcher
             // 校验参数
             if (array_key_exists($position, $routeParams)) {
                 if (!$checkedParameter) {
-                    if (in_array($expectedType, ['bool', 'int', 'float', 'string', 'array'])) {
-                        if (is_array($routeParams[$position]) && 'array' != $expectedType) {
+                    if (\in_array($expectedType, ['bool', 'int', 'float', 'string', 'array'])) {
+                        if (\is_array($routeParams[$position]) && 'array' != $expectedType) {
                             $functionOfThrowInvalidArgumentException($position, $expectedType, 'array');
                         }
                         if ('/*_EMPTY_ARRAY_*/' == $routeParams[$position]) {
@@ -165,7 +165,7 @@ class ServiceDispatcher extends Dispatcher
                             settype($routeParams[$position], $expectedType);
                         }
                     } elseif (!empty($expectedType) && !is_a($routeParams[$position], $expectedType)) {
-                        $functionOfThrowInvalidArgumentException($position, $expectedType, gettype($routeParams[$position]));
+                        $functionOfThrowInvalidArgumentException($position, $expectedType, \gettype($routeParams[$position]));
                     }
                 }
             } else {

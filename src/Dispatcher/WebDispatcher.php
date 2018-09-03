@@ -41,10 +41,10 @@ class WebDispatcher extends Dispatcher
                 case Dispatcher::EXCEPTION_HANDLER_NOT_FOUND:
                 case Dispatcher::EXCEPTION_ACTION_NOT_FOUND:
                     $dispatcher->forward([
-                        'namespace'  => APP['appname'].'\\Controller',
-                        'controller' => 'error',
+                        'namespace'  => 'App\\Controller',
+                        'controller' => 'errorPage',
                         'action'     => 'notFound',
-                        'params'     => ['message' => $exception->getMessage()],
+                        'params'     => ['exception' => $exception],
                     ]);
 
                     return false;
@@ -52,8 +52,8 @@ class WebDispatcher extends Dispatcher
         }
 
         $dispatcher->forward([
-            'namespace'  => APP['appname'].'\\Controller',
-            'controller' => 'error',
+            'namespace'  => 'App\\Controller',
+            'controller' => 'errorPage',
             'action'     => 'whoops',
             'params'     => ['exception' => $exception],
         ]);
