@@ -62,7 +62,7 @@ class WebApplication
         } else {
             $arrayConfig['requestTime'] = microtime(true);
         }
-        define('APP', [
+        \define('APP', [
             'env'      => $appEnv,
             'key'      => $appKey,
             'timezone' => $arrayConfig['timezone'],

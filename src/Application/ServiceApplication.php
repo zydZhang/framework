@@ -67,7 +67,7 @@ class ServiceApplication
         } else {
             $arrayConfig['requestTime'] = microtime(true);
         }
-        define('APP', [
+        \define('APP', [
             'env'      => $appEnv,
             'key'      => $appKey,
             'timezone' => $arrayConfig['timezone'],
@@ -114,8 +114,8 @@ class ServiceApplication
         try {
             $this->application->handle($uri);
         } catch (LogicException $e) {
-            $response->setHeader('returnType', get_class($e));
-            $content = ['error' => $e->getMessage(), 'returnType' => get_class($e)];
+            $response->setHeader('returnType', \get_class($e));
+            $content = ['error' => $e->getMessage(), 'returnType' => \get_class($e)];
             if (method_exists($e, 'getContext')) {
                 $content['context'] = $e->getContext();
             }
@@ -132,7 +132,7 @@ class ServiceApplication
             ]);
         }
         if (isset($e)) {
-            $this->di->getShared('eventsManager')->fire("application:beforeSendResponse", $this->application, $response);
+            $this->di->getShared('eventsManager')->fire('application:beforeSendResponse', $this->application, $response);
         }
 
         return $response;
@@ -153,20 +153,20 @@ class ServiceApplication
         $eventsManager->attach('dispatch:afterDispatchLoop', function (Event $event, Dispatcher $dispatcher): void {
             $returnedValue = $dispatcher->getReturnedValue();
             $response = $this->di->getShared('response');
-            if (is_object($returnedValue)) {
-                $response->setHeader('returnType', get_class($returnedValue));
+            if (\is_object($returnedValue)) {
+                $response->setHeader('returnType', \get_class($returnedValue));
                 if ($returnedValue instanceof \JsonSerializable) {
-                    $response->setJsonContent(['data' => $returnedValue, 'returnType' => get_class($returnedValue)]);
+                    $response->setJsonContent(['data' => $returnedValue, 'returnType' => \get_class($returnedValue)]);
                 }
-            } elseif (is_array($returnedValue)) {
+            } elseif (\is_array($returnedValue)) {
                 $response->setHeader('returnType', 'array');
                 $response->setJsonContent(['data' => $returnedValue, 'returnType' => 'array']);
             } elseif (is_scalar($returnedValue)) {
-                $response->setHeader('returnType', gettype($returnedValue));
+                $response->setHeader('returnType', \gettype($returnedValue));
                 $response->setJsonContent(
-                    ['data' => $returnedValue, 'returnType' => gettype($returnedValue)]
+                    ['data' => $returnedValue, 'returnType' => \gettype($returnedValue)]
                 );
-                if (is_string($returnedValue)) {
+                if (\is_string($returnedValue)) {
                     $dispatcher->setReturnedValue($response->getContent());
                 }
             }

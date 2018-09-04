@@ -36,11 +36,11 @@ class OperatorValidator extends Validator
     {
         $validationValue = (int) $validation->getValue($attribute);
         $operatorArr = $this->getOption('operator');
-        if (!is_array($operatorArr) || 2 > count($operatorArr)) {
+        if (!\is_array($operatorArr) || 2 > \count($operatorArr)) {
             throw new Exception('operator type error');
         }
 
-        $isMultiple = count($operatorArr) != count($operatorArr, COUNT_RECURSIVE);
+        $isMultiple = \count($operatorArr) != \count($operatorArr, COUNT_RECURSIVE);
         list($operator, $value) = $isMultiple && isset($operatorArr[$attribute]) ? $operatorArr[$attribute] : $operatorArr;
         $value = (int) $value;
         $validationResult = true;

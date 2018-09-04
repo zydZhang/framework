@@ -50,10 +50,10 @@ abstract class AbstractAdapter extends Adapter implements AdapterInterface
      */
     public function __construct($options = null)
     {
-        if (!is_array($options) || !isset($options['lifetime'])) {
+        if (!\is_array($options) || !isset($options['lifetime'])) {
             $options['lifetime'] = self::$defaultLifetime;
         }
-        if (!is_array($options) || !isset($options['prefix'])) {
+        if (!\is_array($options) || !isset($options['prefix'])) {
             $options['prefix'] = self::$defaultPrefix;
         }
         $this->options = $options;

@@ -83,7 +83,7 @@ class Database extends Adapter
      */
     public function addRole($role, $accessInherits = null, string $defaultPermission = '')
     {
-        is_string($role) && $role = new Role($role, ucwords($role).' Role');
+        \is_string($role) && $role = new Role($role, ucwords($role).' Role');
 
         if (!$role instanceof RoleInterface) {
             throw new Exception('Role must be either an string or implement RoleInterface');
@@ -94,7 +94,7 @@ class Database extends Adapter
             $roleId = $this->commonInsert($this->tables['role'], ['role_name' => $role->getName(), 'created_time' => time(), 'default_permission' => $defaultPermission]);
         }
 
-        if (!empty($accessInherits) && is_array($accessInherits)) {
+        if (!empty($accessInherits) && \is_array($accessInherits)) {
             !isset($roleId) && $roleId = $this->getRoleId($role->getName());
             $data = [];
             foreach ($accessInherits as $permId) {
@@ -434,7 +434,7 @@ class Database extends Adapter
      */
     public function isAllow(string $clientKey, string $scope): bool
     {
-        if (empty($clientKey) || empty($scope) || empty($scopeList = explode('/', $scope)) || 3 != count($scopeList)) {
+        if (empty($clientKey) || empty($scope) || empty($scopeList = explode('/', $scope)) || 3 != \count($scopeList)) {
             return false;
         }
 
@@ -449,7 +449,7 @@ class Database extends Adapter
         if (isset($userAccess['default_permission']) && !empty($userAccess['default_permission'])) {
             foreach ($userAccess['default_permission'] as $default) {
                 $defaultPermission = explode('/', $default);
-                if (empty($defaultPermission) || 3 !== count($defaultPermission)) {
+                if (empty($defaultPermission) || 3 !== \count($defaultPermission)) {
                     continue;
                 }
 
@@ -466,7 +466,7 @@ class Database extends Adapter
             }
         }
 
-        return isset($userAccess['permission_list']) && in_array($scope, $userAccess['permission_list'], true) ? true : false;
+        return isset($userAccess['permission_list']) && \in_array($scope, $userAccess['permission_list'], true) ? true : false;
     }
 
     /**
@@ -480,7 +480,7 @@ class Database extends Adapter
     {
         $userAccess = [];
         $roles = $this->getClientRole($clientKey);
-        if (!empty($roles) && is_array($roles)) {
+        if (!empty($roles) && \is_array($roles)) {
             $defaultPermission = $this->getRoleDefaultPermission($roles);
             $condition = implode("','", array_map('addslashes', $roles));
             $sth = $this->db->query("SELECT DISTINCT p.hash_name FROM {$this->tables['permission']} p INNER JOIN {$this->tables['rolePermission']} rp ON p.permission_id = rp.permission_id WHERE rp.role_id IN ('{$condition}')");

@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Shadon\Mvc;
 
-use Phalcon\Config;
 use Phalcon\DiInterface as Di;
 use Phalcon\Mvc\ModuleDefinitionInterface;
 use Shadon\Di\Injectable;

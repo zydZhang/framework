@@ -208,7 +208,7 @@ class ShadonSDKClient
                     'name'     => $p,
                     'contents' => $value->getStream(),
                 ];
-            } elseif (is_array($value)) {
+            } elseif (\is_array($value)) {
                 if (empty($value)) {
                     $multipart[] = [
                         'name'     => $p,

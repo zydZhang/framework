@@ -91,7 +91,7 @@ class CacheAnnotationListener extends AbstractListener
      */
     public function afterDispatchLoop(Event $event, Dispatcher $dispatcher): void
     {
-        if (false === $this->hited && is_object($this->annotationsColletion) && $this->annotationsColletion->has(self::ANNOTATIONS_NAME)) {
+        if (false === $this->hited && \is_object($this->annotationsColletion) && $this->annotationsColletion->has(self::ANNOTATIONS_NAME)) {
             $annotation = $this->annotationsColletion->get(self::ANNOTATIONS_NAME);
             $lifetime = $annotation->getNamedParameter('lifetime') ?? self::DEFAULT_LIFETIME;
             $lifetime = self::DEFAULT_LIFETIME < $lifetime ? $lifetime : self::DEFAULT_LIFETIME;

@@ -28,7 +28,7 @@ class Predis extends Redis
 
     public function __construct(FrontendInterface $frontend, $options = null)
     {
-        $this->_prefix = self::FRONTEND_PREFIX[get_class($frontend)];
+        $this->_prefix = self::FRONTEND_PREFIX[\get_class($frontend)];
         parent::__construct($frontend, $options);
     }
 

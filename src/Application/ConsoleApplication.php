@@ -56,7 +56,7 @@ class ConsoleApplication
         $appKey = getenv('APPLICATION_KEY');
         $arrayConfig = require 'var/config/config.'.$appEnv.'.php';
         // initialize constants and config
-        define('APP', [
+        \define('APP', [
             'env'      => $appEnv,
             'key'      => $appKey,
             'timezone' => $arrayConfig['timezone'],

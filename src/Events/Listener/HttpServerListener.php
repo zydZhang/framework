@@ -20,7 +20,6 @@ use Shadon\Error\Handler as ErrorHandler;
 use Shadon\Exception\RequestException;
 use Shadon\Http\SwoolePhalconRequest;
 use Shadon\Network\HttpServer;
-use Swoole\Server;
 use swoole_http_request as SwooleHttpRequest;
 use swoole_http_response as SwooleHttpResponse;
 
@@ -46,10 +45,10 @@ class HttpServerListener
         $processName = $workerId >= $server->setting['worker_num'] ? 'task#'.$workerId : 'event#'.$workerId;
         $server->setProcessName($processName);
         // 清除apc或op缓存
-        if (function_exists('apc_clear_cache')) {
+        if (\function_exists('apc_clear_cache')) {
             apc_clear_cache();
         }
-        if (function_exists('opcache_reset')) {
+        if (\function_exists('opcache_reset')) {
             opcache_reset();
         }
         // 注册路由
@@ -148,7 +147,7 @@ class HttpServerListener
                 $response = $e->getResponse();
             } catch (Exception $e) {
                 $response->setStatusCode(500);
-                $response->setJsonContent(['error' => $e->getMessage(), 'returnType' => get_class($e)]);
+                $response->setJsonContent(['error' => $e->getMessage(), 'returnType' => \get_class($e)]);
             }
         }
         // swollow output
@@ -181,7 +180,7 @@ class HttpServerListener
     public function onTask(HttpServer $server, int $taskId, int $workId, $data)
     {
         if (isset($data['class']) && method_exists($data['class'], $data['method'])) {
-            return call_user_func_array([new $data['class'](), $data['method']], $data['params']);
+            return \call_user_func_array([new $data['class'](), $data['method']], $data['params']);
         }
     }
 
