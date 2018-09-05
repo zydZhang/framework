@@ -15,10 +15,11 @@ namespace Shadon\Logger\Handler;
 
 use Monolog\Handler\AbstractProcessingHandler;
 use Phalcon\Di\InjectionAwareInterface;
-use Shadon\Application\ApplicationConst;
 
 /**
  * @author hehui<hehui@eelly.net>
+ *
+ * @deprecated
  */
 class WebHandler extends AbstractProcessingHandler implements InjectionAwareInterface
 {
@@ -51,20 +52,8 @@ class WebHandler extends AbstractProcessingHandler implements InjectionAwareInte
 
     protected function write(array $record): void
     {
-        $content['error'] = 'server error';
-        $content['returnType'] = $record['context']['class'];
-        switch (APP['env']) {
-            case ApplicationConst::ENV_TEST:
-            case ApplicationConst::ENV_DEVELOPMENT:
-                $content['context'] = $record['context'];
-                $content['error'] = $record['message'];
-                break;
-        }
         /* @var \Phalcon\Http\Response $response */
         $response = $this->getDI()->getResponse();
-        $response = $response->setStatusCode(500, $record['level_name']);
-        $response = $response->setContent($content['error']);
-        // TODO view
         $response->send();
     }
 }
