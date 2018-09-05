@@ -66,11 +66,13 @@ class Handlebars extends Engine implements EngineInterface
             $params['content'] = $this->_view->getContent();
         }
         $content = $this->handlebars->render($path, $params);
+        if ($mustClean) {
+            ob_clean();
+        }
+        echo $content;
 
         if ($mustClean) {
-            $this->_view->setContent($content);
-        } else {
-            echo $content;
+            $this->_view->setContent(ob_get_contents());
         }
     }
 }
