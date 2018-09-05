@@ -19,6 +19,7 @@ use Shadon\Di\WebDi;
 use Shadon\Error\Handler as ErrorHandler;
 use Shadon\Mvc\Application;
 use Shadon\Session\Factory;
+use Symfony\Component\Debug\ExceptionHandler;
 
 /**
  * Class WebApplication.
@@ -100,14 +101,25 @@ class WebApplication
             ->initEventsManager()
             ->registerServices();
         $this->application->useImplicitView(true);
-        $response = $this->application->handle($uri);
+        /* @var \Phalcon\Http\Response $response */
+        $response = $this->di->getShared('response');
+        try {
+            $this->application->handle($uri);
+        } catch (\Throwable $e) {
+            $response->setStatusCode(500, 'Server Error');
+            $exceptionHandler = new ExceptionHandler();
+            $response->setContent($exceptionHandler->getHtml($e));
+            $response->send();
+            throw $e;
+        }
 
         return $response;
     }
 
     public function run(): void
     {
-        $this->handle()->send();
+        $response = $this->handle();
+        $response->send();
     }
 
     /**
