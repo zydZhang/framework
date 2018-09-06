@@ -124,11 +124,13 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
 
     /**
      * Registers view service.
+     *
+     * @param int $renderLevel render level
      */
-    protected function registerViewService(): void
+    protected function registerViewService(int $renderLevel = \Phalcon\Mvc\View::LEVEL_ACTION_VIEW): void
     {
         $moduleName = lcfirst(static::NAMESPACE);
-        $this->getDI()->setShared('view', function () use ($moduleName) {
+        $this->getDI()->setShared('view', function () use ($moduleName, $renderLevel) {
             $view = new \Phalcon\Mvc\View();
             $view->setViewsDir(['var/views', 'var/views/'.$moduleName]);
             $view->registerEngines(
@@ -137,6 +139,7 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
                     '.hbs'      => 'Shadon\Mvc\View\Engine\Handlebars',
                 ]
             );
+            $view->setRenderLevel($renderLevel);
             $view->setEventsManager($this->getEventsManager());
             $this->getEventsManager()->attach('view:notFoundView', function (Event $event, $view, $viewPath): void {
                 throw new \Phalcon\Mvc\View\Exception("View '".$viewPath."' was not found in any of the views directory");
