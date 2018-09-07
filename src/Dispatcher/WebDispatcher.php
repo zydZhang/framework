@@ -50,14 +50,13 @@ class WebDispatcher extends Dispatcher
                     return false;
             }
         }
-
-        $dispatcher->forward([
-            'namespace'  => 'App\\Controller',
-            'controller' => 'errorPage',
-            'action'     => 'whoops',
-            'params'     => ['exception' => $exception],
-        ]);
-
-        return false;
+        if ($exception instanceof \LogicException) {
+            $dispatcher->forward([
+                'namespace'  => 'App\\Controller',
+                'controller' => 'errorPage',
+                'action'     => 'whoops',
+                'params'     => ['exception' => $exception],
+            ]);
+        }
     }
 }

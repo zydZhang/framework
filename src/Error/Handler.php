@@ -90,7 +90,7 @@ class Handler extends Injectable
             $this->logger = $di->get('logger');
             $config = $di->getShared('config');
             $this->logger->pushHandler(new DingDingHandler($config['dingding']));
-            $this->logger->pushHandler($di->getShared('errorViewHandler'));
+            $di->has('errorViewHandler') && $this->logger->pushHandler($di->getShared('errorViewHandler'));
             $this->logger->pushProcessor(new WebProcessor(null, ['url']));
         }
 
