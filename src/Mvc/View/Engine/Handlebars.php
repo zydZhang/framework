@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Shadon\Mvc\View\Engine;
 
+use Handlebars\Cache\Disk;
 use Handlebars\Loader\FilesystemLoader;
 use Phalcon\DiInterface;
 use Phalcon\Mvc\View;
@@ -42,6 +43,7 @@ class Handlebars extends Engine implements EngineInterface
         $this->handlebars = new \Handlebars\Handlebars([
             'loader'          => new FilesystemLoader('', ['extension' => 'hbs']),
             'partials_loader' => new FilesystemLoader($view->getViewsDir(), ['extension' => 'hbs']),
+            'cache'           => new Disk('var/cache/views', 'hbs', '.cache'),
         ]);
 
         $this->handlebars->addHelper('startInexd', new Handlebars\Helper\StartInexdHelper());
