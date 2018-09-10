@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Shadon\Di;
 
-use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Phalcon\Di\Service;

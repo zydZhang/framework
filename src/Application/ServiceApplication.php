@@ -162,9 +162,12 @@ class ServiceApplication
                 $response->setHeader('returnType', 'array');
                 $response->setJsonContent(['data' => $returnedValue, 'returnType' => 'array']);
             } elseif (is_scalar($returnedValue)) {
-                $response->setHeader('returnType', \gettype($returnedValue));
+                /* @var \ReflectionMethod $classMethod */
+                $classMethod = $dispatcher->getDispatchMethod();
+                $returnType = $classMethod->getReturnType()->getName();
+                $response->setHeader('returnType', $returnType);
                 $response->setJsonContent(
-                    ['data' => $returnedValue, 'returnType' => \gettype($returnedValue)]
+                    ['data' => $returnedValue, 'returnType' => $returnType]
                 );
                 if (\is_string($returnedValue)) {
                     $dispatcher->setReturnedValue($response->getContent());

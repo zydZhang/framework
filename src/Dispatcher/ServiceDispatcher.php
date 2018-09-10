@@ -25,6 +25,11 @@ use Shadon\Exception\RequestException;
 class ServiceDispatcher extends Dispatcher
 {
     /**
+     * @var \ReflectionMethod
+     */
+    private $dispatchMethod;
+
+    /**
      * ServiceDispatcher constructor.
      */
     public function __construct()
@@ -83,6 +88,7 @@ class ServiceDispatcher extends Dispatcher
         }
 
         $classMethod = new \ReflectionMethod($class, $method);
+        $this->dispatchMethod = $classMethod;
         $parameters = $classMethod->getParameters();
         $parametersNumber = $classMethod->getNumberOfParameters();
         if (0 != $parametersNumber) {
@@ -97,6 +103,14 @@ class ServiceDispatcher extends Dispatcher
             );
         }
         parent::setParams($routeParams);
+    }
+
+    /**
+     * @return \ReflectionMethod
+     */
+    public function getDispatchMethod()
+    {
+        return $this->dispatchMethod;
     }
 
     /**
