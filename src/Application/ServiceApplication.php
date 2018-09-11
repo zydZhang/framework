@@ -165,14 +165,17 @@ class ServiceApplication
                 /* @var \ReflectionMethod $classMethod */
                 $classMethod = $dispatcher->getDispatchMethod();
                 $returnType = $classMethod->getReturnType();
-                $returnTypeName = null === $returnType ? 'NULL' : $returnType->getName();
+                $returnTypeName = null === $returnType ? \gettype($returnedValue) : $returnType->getName();
+                \settype($returnedValue, $returnTypeName);
                 $response->setHeader('returnType', $returnTypeName);
                 $response->setJsonContent(
                     ['data' => $returnedValue, 'returnType' => $returnTypeName]
                 );
-                if (\is_string($returnedValue)) {
-                    $dispatcher->setReturnedValue($response->getContent());
-                }
+                $dispatcher->setReturnedValue($response->getContent());
+            } elseif (null === $returnedValue) {
+                $response->setJsonContent(
+                    ['data' => null, 'returnType' => 'null']
+                );
             }
         });
         $eventsManager->attach('router:afterCheckRoutes', function (Event $event, Router $router): void {
