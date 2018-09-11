@@ -164,10 +164,11 @@ class ServiceApplication
             } elseif (is_scalar($returnedValue)) {
                 /* @var \ReflectionMethod $classMethod */
                 $classMethod = $dispatcher->getDispatchMethod();
-                $returnType = $classMethod->getReturnType()->getName();
-                $response->setHeader('returnType', $returnType);
+                $returnType = $classMethod->getReturnType();
+                $returnTypeName = null === $returnType ? 'NULL' : $returnType->getName();
+                $response->setHeader('returnType', $returnTypeName);
                 $response->setJsonContent(
-                    ['data' => $returnedValue, 'returnType' => $returnType]
+                    ['data' => $returnedValue, 'returnType' => $returnTypeName]
                 );
                 if (\is_string($returnedValue)) {
                     $dispatcher->setReturnedValue($response->getContent());
