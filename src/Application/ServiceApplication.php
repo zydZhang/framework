@@ -172,6 +172,10 @@ class ServiceApplication
                     ['data' => $returnedValue, 'returnType' => $returnTypeName]
                 );
                 $dispatcher->setReturnedValue($response->getContent());
+            } elseif (null === $returnedValue && empty($response->getContent())) {
+                $response->setJsonContent(
+                    ['data' => null, 'returnType' => 'null']
+                );
             }
         });
         $eventsManager->attach('router:afterCheckRoutes', function (Event $event, Router $router): void {
