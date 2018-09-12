@@ -165,7 +165,6 @@ class ServiceDispatcher extends Dispatcher
                     $functionOfThrowInvalidArgumentException($position, $expectedType, 'null');
                 }
             }
-
             // 校验参数
             if (array_key_exists($position, $routeParams)) {
                 if (!$checkedParameter) {
@@ -173,10 +172,10 @@ class ServiceDispatcher extends Dispatcher
                         if (\is_array($routeParams[$position]) && 'array' != $expectedType) {
                             $functionOfThrowInvalidArgumentException($position, $expectedType, 'array');
                         }
-                        if ('/*_EMPTY_ARRAY_*/' == $routeParams[$position]) {
+                        if ('/*_EMPTY_ARRAY_*/' === $routeParams[$position]) {
                             $routeParams[$position] = [];
                         } else {
-                            settype($routeParams[$position], $expectedType);
+                            \settype($routeParams[$position], $expectedType);
                         }
                     } elseif (!empty($expectedType) && !is_a($routeParams[$position], $expectedType)) {
                         $functionOfThrowInvalidArgumentException($position, $expectedType, \gettype($routeParams[$position]));
