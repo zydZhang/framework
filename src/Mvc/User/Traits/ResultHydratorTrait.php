@@ -69,7 +69,7 @@ trait ResultHydratorTrait
             $hydration = new $hydrationMode();
         }
 
-        if (count($data) == count($data, COUNT_RECURSIVE)) {
+        if (\count($data) == \count($data, COUNT_RECURSIVE)) {
             foreach ($data as $key => $val) {
                 isset($columnMap[$key]['type']) && $this->convertValueType($val, $columnMap[$key]['type']);
                 $key = $columnMap[$key]['column'] ?? $key;

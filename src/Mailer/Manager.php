@@ -239,7 +239,7 @@ class Manager extends Component
      */
     protected function punycode($str)
     {
-        if (function_exists('idn_to_ascii')) {
+        if (\function_exists('idn_to_ascii')) {
             return idn_to_ascii($str);
         } else {
             return $str;
@@ -332,8 +332,8 @@ class Manager extends Component
             if ($registeredEngines = $viewApp->getRegisteredEngines()) {
                 $engines = [];
                 foreach ($registeredEngines as $key => $engine) {
-                    if (is_object($engine)) {
-                        $engines[$key] = get_class($engine);
+                    if (\is_object($engine)) {
+                        $engines[$key] = \get_class($engine);
                     } else {
                         $engines[$key] = $engine;
                     }

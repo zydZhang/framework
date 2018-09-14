@@ -769,11 +769,11 @@ class Message
      */
     protected function normalizeEmail($email)
     {
-        if (is_array($email) || $email instanceof \Traversable) {
+        if (\is_array($email) || $email instanceof \Traversable) {
             $emails = [];
 
             foreach ($email as $k => $v) {
-                if (is_int($k)) {
+                if (\is_int($k)) {
                     $emails[$k] = $this->getManager()->normalizeEmail($v);
                 } else {
                     $k = $this->getManager()->normalizeEmail($k);

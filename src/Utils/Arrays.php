@@ -32,10 +32,10 @@ class Arrays
      */
     public static function multisort()
     {
-        $args = func_get_args();
+        $args = \func_get_args();
         $data = array_shift($args);
         foreach ($args as $n => $field) {
-            if (is_string($field)) {
+            if (\is_string($field)) {
                 $tmp = [];
                 foreach ($data as $key => $row) {
                     $tmp[$key] = $row[$field];
@@ -44,7 +44,7 @@ class Arrays
             }
         }
         $args[] = &$data;
-        call_user_func_array('array_multisort', $args);
+        \call_user_func_array('array_multisort', $args);
 
         return $data;
     }
@@ -102,7 +102,7 @@ class Arrays
 
         // 替换下标
         $result = [];
-        $fields = is_array($field) ? $field : [$field];
+        $fields = \is_array($field) ? $field : [$field];
         foreach ($array as $k => $v) {
             $keys = [];
             foreach ($fields as $key) {
@@ -152,7 +152,7 @@ class Arrays
     {
         $result = [];
         foreach ($arr as $val) {
-            if (is_array($val)) {
+            if (\is_array($val)) {
                 $result = array_merge($result, self::reduceDimension($val));
             } else {
                 $result[] = $val;

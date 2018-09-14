@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Shadon\Mvc;
 
-use Phalcon\Config;
 use Phalcon\DiInterface as Di;
+use Phalcon\Events\Event;
 use Phalcon\Mvc\ModuleDefinitionInterface;
 use Shadon\Di\Injectable;
 
@@ -121,4 +121,31 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
      * @param \Shadon\Console\Application $app
      */
     abstract public function registerUserCommands(\Shadon\Console\Application $app): void;
+
+    /**
+     * Registers view service.
+     *
+     * @param int $renderLevel render level
+     */
+    protected function registerViewService(int $renderLevel = \Phalcon\Mvc\View::LEVEL_ACTION_VIEW): void
+    {
+        $moduleName = lcfirst(static::NAMESPACE);
+        $this->getDI()->setShared('view', function () use ($moduleName, $renderLevel) {
+            $view = new \Phalcon\Mvc\View();
+            $view->setViewsDir(['var/views', 'var/views/'.$moduleName]);
+            $view->registerEngines(
+                [
+                    '.phtml'    => 'Phalcon\Mvc\View\Engine\Php',
+                    '.hbs'      => 'Shadon\Mvc\View\Engine\Handlebars',
+                ]
+            );
+            $view->setRenderLevel($renderLevel);
+            $view->setEventsManager($this->getEventsManager());
+            $this->getEventsManager()->attach('view:notFoundView', function (Event $event, $view, $viewPath): void {
+                throw new \Phalcon\Mvc\View\Exception("View '".$viewPath."' was not found in any of the views directory");
+            });
+
+            return $view;
+        });
+    }
 }

@@ -40,10 +40,10 @@ class TcpServerListner
         $processName = $workerId >= $server->setting['worker_num'] ? 'task#'.$workerId : 'event#'.$workerId;
         $server->setProcessName($processName);
         // 清除apc或op缓存
-        if (function_exists('apc_clear_cache')) {
+        if (\function_exists('apc_clear_cache')) {
             apc_clear_cache();
         }
-        if (function_exists('opcache_reset')) {
+        if (\function_exists('opcache_reset')) {
             opcache_reset();
         }
         $server->initializeModule();
@@ -55,20 +55,20 @@ class TcpServerListner
             $returnedValue = $dispatcher->getReturnedValue();
             /* @var \Phalcon\Http\Response $response */
             $response = $server->getDi()->getShared('response');
-            if (is_object($returnedValue)) {
-                $response->setHeader('returnType', get_class($returnedValue));
+            if (\is_object($returnedValue)) {
+                $response->setHeader('returnType', \get_class($returnedValue));
                 if ($returnedValue instanceof \JsonSerializable) {
-                    $response->setJsonContent(['data' => $returnedValue, 'returnType' => get_class($returnedValue)]);
+                    $response->setJsonContent(['data' => $returnedValue, 'returnType' => \get_class($returnedValue)]);
                 }
-            } elseif (is_array($returnedValue)) {
+            } elseif (\is_array($returnedValue)) {
                 $response->setHeader('returnType', 'array');
                 $response->setJsonContent(['data' => $returnedValue, 'returnType' => 'array']);
             } elseif (is_scalar($returnedValue)) {
-                $response->setHeader('returnType', gettype($returnedValue));
+                $response->setHeader('returnType', \gettype($returnedValue));
                 $response->setJsonContent(
-                    ['data' => $returnedValue, 'returnType' => gettype($returnedValue)]
+                    ['data' => $returnedValue, 'returnType' => \gettype($returnedValue)]
                 );
-                if (is_string($returnedValue)) {
+                if (\is_string($returnedValue)) {
                     $dispatcher->setReturnedValue($response->getContent());
                 }
             }
@@ -107,7 +107,7 @@ class TcpServerListner
             $controller = $dispatcher->dispatch();
         } catch (Exception $e) {
             $response->setStatusCode(500);
-            $response->setJsonContent(['error' => $e->getMessage(), 'returnType' => get_class($e)]);
+            $response->setJsonContent(['error' => $e->getMessage(), 'returnType' => \get_class($e)]);
         }
 
         $server->send($fd, '{"content":'.$response->getContent().',"headers":'.json_encode($response->getHeaders()->toArray()).'}');

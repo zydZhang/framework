@@ -13,12 +13,13 @@ declare(strict_types=1);
 
 namespace Shadon\Mvc\View\Engine;
 
+use Handlebars\Cache\Disk;
 use Handlebars\Loader\FilesystemLoader;
 use Phalcon\DiInterface;
+use Phalcon\Mvc\View;
 use Phalcon\Mvc\View\Engine;
 use Phalcon\Mvc\View\EngineInterface;
 use Phalcon\Mvc\ViewBaseInterface;
-use Shadon\Mvc\View;
 
 /**
  * Phalcon\Mvc\View\Engine\Handlebars
@@ -41,14 +42,15 @@ class Handlebars extends Engine implements EngineInterface
     {
         $this->handlebars = new \Handlebars\Handlebars([
             'loader'          => new FilesystemLoader('', ['extension' => 'hbs']),
-            'partials_loader' => new FilesystemLoader($view->getViewsDir().'/', ['extension' => 'hbs']),
+            'partials_loader' => new FilesystemLoader($view->getViewsDir(), ['extension' => 'hbs']),
+            'cache'           => new Disk('var/cache/views', 'hbs', '.cache'),
         ]);
 
-        $this->handlebars->addHelper('startInexd', new View\Engine\Handlebars\Helper\StartInexdHelper());
-        $this->handlebars->addHelper('isEven', new View\Engine\Handlebars\Helper\IsEvenHelper());
-        $this->handlebars->addHelper('compare', new View\Engine\Handlebars\Helper\CompareHelper());
-        $this->handlebars->addHelper('formatTime', new View\Engine\Handlebars\Helper\FormatTimeHelper());
-        $this->handlebars->addHelper('sortFun', new View\Engine\Handlebars\Helper\SortFunHelper());
+        $this->handlebars->addHelper('startInexd', new Handlebars\Helper\StartInexdHelper());
+        $this->handlebars->addHelper('isEven', new Handlebars\Helper\IsEvenHelper());
+        $this->handlebars->addHelper('compare', new Handlebars\Helper\CompareHelper());
+        $this->handlebars->addHelper('formatTime', new Handlebars\Helper\FormatTimeHelper());
+        $this->handlebars->addHelper('sortFun', new Handlebars\Helper\SortFunHelper());
 
         parent::__construct($view, $di);
     }
@@ -66,11 +68,13 @@ class Handlebars extends Engine implements EngineInterface
             $params['content'] = $this->_view->getContent();
         }
         $content = $this->handlebars->render($path, $params);
+        if ($mustClean) {
+            ob_clean();
+        }
+        echo $content;
 
         if ($mustClean) {
-            $this->_view->setContent($content);
-        } else {
-            echo $content;
+            $this->_view->setContent(ob_get_contents());
         }
     }
 }

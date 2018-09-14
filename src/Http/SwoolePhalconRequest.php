@@ -72,7 +72,7 @@ class SwoolePhalconRequest extends HttpRequest
 
     private function sortNestedArrayAssoc($arr): bool
     {
-        if (!is_array($arr)) {
+        if (!\is_array($arr)) {
             return false;
         }
         ksort($arr);

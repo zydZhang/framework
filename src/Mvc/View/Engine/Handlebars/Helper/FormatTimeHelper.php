@@ -45,7 +45,7 @@ class FormatTimeHelper implements Helper
         $time = '' == $second ? time() : (int) $second;
 
         $stringTime = (string) $time;
-        if (strlen($stringTime) >= 13) {
+        if (\strlen($stringTime) >= 13) {
             $time = (int) $time / 1000;
         }
         $typeArr = [

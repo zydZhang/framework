@@ -28,7 +28,7 @@ class Predis extends Redis
 
     public function __construct(FrontendInterface $frontend, $options = null)
     {
-        $this->_prefix = self::FRONTEND_PREFIX[get_class($frontend)];
+        $this->_prefix = self::FRONTEND_PREFIX[\get_class($frontend)];
         parent::__construct($frontend, $options);
     }
 
@@ -56,6 +56,11 @@ class Predis extends Redis
      * (non-PHPdoc).
      *
      * @see \Phalcon\Cache\Backend\Redis::save()
+     *
+     * @param null|mixed $keyName
+     * @param null|mixed $content
+     * @param null|mixed $lifetime
+     * @param mixed      $stopBuffer
      */
     public function save($keyName = null, $content = null, $lifetime = null, $stopBuffer = true)
     {

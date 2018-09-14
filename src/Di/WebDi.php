@@ -16,7 +16,6 @@ namespace Shadon\Di;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Phalcon\Di\Service;
-use Shadon\Logger\Handler\WebHandler;
 
 /**
  * Class WebDi.
@@ -29,9 +28,7 @@ class WebDi extends FactoryDefault
         $this->_services['annotations'] = new Service('annotations', 'Phalcon\\Annotations\\Adapter\\Memory', true);
         $this->_services['dispatcher'] = new Service('dispatcher', 'Shadon\\Dispatcher\\WebDispatcher', true);
         $this->_services['escaper'] = new Service('escaper', 'Phalcon\\Escaper', true);
-        $this->_services['errorViewHandler'] = new Service('errorViewHandler', function () {
-            return $this->getShared(WebHandler::class);
-        }, true);
+        $this->_services['filter'] = new Service('filter', 'Phalcon\\Filter', true);
         $this->_services['flash'] = new Service('flash', 'Shadon\\Flash\\Direct', true);
         $this->_services['logger'] = new Service('logger', function () {
             $logger = new Logger(APP['appname'].'.'.APP['env']);

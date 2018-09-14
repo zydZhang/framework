@@ -90,7 +90,7 @@ class Handler extends Injectable
             $this->logger = $di->get('logger');
             $config = $di->getShared('config');
             $this->logger->pushHandler(new DingDingHandler($config['dingding']));
-            $this->logger->pushHandler($di->getShared('errorViewHandler'));
+            $di->has('errorViewHandler') && $this->logger->pushHandler($di->getShared('errorViewHandler'));
             $this->logger->pushProcessor(new WebProcessor(null, ['url']));
         }
 
@@ -131,10 +131,10 @@ class Handler extends Injectable
         if ('UTF-8' != $encode) {
             $message = mb_convert_encoding($message, 'UTF-8', $encode);
         }
-        $this->getLogger()->log($level, 'Uncaught Exception: '.get_class($e), [
+        $this->getLogger()->log($level, 'Uncaught Exception: '.\get_class($e), [
             'code'          => $e->getCode(),
             'message'       => $message,
-            'class'         => get_class($e),
+            'class'         => \get_class($e),
             'file'          => $e->getFile(),
             'line'          => $e->getLine(),
             'traceAsString' => $e->getTraceAsString(),
@@ -146,7 +146,7 @@ class Handler extends Injectable
         chdir($currPath);
         $this->reservedMemory = null;
         $lastError = error_get_last();
-        if ($lastError && in_array($lastError['type'], self::FATAL_ERRORS, true)) {
+        if ($lastError && \in_array($lastError['type'], self::FATAL_ERRORS, true)) {
             $logger = $this->getLogger();
             $logger->log(
                 LogLevel::ALERT,

@@ -147,15 +147,15 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                         } catch (\PhpAmqpLib\Exception\AMQPRuntimeException $e) {
                         }
                     }
-                    $worker->write(sprintf('%s %d -1 "%s line %s %s"', DateTime::formatTime(), $pid, get_class($e), __LINE__, $e->getMessage()));
+                    $worker->write(sprintf('%s %d -1 "%s line %s %s"', DateTime::formatTime(), $pid, \get_class($e), __LINE__, $e->getMessage()));
                     sleep(random_int(1, 10));
                     $consumer = $worker->createConsumer($exchange, $routingKey, $queue);
                 } catch (\Throwable $e) {
-                    $worker->write(sprintf('%s %d -1 "%s line %s %s"', DateTime::formatTime(), $pid, get_class($e), __LINE__, $e->getMessage()));
+                    $worker->write(sprintf('%s %d -1 "%s line %s %s"', DateTime::formatTime(), $pid, \get_class($e), __LINE__, $e->getMessage()));
                     $this->di->getShared('logger')->error('UncaughtException', [
                         'file'  => $e->getFile(),
                         'line'  => $e->getLine(),
-                        'class' => get_class($e),
+                        'class' => \get_class($e),
                         'args'  => [
                             $e->getMessage(),
                         ],
@@ -248,11 +248,14 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                 $return = null;
 
                 try {
-                    $return = call_user_func_array([$object, $msg['method']], $msg['params']);
+                    $return = \call_user_func_array([$object, $msg['method']], $msg['params']);
                 } catch (\TypeError $e) {
                     $this->di->getShared('logger')->info('Fatal error: Uncaught TypeError', $msg);
                 } catch (\LogicException $e) {
                     $this->di->getShared('logger')->info('Logic exception: '.$e->getMessage(), $msg);
+                } catch (\Throwable $e) {
+                    $this->di->getShared('logger')->error($e->getMessage(), $msg);
+                    throw $e;
                 }
                 $usedTime = microtime(true) - $start;
                 $this->write(sprintf('%s %d %d "%s::%s()" "%s" %s', DateTime::formatTime(), $pid, $num, $msg['class'], $msg['method'], json_encode($return), $usedTime));

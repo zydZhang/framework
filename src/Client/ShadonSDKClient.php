@@ -18,6 +18,7 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\MultipartStream;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Token\AccessToken;
+use Psr\Http\Message\UploadedFileInterface;
 use Shadon\OAuth2\Client\Provider\ShadonProvider;
 
 /**
@@ -207,7 +208,7 @@ class ShadonSDKClient
                     'name'     => $p,
                     'contents' => $value->getStream(),
                 ];
-            } elseif (is_array($value)) {
+            } elseif (\is_array($value)) {
                 if (empty($value)) {
                     $multipart[] = [
                         'name'     => $p,
