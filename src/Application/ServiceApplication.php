@@ -166,6 +166,7 @@ class ServiceApplication
                 $classMethod = $dispatcher->getDispatchMethod();
                 $returnType = $classMethod->getReturnType();
                 $returnTypeName = null === $returnType ? \gettype($returnedValue) : $returnType->getName();
+                $returnTypeName = 'void' == $returnTypeName ? 'null' : $returnTypeName;
                 \settype($returnedValue, $returnTypeName);
                 $response->setHeader('returnType', $returnTypeName);
                 $response->setJsonContent(
