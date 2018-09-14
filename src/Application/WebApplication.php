@@ -103,6 +103,7 @@ class WebApplication
         $this->application->useImplicitView(true);
         /* @var \Phalcon\Http\Response $response */
         $response = $this->di->getShared('response');
+
         try {
             $this->application->handle($uri);
         } catch (\Throwable $e) {
@@ -110,6 +111,7 @@ class WebApplication
             $exceptionHandler = new ExceptionHandler();
             $response->setContent($exceptionHandler->getHtml($e));
             $response->send();
+
             throw $e;
         }
 
