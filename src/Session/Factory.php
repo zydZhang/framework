@@ -19,7 +19,7 @@ use Phalcon\Session\Factory as SessionFactory;
 class Factory extends SessionFactory
 {
     /**
-     * @param \Phalcon\Config|array config
+     * @param \Phalcon\Config|array config $config
      */
     public static function load($config): AdapterInterface
     {

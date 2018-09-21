@@ -25,6 +25,11 @@ use Shadon\Exception\RequestException;
 class ServiceDispatcher extends Dispatcher
 {
     /**
+     * @var \ReflectionMethod
+     */
+    private $dispatchMethod;
+
+    /**
      * ServiceDispatcher constructor.
      */
     public function __construct()
@@ -83,6 +88,7 @@ class ServiceDispatcher extends Dispatcher
         }
 
         $classMethod = new \ReflectionMethod($class, $method);
+        $this->dispatchMethod = $classMethod;
         $parameters = $classMethod->getParameters();
         $parametersNumber = $classMethod->getNumberOfParameters();
         if (0 != $parametersNumber) {
@@ -97,6 +103,14 @@ class ServiceDispatcher extends Dispatcher
             );
         }
         parent::setParams($routeParams);
+    }
+
+    /**
+     * @return \ReflectionMethod
+     */
+    public function getDispatchMethod()
+    {
+        return $this->dispatchMethod;
     }
 
     /**
@@ -151,7 +165,6 @@ class ServiceDispatcher extends Dispatcher
                     $functionOfThrowInvalidArgumentException($position, $expectedType, 'null');
                 }
             }
-
             // 校验参数
             if (array_key_exists($position, $routeParams)) {
                 if (!$checkedParameter) {
@@ -159,10 +172,10 @@ class ServiceDispatcher extends Dispatcher
                         if (\is_array($routeParams[$position]) && 'array' != $expectedType) {
                             $functionOfThrowInvalidArgumentException($position, $expectedType, 'array');
                         }
-                        if ('/*_EMPTY_ARRAY_*/' == $routeParams[$position]) {
+                        if ('/*_EMPTY_ARRAY_*/' === $routeParams[$position]) {
                             $routeParams[$position] = [];
                         } else {
-                            settype($routeParams[$position], $expectedType);
+                            \settype($routeParams[$position], $expectedType);
                         }
                     } elseif (!empty($expectedType) && !is_a($routeParams[$position], $expectedType)) {
                         $functionOfThrowInvalidArgumentException($position, $expectedType, \gettype($routeParams[$position]));

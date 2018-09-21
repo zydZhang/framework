@@ -162,13 +162,21 @@ class ServiceApplication
                 $response->setHeader('returnType', 'array');
                 $response->setJsonContent(['data' => $returnedValue, 'returnType' => 'array']);
             } elseif (is_scalar($returnedValue)) {
-                $response->setHeader('returnType', \gettype($returnedValue));
+                /* @var \ReflectionMethod $classMethod */
+                $classMethod = $dispatcher->getDispatchMethod();
+                $returnType = $classMethod->getReturnType();
+                $returnTypeName = null === $returnType ? \gettype($returnedValue) : $returnType->getName();
+                $returnTypeName = 'void' == $returnTypeName ? 'null' : $returnTypeName;
+                \settype($returnedValue, $returnTypeName);
+                $response->setHeader('returnType', $returnTypeName);
                 $response->setJsonContent(
-                    ['data' => $returnedValue, 'returnType' => \gettype($returnedValue)]
+                    ['data' => $returnedValue, 'returnType' => $returnTypeName]
                 );
-                if (\is_string($returnedValue)) {
-                    $dispatcher->setReturnedValue($response->getContent());
-                }
+                $dispatcher->setReturnedValue($response->getContent());
+            } elseif (null === $returnedValue && empty($response->getContent())) {
+                $response->setJsonContent(
+                    ['data' => null, 'returnType' => 'null']
+                );
             }
         });
         $eventsManager->attach('router:afterCheckRoutes', function (Event $event, Router $router): void {
