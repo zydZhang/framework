@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Shadon\Router;
 
 use Phalcon\Mvc\Router\Annotations as RouterAnnotations;
+use Phalcon\Text;
 
 /**
  * @author hehui<hehui@eelly.net>
@@ -34,5 +35,10 @@ class WebRouter extends RouterAnnotations
         }
 
         return '/';
+    }
+
+    public function getControllerName()
+    {
+        return Text::uncamelize(parent::getControllerName());
     }
 }
