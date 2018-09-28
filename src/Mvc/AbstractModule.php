@@ -131,7 +131,7 @@ abstract class AbstractModule extends Injectable implements ModuleDefinitionInte
     {
         $moduleName = lcfirst(static::NAMESPACE);
         $this->getDI()->setShared('view', function () use ($moduleName, $renderLevel) {
-            $view = new \Phalcon\Mvc\View();
+            $view = new \Shadon\Mvc\View();
             $view->setViewsDir(['var/views/'.APP['env'], 'var/views/'.APP['env'].'/'.$moduleName]);
             $view->registerEngines(
                 [
