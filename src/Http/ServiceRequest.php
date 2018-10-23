@@ -28,7 +28,7 @@ class ServiceRequest extends HttpRequest
      */
     public function getRouteParams(): array
     {
-        if ('application/json' == $this->getContentType()) {
+        if (0 === strpos($this->getContentType(), 'application/json')) {
             $json = $this->getRawBody();
 
             try {
