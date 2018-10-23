@@ -19,6 +19,7 @@ use Shadon\Di\WebDi;
 use Shadon\Error\Handler as ErrorHandler;
 use Shadon\Mvc\Application;
 use Shadon\Session\Factory;
+use Symfony\Component\Debug\Exception\FlattenException;
 use Symfony\Component\Debug\ExceptionHandler;
 
 /**
@@ -107,9 +108,10 @@ class WebApplication
         try {
             $this->application->handle($uri);
         } catch (\Throwable $e) {
-            $response->setStatusCode(500, 'Server Error');
+            $response->setStatusCode(500);
             $exceptionHandler = new ExceptionHandler();
-            $response->setContent($exceptionHandler->getHtml($e));
+            $flattenException = FlattenException::createFromThrowable($e);
+            echo $exceptionHandler->getHtml($flattenException);
             $response->send();
 
             throw $e;
