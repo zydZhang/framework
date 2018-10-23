@@ -104,6 +104,7 @@ class WebApplication
         $this->application->useImplicitView(true);
         /* @var \Phalcon\Http\Response $response */
         $response = $this->di->getShared('response');
+
         try {
             $this->application->handle($uri);
         } catch (\Throwable $e) {
@@ -112,6 +113,7 @@ class WebApplication
             $flattenException = FlattenException::createFromThrowable($e);
             echo $exceptionHandler->getHtml($flattenException);
             $response->send();
+
             throw $e;
         }
 
