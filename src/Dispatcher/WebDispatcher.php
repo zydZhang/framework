@@ -53,7 +53,7 @@ class WebDispatcher extends Dispatcher
         if ($exception instanceof \LogicException) {
             $dispatcher->forward([
                 'namespace'  => 'App\\Controller',
-                'controller' => 'errorPage',
+                'controller' => 'error_page',
                 'action'     => 'whoops',
                 'params'     => ['exception' => $exception],
             ]);
