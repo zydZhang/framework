@@ -42,7 +42,7 @@ class WebDispatcher extends Dispatcher
                 case Dispatcher::EXCEPTION_ACTION_NOT_FOUND:
                     $dispatcher->forward([
                         'namespace'  => 'App\\Controller',
-                        'controller' => 'errorPage',
+                        'controller' => 'error_page',
                         'action'     => 'notFound',
                         'params'     => ['exception' => $exception],
                     ]);
