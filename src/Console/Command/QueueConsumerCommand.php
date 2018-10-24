@@ -255,6 +255,7 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                     $this->di->getShared('logger')->info('Logic exception: '.$e->getMessage(), $msg);
                 } catch (\Throwable $e) {
                     $this->di->getShared('logger')->error($e->getMessage(), $msg);
+
                     throw $e;
                 }
                 $usedTime = microtime(true) - $start;
