@@ -185,5 +185,10 @@ class ServiceDispatcher extends Dispatcher
                 $functionOfThrowInvalidArgumentException($position, $expectedType, 'null');
             }
         }
+        foreach ($routeParams as $key => $value) {
+            if (!\is_int($key)) {
+                $this->throwInvalidArgumentException("Unidentified argument $key");
+            }
+        }
     }
 }
