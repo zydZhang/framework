@@ -95,9 +95,10 @@ class ServiceApplication
             $this->di->getShared($bundle)->register();
         }
         $modules = [];
+        $router = $this->di->getShared('router');
         foreach ($this->di->getShared('config')->moduleList as $moduleName) {
             $namespace = ucfirst($moduleName);
-            $this->di->getShared('router')->addPost('/'.$moduleName.'/:controller/:action', [
+            $router->addPost('/'.$moduleName.'/:controller/:action', [
                 'namespace'  => $namespace.'\\Logic',
                 'module'     => $moduleName,
                 'controller' => 1,
