@@ -33,6 +33,9 @@ class ServiceRequest extends HttpRequest
 
             try {
                 $params = \GuzzleHttp\json_decode($json, true);
+                if (!\is_array($params)) {
+                    throw new InvalidArgumentException('Error json arguments');
+                }
             } catch (InvalidArgumentException $e) {
                 throw new RequestException(400, $e->getMessage(), $this, $this->getDI()->getShared('response'));
             }
