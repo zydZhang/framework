@@ -25,6 +25,13 @@ use Shadon\Exception\RequestException;
 class ServiceDispatcher extends Dispatcher
 {
     /**
+     * 表单提交的空数组.
+     *
+     * @var string
+     */
+    public const FORM_EMPTY_ARRAY_STR = '/*_EMPTY_ARRAY_*/';
+
+    /**
      * @var \ReflectionMethod
      */
     private $dispatchMethod;
@@ -137,6 +144,16 @@ class ServiceDispatcher extends Dispatcher
         $functionOfThrowInvalidArgumentException = function ($position, $expectedType, $actualType): void {
             $this->throwInvalidArgumentException(sprintf('Argument %d must be of the type %s, %s given', $position, $expectedType, $actualType));
         };
+        $functionReplaceEmptyArray = function (array &$params) use (&$functionReplaceEmptyArray): void {
+            foreach ($params as $key => $value) {
+                if (\is_array($value) && !empty($value)) {
+                    $functionReplaceEmptyArray($params[$key]);
+                }
+                if (self::FORM_EMPTY_ARRAY_STR == $value) {
+                    $params[$key] = [];
+                }
+            }
+        };
         /**
          * @var \ReflectionParameter $parameter
          */
@@ -172,10 +189,13 @@ class ServiceDispatcher extends Dispatcher
                         if (\is_array($routeParams[$position]) && 'array' != $expectedType) {
                             $functionOfThrowInvalidArgumentException($position, $expectedType, 'array');
                         }
-                        if ('/*_EMPTY_ARRAY_*/' === $routeParams[$position]) {
+                        if (self::FORM_EMPTY_ARRAY_STR === $routeParams[$position]) {
                             $routeParams[$position] = [];
                         } else {
                             \settype($routeParams[$position], $expectedType);
+                            if (\is_array($routeParams[$position]) && !empty($routeParams[$position])) {
+                                $functionReplaceEmptyArray($routeParams[$position]);
+                            }
                         }
                     } elseif (!empty($expectedType) && !is_a($routeParams[$position], $expectedType)) {
                         $functionOfThrowInvalidArgumentException($position, $expectedType, \gettype($routeParams[$position]));
@@ -185,6 +205,7 @@ class ServiceDispatcher extends Dispatcher
                 $functionOfThrowInvalidArgumentException($position, $expectedType, 'null');
             }
         }
+
         foreach ($routeParams as $key => $value) {
             if (!\is_int($key)) {
                 $this->throwInvalidArgumentException("Unidentified argument $key");
