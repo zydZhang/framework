@@ -144,15 +144,21 @@ class ServiceDispatcher extends Dispatcher
         $functionOfThrowInvalidArgumentException = function ($position, $expectedType, $actualType): void {
             $this->throwInvalidArgumentException(sprintf('Argument %d must be of the type %s, %s given', $position, $expectedType, $actualType));
         };
-        $functionReplaceEmptyArray = function (array &$params) use (&$functionReplaceEmptyArray): void {
+        $functionReplaceEmptyArray = function (array $params) use (&$functionReplaceEmptyArray) {
+            $return = [];
             foreach ($params as $key => $value) {
                 if (\is_array($value) && !empty($value)) {
-                    $functionReplaceEmptyArray($params[$key]);
+                    $return[$key] = $functionReplaceEmptyArray($value);
+                    continue;
                 }
                 if (self::FORM_EMPTY_ARRAY_STR == $value) {
-                    $params[$key] = [];
+                    $return[$key] = [];
+                } else {
+                    $return[$key] = $value;
                 }
             }
+
+            return $return;
         };
         /**
          * @var \ReflectionParameter $parameter
@@ -194,7 +200,7 @@ class ServiceDispatcher extends Dispatcher
                         } else {
                             \settype($routeParams[$position], $expectedType);
                             if (\is_array($routeParams[$position]) && !empty($routeParams[$position])) {
-                                $functionReplaceEmptyArray($routeParams[$position]);
+                                $routeParams[$position] = $functionReplaceEmptyArray($routeParams[$position]);
                             }
                         }
                     } elseif (!empty($expectedType) && !is_a($routeParams[$position], $expectedType)) {
