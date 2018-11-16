@@ -46,31 +46,21 @@ class AsyncAnnotationListener extends AbstractListener
             $dispatcher->getActiveMethod()
         );
         if ($annotations->has(self::ANNOTATIONS_NAME)) {
-            $annotation = $annotations->get(self::ANNOTATIONS_NAME);
-            $msgBody = [
-                'class'   => $dispatcher->getControllerClass(),
-                'method'  => $dispatcher->getActiveMethod(),
-                'params'  => $dispatcher->getParams(),
-                'time'    => microtime(true),
-            ];
-
             try {
                 /* @var \Shadon\Queue\Adapter\Producer $producer */
                 $producer = $this->queueFactory->createProducer();
             } catch (AMQPTimeoutException | \ErrorException $e) {
                 return true;
             }
-            $producer->setExchangeOptions(['name' => $dispatcher->getModuleName(), 'type' => 'topic']);
+            $annotation = $annotations->get(self::ANNOTATIONS_NAME);
             $routingKey = $annotation->getNamedParameter('route') ?? 'default_routing_key';
-            $producer->publish(json_encode($msgBody), $routingKey);
-
-            $connection = $producer->getConnection();
-            if ($connection->isConnected()) {
-                try {
-                    $connection->close();
-                } catch (\PhpAmqpLib\Exception\AMQPRuntimeException $e) {
-                }
-            }
+            $producer->publishJob(
+                $dispatcher->getModuleName(),
+                $dispatcher->getControllerClass(),
+                $dispatcher->getActiveMethod(),
+                $dispatcher->getParams(),
+                $routingKey
+            );
             if ($event->isCancelable()) {
                 $event->stop();
             }
