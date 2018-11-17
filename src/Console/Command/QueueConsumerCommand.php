@@ -250,7 +250,7 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                 try {
                     $return = \call_user_func_array([$object, $msg['method']], $msg['params']);
                 } catch (\TypeError $e) {
-                    $this->di->getShared('logger')->info('Fatal error: Uncaught TypeError', $msg);
+                    $this->di->getShared('logger')->critical('TypeError: queue', $msg);
                 } catch (\LogicException $e) {
                     $this->di->getShared('logger')->info('Logic exception: '.$e->getMessage(), $msg);
                 } catch (\Throwable $e) {
