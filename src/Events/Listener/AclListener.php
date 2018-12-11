@@ -44,6 +44,7 @@ class AclListener extends AbstractListener
             if (!Text::startsWith(ApplicationConst::$oauth['oauth_client_id'], self::INTERNAL_ANNOTATION)) {
                 /* @var \Phalcon\Http\Request $request */
                 $request = $this->getDI()->getShared('request');
+
                 throw OAuthServerException::invalidScope($request->getURI());
             }
         }
