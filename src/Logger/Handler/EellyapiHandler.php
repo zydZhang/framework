@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of eelly package.
  *
@@ -21,8 +24,6 @@ use Monolog\Logger;
  */
 class EellyapiHandler extends AbstractProcessingHandler
 {
-
-
     public function __construct($level = Logger::NOTICE, $bubble = true)
     {
         parent::__construct($level, $bubble);
@@ -36,11 +37,12 @@ class EellyapiHandler extends AbstractProcessingHandler
     protected function write(array $record)
     {
         register_shutdown_function(function ($record) {
-            $record['datetime'] =  $record['datetime']->getTimestamp();
+            $record['datetime'] = $record['datetime']->getTimestamp();
+
             try {
                 (new DingLogger())->monolog($record);
             } catch (\Throwable $e) {
-                 // ...
+                // ...
             }
         }, $record);
     }

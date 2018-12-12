@@ -20,7 +20,6 @@ use Monolog\Processor\WebProcessor;
 use Phalcon\Di\Injectable;
 use Psr\Log\LogLevel;
 use Shadon\Application\ApplicationConst;
-use Shadon\Logger\Handler\DingDingHandler;
 use Swallow\Logger\Handler\EellyapiHandler;
 use Throwable;
 
