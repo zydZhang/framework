@@ -20,7 +20,7 @@ use Monolog\Processor\WebProcessor;
 use Phalcon\Di\Injectable;
 use Psr\Log\LogLevel;
 use Shadon\Application\ApplicationConst;
-use Shadon\Logger\Handler\DingDingHandler;
+use Swallow\Logger\Handler\EellyapiHandler;
 use Throwable;
 
 /**
@@ -88,10 +88,9 @@ class Handler extends Injectable
         if (null === $this->logger) {
             $di = $this->getDI();
             $this->logger = $di->get('logger');
-            $config = $di->getShared('config');
-            $this->logger->pushHandler(new DingDingHandler($config['dingding']));
+            $this->logger->pushHandler(new EellyapiHandler());
             $di->has('errorViewHandler') && $this->logger->pushHandler($di->getShared('errorViewHandler'));
-            $this->logger->pushProcessor(new WebProcessor(null, ['url']));
+            $this->logger->pushProcessor(new WebProcessor(null, ['url', 'ip']));
         }
 
         return $this->logger;
