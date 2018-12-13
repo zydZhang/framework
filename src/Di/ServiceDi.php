@@ -50,7 +50,7 @@ class ServiceDi extends FactoryDefault
 
             return $logger;
         }, true);
-        $this->_services['errorLogger'] = new Service('logger', function () {
+        $this->_services['errorLogger'] = new Service('errorLogger', function () {
             $logger = clone $this->get('logger');
             $logger->pushHandler(new EellyapiHandler());
             $this->has('errorViewHandler') && $logger->pushHandler($this->getShared('errorViewHandler'));
