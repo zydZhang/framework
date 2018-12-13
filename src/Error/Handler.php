@@ -16,11 +16,9 @@ namespace Shadon\Error;
 use ErrorException;
 use Monolog\Handler\AbstractHandler;
 use Monolog\Logger;
-use Monolog\Processor\WebProcessor;
 use Phalcon\Di\Injectable;
 use Psr\Log\LogLevel;
 use Shadon\Application\ApplicationConst;
-use Swallow\Logger\Handler\EellyapiHandler;
 use Throwable;
 
 /**
@@ -87,10 +85,7 @@ class Handler extends Injectable
     {
         if (null === $this->logger) {
             $di = $this->getDI();
-            $this->logger = $di->get('logger');
-            $this->logger->pushHandler(new EellyapiHandler());
-            $di->has('errorViewHandler') && $this->logger->pushHandler($di->getShared('errorViewHandler'));
-            $this->logger->pushProcessor(new WebProcessor(null, ['url', 'ip']));
+            $this->logger = $di->getShared('errorlogger');
         }
 
         return $this->logger;

@@ -24,6 +24,7 @@ use Phalcon\Di\InjectionAwareInterface as DiInjectionAwareInterface;
  * @property \Phalcon\Events\Manager                                               $eventsManager
  * @property \Phalcon\Loader                                                       $loader
  * @property \Psr\Log\LoggerInterface                                              $logger          日志对象
+ * @property \Psr\Log\LoggerInterface                                              $errorLogger     错误日志对象
  * @property \Phalcon\Config                                                       $moduleConfig    模块配置
  * @property \Shadon\Queue\Adapter\AMQPFactory|\Shadon\Queue\QueueFactoryInterface $queueFactory
  * @property \Shadon\Network\HttpServer|\Shadon\Network\TcpServer                  $server

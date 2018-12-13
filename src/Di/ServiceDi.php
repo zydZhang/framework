@@ -15,10 +15,12 @@ namespace Shadon\Di;
 
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use Monolog\Processor\WebProcessor;
 use Phalcon\Di\Service;
 use Shadon\Dispatcher\ServiceDispatcher;
 use Shadon\Http\PhalconServiceResponse as ServiceResponse;
 use Shadon\Http\ServiceRequest;
+use Shadon\Logger\Handler\EellyapiHandler;
 use Shadon\Logger\Handler\ServiceHandler;
 use Shadon\Mvc\Collection\Manager as CollectionManager;
 use Shadon\Mvc\Model\Manager as ModelsManager;
@@ -45,6 +47,14 @@ class ServiceDi extends FactoryDefault
             $config = $this->getShared('config');
             $stream = realpath($config['logPath']).'/app.'.date('Ymd').'.txt';
             $logger->pushHandler(new StreamHandler($stream));
+
+            return $logger;
+        }, true);
+        $this->_services['errorLogger'] = new Service('logger', function () {
+            $logger = clone $this->get('logger');
+            $logger->pushHandler(new EellyapiHandler());
+            $this->has('errorViewHandler') && $logger->pushHandler($this->getShared('errorViewHandler'));
+            $logger->pushProcessor(new WebProcessor(null, ['server', 'url', 'ip']));
 
             return $logger;
         }, true);
