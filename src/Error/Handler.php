@@ -85,7 +85,7 @@ class Handler extends Injectable
     {
         if (null === $this->logger) {
             $di = $this->getDI();
-            $this->logger = $di->getShared('errorlogger');
+            $this->logger = $di->getShared('errorLogger');
         }
 
         return $this->logger;
