@@ -88,10 +88,7 @@ class Handler extends Injectable
     {
         if (null === $this->logger) {
             $di = $this->getDI();
-            $this->logger = $di->get('logger');
-            $this->logger->pushHandler(new EellyapiHandler());
-            $di->has('errorViewHandler') && $this->logger->pushHandler($di->getShared('errorViewHandler'));
-            $this->logger->pushProcessor(new WebProcessor(null, ['url', 'ip']));
+            $this->logger = $di->getShared('errorlogger');
         }
 
         return $this->logger;
