@@ -16,11 +16,9 @@ namespace Shadon\Error;
 use ErrorException;
 use Monolog\Handler\AbstractHandler;
 use Monolog\Logger;
-use Monolog\Processor\WebProcessor;
 use Phalcon\Di\Injectable;
 use Psr\Log\LogLevel;
 use Shadon\Application\ApplicationConst;
-use Swallow\Logger\Handler\EellyapiHandler;
 use Throwable;
 
 /**
