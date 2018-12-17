@@ -15,7 +15,8 @@ namespace Shadon\Di;
 
 use Phalcon\Db\Profiler;
 use Phalcon\Di\Injectable as DiInjectable;
-use Shadon\Db\Adapter\Pdo\Mysql as Connection;
+use Shadon\Db\Adapter\Pdo\Factory as PdoFactory;
+use Shadon\Db\Adapter\Pdo\Mysql;
 use Shadon\Queue\Adapter\AMQPFactory;
 
 /**
@@ -29,43 +30,73 @@ abstract class Injectable extends DiInjectable implements InjectionAwareInterfac
     public function registerDbService(): void
     {
         $di = $this->getDI();
+        // db profiler service
         $di->setShared('dbProfiler', function () {
             return new Profiler();
         });
         // mysql master connection service
         $di->setShared('dbMaster', function () {
-            $config = $this->getModuleConfig()->mysql->master;
-
-            $connection = new Connection($config->toArray());
+            $options = $this->getModuleConfig()->mysql->master->toArray();
+            $options['adapter'] = 'mysql';
+            $connection = PdoFactory::load($options);
             $connection->setEventsManager($this->get('eventsManager'));
 
             return $connection;
         });
-
         // mysql slave connection service
         $di->setShared('dbSlave', function () {
             $config = $this->getModuleConfig()->mysql->slave->toArray();
             shuffle($config);
-
-            $connection = new Connection(current($config));
-            $eventsManager = $this->get('eventsManager');
-            $connection->setEventsManager($eventsManager);
-
-            $profiler = $this->get('dbProfiler');
-            $eventsManager->attach('db', function ($event, $connection) use ($profiler): void {
-                if ('beforeQuery' === $event->getType()) {
-                    $profiler->startProfile(
-                        $connection->getSQLStatement()
-                    );
-                }
-                if ('afterQuery' === $event->getType()) {
-                    $profiler->stopProfile();
-                }
-            });
+            $options = current($config);
+            $masterOptions = $this->getModuleConfig()->mysql->master->toArray();
+            if ($options == $masterOptions) {
+                return $this->getShared('dbMaster');
+            }
+            $options['adapter'] = 'mysql';
+            $connection = PdoFactory::load($options);
+            $connection->setEventsManager($this->get('eventsManager'));
 
             return $connection;
         });
-
+        // attach db profile
+        $di->get('eventsManager')->attach('db', function ($event, Mysql $connection): void {
+            /* @var \Phalcon\Db\Profiler $profiler */
+            $profiler = $this->getDI()->getShared('dbProfiler');
+            if ('beforeQuery' === $event->getType()) {
+                $sqlStatement = $connection->getSQLStatement();
+                $sqlVariables = $connection->getSqlVariables();
+                $sqlBindTypes = $connection->getSQLBindTypes();
+                $profiler->startProfile($sqlStatement, $sqlVariables, $sqlBindTypes);
+            }
+            if ('afterQuery' === $event->getType()) {
+                $profiler->stopProfile();
+            }
+        });
+        // log slow mysql
+        register_shutdown_function(function ($di): void {
+            /* @var \Phalcon\Db\Profiler $profiler */
+            $profiler = $di->getShared('dbProfiler');
+            $totalElapsedSeconds = $profiler->getTotalElapsedSeconds();
+            if (10 > $totalElapsedSeconds) {
+                return;
+            }
+            $context = [
+                'numberTotalStatements' => $profiler->getNumberTotalStatements(),
+                'totalElapsedSeconds'   => $totalElapsedSeconds,
+                'profiles'              => [],
+            ];
+            foreach ($profiler->getProfiles() as $item) {
+                $context['profiles'][] = [
+                    'sqlStatement'        => $item->getSqlStatement(),
+                    'sqlVariables'        => $item->getSqlVariables(),
+                    'sqlBindTypes'        => $item->getSqlBindTypes(),
+                    'totalElapsedSeconds' => $item->getTotalElapsedSeconds(),
+                ];
+            }
+            /* @var \Monolog\Logger $logger */
+            $logger = $di->getShared('errorLogger');
+            $logger->warning('Slow sql', $context);
+        }, $di);
         // register modelsMetadata service
         $di->setShared('modelsMetadata', function () {
             $config = $this->getModuleConfig()->mysql->metaData->toArray();
