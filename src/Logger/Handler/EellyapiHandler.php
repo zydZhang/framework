@@ -34,9 +34,9 @@ class EellyapiHandler extends AbstractProcessingHandler
      *
      * @param array $record
      */
-    protected function write(array $record)
+    protected function write(array $record): void
     {
-        register_shutdown_function(function ($record) {
+        register_shutdown_function(function ($record): void {
             $record['datetime'] = $record['datetime']->getTimestamp();
 
             try {
