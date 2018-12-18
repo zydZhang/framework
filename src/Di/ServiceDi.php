@@ -17,6 +17,7 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Monolog\Processor\WebProcessor;
 use Phalcon\Di\Service;
+use Shadon\Application\ApplicationConst;
 use Shadon\Dispatcher\ServiceDispatcher;
 use Shadon\Http\PhalconServiceResponse as ServiceResponse;
 use Shadon\Http\ServiceRequest;

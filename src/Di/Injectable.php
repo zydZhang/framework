@@ -38,7 +38,7 @@ abstract class Injectable extends DiInjectable implements InjectionAwareInterfac
         // mysql master connection service
         $di->setShared('dbMaster', function () {
             $options = $this->getModuleConfig()->mysql->master->toArray();
-            $options['adapter'] = 'mysql';
+            $options['adapter'] = 'Mysql';
             $connection = PdoFactory::load($options);
             $connection->setEventsManager($this->get('eventsManager'));
             $sql = sprintf('/* %s */', ApplicationConst::getRequestId());
@@ -55,7 +55,7 @@ abstract class Injectable extends DiInjectable implements InjectionAwareInterfac
             if ($options == $masterOptions) {
                 return $this->getShared('dbMaster');
             }
-            $options['adapter'] = 'mysql';
+            $options['adapter'] = 'Mysql';
             $connection = PdoFactory::load($options);
             $connection->setEventsManager($this->get('eventsManager'));
             $sql = sprintf('/* %s */', ApplicationConst::getRequestId());
