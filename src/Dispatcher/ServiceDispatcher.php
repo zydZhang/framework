@@ -92,11 +92,9 @@ class ServiceDispatcher extends Dispatcher
          */
         $request = $this->getDI()->getShared('request');
         if (!class_exists($class) || !method_exists($class, $method)) {
-            throw new RequestException(404, sprintf('%s::%s not found', $class, $method), $request, $this->getDI()->getShared('response'));
+            throw new RequestException(404, sprintf('Not Found %s', $request->getURI()), $request, $this->getDI()->getShared('response'));
         }
-
         ApplicationConst::setRequestId(uniqid(sprintf('%s:%s_', $class, $method), true));
-
         $classMethod = new \ReflectionMethod($class, $method);
         $this->dispatchMethod = $classMethod;
         $parameters = $classMethod->getParameters();
