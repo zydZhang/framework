@@ -17,6 +17,7 @@ use InvalidArgumentException;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;
 use Phalcon\Mvc\Dispatcher\Exception as DispatchException;
+use Shadon\Application\ApplicationConst;
 use Shadon\Exception\RequestException;
 
 /**
@@ -93,6 +94,8 @@ class ServiceDispatcher extends Dispatcher
         if (!class_exists($class) || !method_exists($class, $method)) {
             throw new RequestException(404, sprintf('%s::%s not found', $class, $method), $request, $this->getDI()->getShared('response'));
         }
+
+        ApplicationConst::setRequestId(uniqid(sprintf('%s:%s_', $class, $method), true));
 
         $classMethod = new \ReflectionMethod($class, $method);
         $this->dispatchMethod = $classMethod;

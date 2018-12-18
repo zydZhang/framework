@@ -61,6 +61,14 @@ class Mysql extends PdoMysql
         $this->connect();
     }
 
+    /**
+     * @return \Pdo
+     */
+    public function getPdo()
+    {
+        return $this->_pdo;
+    }
+
     private function isGoneAwayException(\Exception $exception)
     {
         return false !== stripos($exception->getMessage(), self::MYSQL_GONE_AWAY_EXCEPTION);

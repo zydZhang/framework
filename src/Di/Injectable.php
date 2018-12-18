@@ -15,6 +15,7 @@ namespace Shadon\Di;
 
 use Phalcon\Db\Profiler;
 use Phalcon\Di\Injectable as DiInjectable;
+use Shadon\Application\ApplicationConst;
 use Shadon\Db\Adapter\Pdo\Factory as PdoFactory;
 use Shadon\Db\Adapter\Pdo\Mysql;
 use Shadon\Queue\Adapter\AMQPFactory;
@@ -40,6 +41,8 @@ abstract class Injectable extends DiInjectable implements InjectionAwareInterfac
             $options['adapter'] = 'mysql';
             $connection = PdoFactory::load($options);
             $connection->setEventsManager($this->get('eventsManager'));
+            $sql = sprintf('/* %s */', ApplicationConst::getRequestId());
+            $connection->getPdo()->exec($sql);
 
             return $connection;
         });
@@ -55,6 +58,8 @@ abstract class Injectable extends DiInjectable implements InjectionAwareInterfac
             $options['adapter'] = 'mysql';
             $connection = PdoFactory::load($options);
             $connection->setEventsManager($this->get('eventsManager'));
+            $sql = sprintf('/* %s */', ApplicationConst::getRequestId());
+            $connection->getPdo()->exec($sql);
 
             return $connection;
         });
@@ -77,7 +82,7 @@ abstract class Injectable extends DiInjectable implements InjectionAwareInterfac
             /* @var \Phalcon\Db\Profiler $profiler */
             $profiler = $di->getShared('dbProfiler');
             $totalElapsedSeconds = $profiler->getTotalElapsedSeconds();
-            if (10 > $totalElapsedSeconds) {
+            if (0 == $profiler->getNumberTotalStatements() || 5 > $totalElapsedSeconds) {
                 return;
             }
             $context = [

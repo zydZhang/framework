@@ -112,6 +112,13 @@ final class ApplicationConst
     public static $oauth;
 
     /**
+     * Request Id.
+     *
+     * @var string
+     */
+    public static $requestId = '';
+
+    /**
      * Append runtime environment.
      *
      * @param int $runtimeEnv
@@ -131,5 +138,21 @@ final class ApplicationConst
     public static function hasRuntimeEnv(int $runtimeEnv): bool
     {
         return $runtimeEnv == (self::$runtimeEnv & $runtimeEnv);
+    }
+
+    /**
+     * @return string
+     */
+    public static function getRequestId(): string
+    {
+        return self::$requestId;
+    }
+
+    /**
+     * @param string $requestId
+     */
+    public static function setRequestId(string $requestId): void
+    {
+        self::$requestId = $requestId;
     }
 }
