@@ -15,7 +15,9 @@ namespace Shadon\Di;
 
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use Monolog\Processor\WebProcessor;
 use Phalcon\Di\Service;
+use Shadon\Logger\Handler\EellyapiHandler;
 
 /**
  * Class WebDi.
@@ -38,6 +40,13 @@ class WebDi extends FactoryDefault
 
             return $logger;
         });
+        $this->_services['errorLogger'] = new Service('errorLogger', function () {
+            $logger = clone $this->get('logger');
+            $logger->pushHandler(new EellyapiHandler());
+            $logger->pushProcessor(new WebProcessor(null, ['server', 'url', 'ip']));
+
+            return $logger;
+        }, true);
         $this->_services['response'] = new Service('response', 'Phalcon\\Http\\Response', true);
         $this->_services['request'] = new Service('request', 'Phalcon\\Http\\Request', true);
         $this->_services['security'] = new Service('security', 'Phalcon\\Security', true);
