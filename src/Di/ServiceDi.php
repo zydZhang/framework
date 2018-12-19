@@ -17,6 +17,7 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Monolog\Processor\WebProcessor;
 use Phalcon\Di\Service;
+use Shadon\Application\ApplicationConst;
 use Shadon\Dispatcher\ServiceDispatcher;
 use Shadon\Http\PhalconServiceResponse as ServiceResponse;
 use Shadon\Http\ServiceRequest;
@@ -41,8 +42,7 @@ class ServiceDi extends FactoryDefault
             return $this->getShared(ServiceHandler::class);
         }, true);
         $this->_services['logger'] = new Service('logger', function () {
-            $channel = APP['appname'].'.'.APP['env'];
-            $channel .= '.'.$this->getShared('dispatcher')->getModuleName();
+            $channel = APP['appname'].'.'.APP['env'].'.'.ApplicationConst::getRequestId();
             $logger = new Logger($channel);
             $config = $this->getShared('config');
             $stream = realpath($config['logPath']).'/app.'.date('Ymd').'.txt';
