@@ -53,7 +53,9 @@ class ServiceDi extends FactoryDefault
         $this->_services['errorLogger'] = new Service('errorLogger', function () {
             $logger = clone $this->get('logger');
             $logger->pushHandler(new EellyapiHandler());
-            $logger->pushProcessor(new WebProcessor(null, ['server', 'url', 'ip']));
+            $webProcessor = new WebProcessor(null, ['server', 'url', 'ip']);
+            $webProcessor->addExtraField('server_ip', 'SERVER_ADDR');
+            $logger->pushProcessor($webProcessor);
 
             return $logger;
         }, true);
