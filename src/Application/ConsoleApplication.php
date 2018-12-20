@@ -60,10 +60,11 @@ class ConsoleApplication
         $arrayConfig = require 'var/config/config.'.$appEnv.'.php';
         // initialize constants and config
         \define('APP', [
-            'env'      => $appEnv,
-            'key'      => $appKey,
-            'timezone' => $arrayConfig['timezone'],
-            'appname'  => $arrayConfig['appName'],
+            'env'       => $appEnv,
+            'key'       => $appKey,
+            'timezone'  => $arrayConfig['timezone'],
+            'appname'   => $arrayConfig['appName'],
+            'requestId' => (string) new ObjectId(),
         ]);
         ApplicationConst::appendRuntimeEnv(ApplicationConst::RUNTIME_ENV_CLI);
         $this->di->setShared('config', new Config($arrayConfig));
@@ -72,7 +73,7 @@ class ConsoleApplication
         /* @var EventDispatcherInterface $eventDispatcher */
         $eventDispatcher = $this->di->get('eventDispatcher');
         $eventDispatcher->addListener(ConsoleEvents::COMMAND, function (ConsoleCommandEvent $event): void {
-            ApplicationConst::setRequestId(uniqid($event->getCommand()->getName().'_', true));
+            ApplicationConst::setRequestAction($event->getCommand()->getName());
         });
         $this->application->setDispatcher($eventDispatcher);
     }

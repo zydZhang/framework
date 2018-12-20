@@ -15,7 +15,6 @@ namespace Shadon\Di;
 
 use Phalcon\Db\Profiler;
 use Phalcon\Di\Injectable as DiInjectable;
-use Shadon\Application\ApplicationConst;
 use Shadon\Db\Adapter\Pdo\Factory as PdoFactory;
 use Shadon\Db\Adapter\Pdo\Mysql;
 use Shadon\Queue\Adapter\AMQPFactory;
@@ -41,8 +40,6 @@ abstract class Injectable extends DiInjectable implements InjectionAwareInterfac
             $options['adapter'] = 'Mysql';
             $connection = PdoFactory::load($options);
             $connection->setEventsManager($this->get('eventsManager'));
-            $sql = sprintf('/* %s */', ApplicationConst::getRequestId());
-            $connection->getPdo()->exec($sql);
 
             return $connection;
         });
@@ -58,8 +55,6 @@ abstract class Injectable extends DiInjectable implements InjectionAwareInterfac
             $options['adapter'] = 'Mysql';
             $connection = PdoFactory::load($options);
             $connection->setEventsManager($this->get('eventsManager'));
-            $sql = sprintf('/* %s */', ApplicationConst::getRequestId());
-            $connection->getPdo()->exec($sql);
 
             return $connection;
         });

@@ -65,10 +65,11 @@ class WebApplication
             $arrayConfig['requestTime'] = microtime(true);
         }
         \define('APP', [
-            'env'      => $appEnv,
-            'key'      => $appKey,
-            'timezone' => $arrayConfig['timezone'],
-            'appname'  => $arrayConfig['appName'],
+            'env'       => $appEnv,
+            'key'       => $appKey,
+            'timezone'  => $arrayConfig['timezone'],
+            'appname'   => $arrayConfig['appName'],
+            'requestId' => (string) new ObjectId(),
         ]);
         ApplicationConst::appendRuntimeEnv(ApplicationConst::RUNTIME_ENV_FPM);
         $this->di->setShared('config', new Config($arrayConfig));

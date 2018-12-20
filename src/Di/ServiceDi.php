@@ -17,7 +17,6 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Monolog\Processor\WebProcessor;
 use Phalcon\Di\Service;
-use Shadon\Application\ApplicationConst;
 use Shadon\Dispatcher\ServiceDispatcher;
 use Shadon\Http\PhalconServiceResponse as ServiceResponse;
 use Shadon\Http\ServiceRequest;
@@ -42,7 +41,7 @@ class ServiceDi extends FactoryDefault
             return $this->getShared(ServiceHandler::class);
         }, true);
         $this->_services['logger'] = new Service('logger', function () {
-            $channel = APP['appname'].'.'.APP['env'].'.'.ApplicationConst::getRequestId();
+            $channel = APP['appname'].'.'.APP['env'].'.'.APP['requestId'];
             $logger = new Logger($channel);
             $config = $this->getShared('config');
             $stream = realpath($config['logPath']).'/app.'.date('Ymd').'.txt';
@@ -53,6 +52,7 @@ class ServiceDi extends FactoryDefault
         $this->_services['errorLogger'] = new Service('errorLogger', function () {
             $logger = clone $this->get('logger');
             $logger->pushHandler(new EellyapiHandler());
+            $_SERVER['UNIQUE_ID'] = APP['requestId'];
             $webProcessor = new WebProcessor(null, ['server', 'url', 'ip']);
             $webProcessor->addExtraField('server_ip', 'SERVER_ADDR');
             $logger->pushProcessor($webProcessor);

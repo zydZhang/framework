@@ -16,7 +16,6 @@ namespace Shadon\Di;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Phalcon\Di\Service;
-use Shadon\Application\ApplicationConst;
 use Shadon\Dispatcher\EventDispatcher;
 use Shadon\Dispatcher\ServiceDispatcher;
 use Shadon\Http\PhalconServiceResponse;
@@ -42,7 +41,7 @@ class ConsoleDi extends FactoryDefault
         }, true);
         $this->_services['eventDispatcher'] = new Service('eventDispatcher', EventDispatcher::class, true);
         $this->_services['logger'] = new Service('logger', function () {
-            $channel = APP['appname'].'.'.APP['env'].'.'.ApplicationConst::getRequestId();
+            $channel = APP['appname'].'.'.APP['env'].'.'.APP['requestId'];
             $logger = new Logger($channel);
             $config = $this->getShared('config');
             $stream = realpath($config['logPath']).'/app.'.date('Ymd').'.txt';

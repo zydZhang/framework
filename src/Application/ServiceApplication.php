@@ -16,6 +16,7 @@ namespace Shadon\Application;
 use Composer\Autoload\ClassLoader;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use LogicException;
+use MongoDB\BSON\ObjectId;
 use Phalcon\Config;
 use Phalcon\Dispatcher;
 use Phalcon\Events\Event;
@@ -68,10 +69,11 @@ class ServiceApplication
             $arrayConfig['requestTime'] = microtime(true);
         }
         \define('APP', [
-            'env'      => $appEnv,
-            'key'      => $appKey,
-            'timezone' => $arrayConfig['timezone'],
-            'appname'  => $arrayConfig['appName'],
+            'env'       => $appEnv,
+            'key'       => $appKey,
+            'timezone'  => $arrayConfig['timezone'],
+            'appname'   => $arrayConfig['appName'],
+            'requestId' => (string) new ObjectId(),
         ]);
         ApplicationConst::appendRuntimeEnv(ApplicationConst::RUNTIME_ENV_FPM | ApplicationConst::RUNTIME_ENV_SERVICE);
         $this->di->setShared('config', new Config($arrayConfig));
