@@ -112,11 +112,11 @@ final class ApplicationConst
     public static $oauth;
 
     /**
-     * Request Id.
+     * Request Action.
      *
      * @var string
      */
-    public static $requestId = '';
+    public static $requestAction = '';
 
     /**
      * Append runtime environment.
@@ -143,16 +143,16 @@ final class ApplicationConst
     /**
      * @return string
      */
-    public static function getRequestId(): string
+    public static function getRequestAction(): string
     {
-        return self::$requestId;
+        return self::$requestAction;
     }
 
     /**
-     * @param string $requestId
+     * @param string $requestAction
      */
-    public static function setRequestId(string $requestId): void
+    public static function setRequestAction(string $requestAction): void
     {
-        self::$requestId = $requestId;
+        self::$requestAction = $requestAction;
     }
 }
