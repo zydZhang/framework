@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Shadon\Application;
 
 use Composer\Autoload\ClassLoader;
+use MongoDB\BSON\ObjectId;
 use Phalcon\Config;
 use Shadon\Console\Application;
 use Shadon\Console\Command\FlushCacheCommand;
