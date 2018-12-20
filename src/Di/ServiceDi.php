@@ -53,7 +53,7 @@ class ServiceDi extends FactoryDefault
             $logger = clone $this->get('logger');
             $logger->pushHandler(new EellyapiHandler());
             $_SERVER['UNIQUE_ID'] = APP['requestId'];
-            
+
             $webProcessor = new WebProcessor(null, ['server', 'url', 'ip']);
             $webProcessor->addExtraField('server_ip', 'SERVER_ADDR');
             $logger->pushProcessor($webProcessor);
