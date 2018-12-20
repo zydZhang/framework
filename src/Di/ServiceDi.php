@@ -41,7 +41,7 @@ class ServiceDi extends FactoryDefault
             return $this->getShared(ServiceHandler::class);
         }, true);
         $this->_services['logger'] = new Service('logger', function () {
-            $channel = APP['appname'].'.'.APP['env'].'.'.APP['requestId'];
+            $channel = APP['appname'].'.'.APP['env'];
             $logger = new Logger($channel);
             $config = $this->getShared('config');
             $stream = realpath($config['logPath']).'/app.'.date('Ymd').'.txt';
@@ -53,6 +53,7 @@ class ServiceDi extends FactoryDefault
             $logger = clone $this->get('logger');
             $logger->pushHandler(new EellyapiHandler());
             $_SERVER['UNIQUE_ID'] = APP['requestId'];
+            
             $webProcessor = new WebProcessor(null, ['server', 'url', 'ip']);
             $webProcessor->addExtraField('server_ip', 'SERVER_ADDR');
             $logger->pushProcessor($webProcessor);
