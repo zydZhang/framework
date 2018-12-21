@@ -62,7 +62,7 @@ class Mysql extends PdoMysql
     public function connect(array $descriptor = null): bool
     {
         parent::connect($descriptor);
-        $sql = sprintf('/* %s %s*/', ApplicationConst::getRequestAction(), APP['requestId']);
+        $sql = sprintf('/* %s %s */', ApplicationConst::getRequestAction(), APP['requestId']);
         $this->_pdo->exec($sql);
 
         return true;
