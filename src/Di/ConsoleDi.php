@@ -52,6 +52,7 @@ class ConsoleDi extends FactoryDefault
         $this->_services['errorLogger'] = new Service('errorLogger', function () {
             $logger = clone $this->get('logger');
             $logger->pushHandler(new EellyapiHandler());
+            $logger->pushHandler(new StreamHandler('php://stderr', Logger::DEBUG));
 
             return $logger;
         }, true);

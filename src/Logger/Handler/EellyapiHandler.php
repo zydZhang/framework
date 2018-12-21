@@ -36,14 +36,11 @@ class EellyapiHandler extends AbstractProcessingHandler
      */
     protected function write(array $record): void
     {
-        register_shutdown_function(function ($record): void {
-            $record['datetime'] = $record['datetime']->getTimestamp();
-
-            try {
-                (new DingLogger())->monolog($record);
-            } catch (\Throwable $e) {
-                // ...
-            }
-        }, $record);
+        $record['datetime'] = $record['datetime']->getTimestamp();
+        try {
+            (new DingLogger())->monolog($record);
+        } catch (\Throwable $e) {
+            // ...
+        }
     }
 }

@@ -14,8 +14,8 @@ declare(strict_types=1);
 namespace Shadon\Console\Command;
 
 use InvalidArgumentException;
+use Monolog\Logger;
 use Phalcon\Events\EventsAwareInterface;
-use PhpAmqpLib\Connection\AbstractConnection;
 use Shadon\Di\InjectionAwareInterface;
 use Shadon\Di\Traits\InjectableTrait;
 use Shadon\Process\Process;
@@ -123,6 +123,7 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
     {
         $process = new class(function (Process $worker) use ($index): void {
             $worker->setDi($this->di);
+            $worker->setLogger($this->di->getShared('errorLogger'));
             $exchange = $this->input->getArgument('exchange');
             $routingKey = $this->input->getOption('routingKey');
             $queue = $this->input->getOption('queue');
@@ -135,24 +136,16 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
             while (true) {
                 try {
                     $consumer->consume(100);
-                } catch (
-                \PhpAmqpLib\Exception\AMQPRuntimeException |
-                \PhpAmqpLib\Exception\AMQPProtocolException |
-                \PhpAmqpLib\Exception\AMQPTimeoutException $e
-                ) {
-                    $connection = $consumer->getConnection();
-                    if ($connection instanceof AbstractConnection && $connection->isConnected()) {
-                        try {
-                            $connection->close();
-                        } catch (\PhpAmqpLib\Exception\AMQPRuntimeException $e) {
-                        }
-                    }
+                } catch (\PhpAmqpLib\Exception\AMQPTimeoutException $e) {
                     $worker->write(sprintf('%s %d -1 "%s line %s %s"', DateTime::formatTime(), $pid, \get_class($e), __LINE__, $e->getMessage()));
-                    sleep(random_int(1, 10));
+                    $connection = $consumer->getConnection();
+                    $connection->reconnect();
+                } catch (\PhpAmqpLib\Exception\AMQPRuntimeException | \PhpAmqpLib\Exception\AMQPProtocolException $e) {
+                    $worker->write(sprintf('%s %d -1 "%s line %s %s"', DateTime::formatTime(), $pid, \get_class($e), __LINE__, $e->getMessage()));
                     $consumer = $worker->createConsumer($exchange, $routingKey, $queue);
                 } catch (\Throwable $e) {
                     $worker->write(sprintf('%s %d -1 "%s line %s %s"', DateTime::formatTime(), $pid, \get_class($e), __LINE__, $e->getMessage()));
-                    $this->di->getShared('logger')->error('UncaughtException', [
+                    $this->di->getShared('errorLogger')->error('UncaughtException', [
                         'file'  => $e->getFile(),
                         'line'  => $e->getLine(),
                         'class' => \get_class($e),
@@ -160,7 +153,6 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                             $e->getMessage(),
                         ],
                     ]);
-                    break;
                 }
             }
         }) extends Process{
@@ -170,6 +162,11 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
             private $di;
 
             /**
+             * @var \Monolog\Logger
+             */
+            private $logger;
+
+            /**
              * @var Atomic
              */
             private $atomic;
@@ -177,6 +174,11 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
             public function setDi($di): void
             {
                 $this->di = $di;
+            }
+
+            public function setLogger($logger): void
+            {
+                $this->logger = $logger;
             }
 
             public function setAtomic(Atomic $atomic): void
@@ -210,13 +212,14 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                 $consumer->setExchangeOptions(['name' => $exchange, 'type' => 'topic']);
                 $consumer->setRoutingKey($routingKey);
                 $consumer->setQueueOptions(['name' => $exchange.'.'.$routingKey.'.'.$queue]);
+
                 $consumer->setCallback(
                     function ($msgBody): void {
                         try {
                             $msg = \GuzzleHttp\json_decode($msgBody, true);
                             $this->consumerCallback($msg);
                         } catch (\InvalidArgumentException $e) {
-                            $this->di->getShared('logger')->info($e->getMessage(), [$msgBody]);
+                            $this->logger->info($e->getMessage(), [$msgBody]);
                         }
                     }
                 );
@@ -232,12 +235,12 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                 try {
                     $object = $this->di->getShared($msg['class']);
                 } catch (\Phalcon\Di\Exception $e) {
-                    $this->di->getShared('logger')->info($e->getMessage(), $msg);
+                    $this->logger->warning($e->getMessage(), $msg);
 
                     return;
                 }
                 if (!method_exists($object, $msg['method'])) {
-                    $this->di->getShared('logger')->info('Error method', $msg);
+                    $this->logger->warning('Error method', $msg);
 
                     return;
                 }
@@ -250,11 +253,11 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
                 try {
                     $return = \call_user_func_array([$object, $msg['method']], $msg['params']);
                 } catch (\TypeError $e) {
-                    $this->di->getShared('logger')->critical('TypeError: queue', $msg);
+                    $this->logger->critical('TypeError: queue', $msg);
                 } catch (\LogicException $e) {
-                    $this->di->getShared('logger')->info('Logic exception: '.$e->getMessage(), $msg);
+                    $this->logger->warning('Logic exception: '.$e->getMessage(), $msg);
                 } catch (\Throwable $e) {
-                    $this->di->getShared('logger')->error($e->getMessage(), $msg);
+                    $this->logger->error($e->getMessage(), $msg);
 
                     throw $e;
                 }
@@ -270,7 +273,7 @@ class QueueConsumerCommand extends SymfonyCommand implements InjectionAwareInter
         if (false === $pid) {
             $errorNo = swoole_errno();
             $errorStr = swoole_strerror($errorNo);
-            $this->di->getShared('logger')->error("swoole error($errorNo) $errorStr");
+            $this->logger->error("swoole error($errorNo) $errorStr");
             $this->createConsumerProcess($index);
         } else {
             $this->workers[$index] = $pid;
