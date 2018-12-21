@@ -37,6 +37,7 @@ class EellyapiHandler extends AbstractProcessingHandler
     protected function write(array $record): void
     {
         $record['datetime'] = $record['datetime']->getTimestamp();
+
         try {
             (new DingLogger())->monolog($record);
         } catch (\Throwable $e) {
