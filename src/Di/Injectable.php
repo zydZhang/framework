@@ -95,7 +95,7 @@ abstract class Injectable extends DiInjectable implements InjectionAwareInterfac
             }
             /* @var \Monolog\Logger $logger */
             $logger = $di->getShared('errorLogger');
-            $logger->warning('Slow sql', $context);
+            $logger->info('Slow sql', $context);
         }, $di);
         // register modelsMetadata service
         $di->setShared('modelsMetadata', function () {
