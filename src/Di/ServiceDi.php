@@ -15,6 +15,7 @@ namespace Shadon\Di;
 
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use Monolog\Processor\TagProcessor;
 use Monolog\Processor\WebProcessor;
 use Phalcon\Di\Service;
 use Shadon\Dispatcher\ServiceDispatcher;
@@ -58,6 +59,11 @@ class ServiceDi extends FactoryDefault
             $webProcessor = new WebProcessor(null, ['server', 'url', 'ip']);
             $webProcessor->addExtraField('server_ip', 'SERVER_ADDR');
             $logger->pushProcessor($webProcessor);
+
+            /* @var ServiceDispatcher $dispatcher */
+            $dispatcher = $this->get('dispatcher');
+            $tagProcessor = new TagProcessor(['params' => $dispatcher->getParams(), 'oauth' => \Shadon\Application\ApplicationConst::$oauth]);
+            $logger->pushProcessor($tagProcessor);
 
             return $logger;
         }, true);

@@ -69,4 +69,16 @@ class Predis extends Redis
 
         return 'OK' == (string) $status;
     }
+
+    /**
+     * @return PredisResource
+     */
+    public function getPredis()
+    {
+        if (null === $this->_redis) {
+            $this->_connect();
+        }
+
+        return $this->_redis;
+    }
 }

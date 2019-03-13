@@ -16,7 +16,7 @@ namespace Shadon\Di;
 use Phalcon\Di\InjectionAwareInterface as DiInjectionAwareInterface;
 
 /**
- * @property \Phalcon\Cache\Backend                                                $cache
+ * @property \Phalcon\Cache\Backend|\Shadon\Cache\Backend\Predis                   $cache
  * @property \Phalcon\Mvc\Application                                              $application
  * @property \Phalcon\Config                                                       $config          系统配置
  * @property \Phalcon\Db\Profiler                                                  $dbProfiler
