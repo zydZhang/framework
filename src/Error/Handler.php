@@ -19,7 +19,6 @@ use Monolog\Logger;
 use Phalcon\Di\Injectable;
 use Psr\Log\LogLevel;
 use Shadon\Application\ApplicationConst;
-use Shadon\Logger\Handler\DingDingHandler;
 use Throwable;
 
 /**
@@ -86,10 +85,8 @@ class Handler extends Injectable
     {
         if (null === $this->logger) {
             $di = $this->getDI();
-            $this->logger = $di->get('logger');
-            $config = $di->getShared('config');
-            $this->logger->pushHandler(new DingDingHandler($config['dingding']));
-            $this->logger->pushHandler($di->getShared('errorViewHandler'));
+            $this->logger = $di->getShared('errorLogger');
+            $di->has('errorViewHandler') && $this->logger->pushHandler($di->getShared('errorViewHandler'));
         }
 
         return $this->logger;
@@ -116,16 +113,6 @@ class Handler extends Injectable
         if (!($code & error_reporting())) {
             return;
         }
-        if (!in_array($code, self::FATAL_ERRORS, true)) {
-            $errorLevelMap = $this->defaultErrorLevelMap();
-            $level = $errorLevelMap[$code] ?? LogLevel::CRITICAL;
-            $this->getLogger()->log($level, self::codeToString($code).': '.$message, [
-                'code'    => $code,
-                'message' => $message,
-                'file'    => $file,
-                'line'    => $line,
-            ]);
-        }
 
         throw new ErrorException($message, 0, $code, $file, $line);
     }
@@ -134,10 +121,15 @@ class Handler extends Injectable
     {
         $errorLevelMap = $this->defaultErrorLevelMap();
         $level = $errorLevelMap[$e->getCode()] ?? LogLevel::ERROR;
-        $this->getLogger()->log($level, 'Uncaught Exception: '.get_class($e), [
+        $message = $e->getMessage();
+        $encode = mb_detect_encoding($message, 'UTF-8,GBK');
+        if ('UTF-8' != $encode) {
+            $message = mb_convert_encoding($message, 'UTF-8', $encode);
+        }
+        $this->getLogger()->log($level, 'Uncaught Exception: '.\get_class($e), [
             'code'          => $e->getCode(),
-            'message'       => utf8_encode($e->getMessage()),
-            'class'         => get_class($e),
+            'message'       => $message,
+            'class'         => \get_class($e),
             'file'          => $e->getFile(),
             'line'          => $e->getLine(),
             'traceAsString' => $e->getTraceAsString(),
@@ -149,7 +141,7 @@ class Handler extends Injectable
         chdir($currPath);
         $this->reservedMemory = null;
         $lastError = error_get_last();
-        if ($lastError && in_array($lastError['type'], self::FATAL_ERRORS, true)) {
+        if ($lastError && \in_array($lastError['type'], self::FATAL_ERRORS, true)) {
             $logger = $this->getLogger();
             $logger->log(
                 LogLevel::ALERT,

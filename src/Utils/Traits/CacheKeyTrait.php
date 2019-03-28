@@ -36,7 +36,7 @@ trait CacheKeyTrait
         foreach ($parameters as $key => $value) {
             if (is_scalar($value)) {
                 $uniqueKey[] = $key.':'.$value;
-            } elseif (is_array($value)) {
+            } elseif (\is_array($value)) {
                 $uniqueKey[] = $key.':['.$this->createKeyWithArray($value).']';
             } else {
                 throw new \InvalidArgumentException('can not use cache annotation', 500);

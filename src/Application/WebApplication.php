@@ -19,6 +19,8 @@ use Shadon\Di\WebDi;
 use Shadon\Error\Handler as ErrorHandler;
 use Shadon\Mvc\Application;
 use Shadon\Session\Factory;
+use Symfony\Component\Debug\Exception\FlattenException;
+use Symfony\Component\Debug\ExceptionHandler;
 
 /**
  * Class WebApplication.
@@ -62,11 +64,12 @@ class WebApplication
         } else {
             $arrayConfig['requestTime'] = microtime(true);
         }
-        define('APP', [
-            'env'      => $appEnv,
-            'key'      => $appKey,
-            'timezone' => $arrayConfig['timezone'],
-            'appname'  => $arrayConfig['appName'],
+        \define('APP', [
+            'env'       => $appEnv,
+            'key'       => $appKey,
+            'timezone'  => $arrayConfig['timezone'],
+            'appname'   => $arrayConfig['appName'],
+            'requestId' => (string) new ObjectId(),
         ]);
         ApplicationConst::appendRuntimeEnv(ApplicationConst::RUNTIME_ENV_FPM);
         $this->di->setShared('config', new Config($arrayConfig));
@@ -100,14 +103,28 @@ class WebApplication
             ->initEventsManager()
             ->registerServices();
         $this->application->useImplicitView(true);
-        $response = $this->application->handle($uri);
+        /* @var \Phalcon\Http\Response $response */
+        $response = $this->di->getShared('response');
+
+        try {
+            $this->application->handle($uri);
+        } catch (\Throwable $e) {
+            $response->setStatusCode(500);
+            $exceptionHandler = new ExceptionHandler();
+            $flattenException = FlattenException::createFromThrowable($e);
+            echo $exceptionHandler->getHtml($flattenException);
+            $response->send();
+
+            throw $e;
+        }
 
         return $response;
     }
 
     public function run(): void
     {
-        $this->handle()->send();
+        $response = $this->handle();
+        $response->send();
     }
 
     /**

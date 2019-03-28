@@ -45,10 +45,10 @@ class SortFunHelper implements Helper
         $secondArg = (string) $parsedArgs[1];  //要排序的字段
         $thirdArg = (string) $parsedArgs[2] ? (string) $parsedArgs[2] : 'asc';
 
-        if (is_array($firstArg) && !empty($firstArg)) {
+        if (\is_array($firstArg) && !empty($firstArg)) {
             $newData = $listData = [];
             foreach ($firstArg as $fkey => $fval) {
-                if (is_array($fval) && isset($fval[$secondArg])) {
+                if (\is_array($fval) && isset($fval[$secondArg])) {
                     $newData[$fkey] = $fval[$secondArg];
                 } else {
                     $newData[$fkey] = $fval;

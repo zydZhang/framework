@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Shadon\Db\Adapter\Pdo;
 
 use Phalcon\Db\Adapter\Pdo\Mysql as PdoMysql;
+use Shadon\Application\ApplicationConst;
 
 class Mysql extends PdoMysql
 {
@@ -55,10 +56,30 @@ class Mysql extends PdoMysql
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function connect(array $descriptor = null): bool
+    {
+        parent::connect($descriptor);
+        $sql = sprintf('/* %s %s */', ApplicationConst::getRequestAction(), APP['requestId']);
+        $this->_pdo->exec($sql);
+
+        return true;
+    }
+
     public function reconnect(): void
     {
         $this->close();
         $this->connect();
+    }
+
+    /**
+     * @return \Pdo
+     */
+    public function getPdo()
+    {
+        return $this->_pdo;
     }
 
     private function isGoneAwayException(\Exception $exception)

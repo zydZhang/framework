@@ -43,7 +43,7 @@ abstract class MongoCollection extends PhalconCollection implements Unserializab
      */
     public function setId($id): void
     {
-        if (is_object($id)) {
+        if (\is_object($id)) {
             $this->_id = $id;
 
             return;
@@ -178,8 +178,8 @@ abstract class MongoCollection extends PhalconCollection implements Unserializab
      */
     public static function findById($id)
     {
-        if (!is_object($id)) {
-            $classname = get_called_class();
+        if (!\is_object($id)) {
+            $classname = \get_called_class();
             $collection = new $classname();
 
             /** @var MongoCollection $collection */
@@ -204,7 +204,7 @@ abstract class MongoCollection extends PhalconCollection implements Unserializab
      */
     public static function findFirst(array $parameters = null)
     {
-        $className = get_called_class();
+        $className = \get_called_class();
 
         /** @var MongoCollection $collection */
         $collection = new $className();
@@ -332,7 +332,7 @@ abstract class MongoCollection extends PhalconCollection implements Unserializab
          */
         $collection = $connection->selectCollection($source);
 
-        if (is_object($id)) {
+        if (\is_object($id)) {
             $mongoId = $id;
         } else {
             if ($this->_modelsManager->isUsingImplicitObjectIds($this)) {
@@ -519,7 +519,7 @@ abstract class MongoCollection extends PhalconCollection implements Unserializab
                 throw new Exception(
                     sprintf(
                         'Object of class "%s" must be an implementation of %s or an instance of %s',
-                        get_class($base),
+                        \get_class($base),
                         CollectionInterface::class,
                         Document::class
                     )
@@ -544,7 +544,7 @@ abstract class MongoCollection extends PhalconCollection implements Unserializab
          */
         $mongoCollection = $connection->selectCollection($source);
 
-        if (!is_object($mongoCollection)) {
+        if (!\is_object($mongoCollection)) {
             throw new Exception("Couldn't select mongo collection");
         }
 
@@ -557,7 +557,7 @@ abstract class MongoCollection extends PhalconCollection implements Unserializab
         /*
          * Convert the string to an array
          */
-        if (!is_array($conditions)) {
+        if (!\is_array($conditions)) {
             throw new Exception('Find parameters must be an array');
         }
 
@@ -594,7 +594,7 @@ abstract class MongoCollection extends PhalconCollection implements Unserializab
             $options['skip'] = (int) $skip;
         }
 
-        if (isset($params['fields']) && is_array($params['fields']) && !empty($params['fields'])) {
+        if (isset($params['fields']) && \is_array($params['fields']) && !empty($params['fields'])) {
             $options['projection'] = [];
 
             foreach ($params['fields'] as $key => $show) {
@@ -607,7 +607,7 @@ abstract class MongoCollection extends PhalconCollection implements Unserializab
          */
         $cursor = $mongoCollection->find($conditions, $options);
 
-        $cursor->setTypeMap(['root' => get_class($base), 'document' => 'array']);
+        $cursor->setTypeMap(['root' => \get_class($base), 'document' => 'array']);
 
         if (true === $unique) {
             /*
@@ -649,7 +649,7 @@ abstract class MongoCollection extends PhalconCollection implements Unserializab
             return true;
         }
 
-        if (is_object($id)) {
+        if (\is_object($id)) {
             $mongoId = $id;
         } else {
             /*

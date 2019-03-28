@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Shadon\Application;
 
 use Composer\Autoload\ClassLoader;
+use MongoDB\BSON\ObjectId;
 use Phalcon\Config;
 use Shadon\Console\Application;
 use Shadon\Console\Command\FlushCacheCommand;
@@ -21,6 +22,9 @@ use Shadon\Console\Command\HttpServerCommand;
 use Shadon\Console\Command\QueueConsumerCommand;
 use Shadon\Console\Command\TcpServerCommand;
 use Shadon\Di\ConsoleDi;
+use Symfony\Component\Console\ConsoleEvents;
+use Symfony\Component\Console\Event\ConsoleCommandEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @author hehui<hehui@eelly.net>
@@ -56,21 +60,30 @@ class ConsoleApplication
         $appKey = getenv('APPLICATION_KEY');
         $arrayConfig = require 'var/config/config.'.$appEnv.'.php';
         // initialize constants and config
-        define('APP', [
-            'env'      => $appEnv,
-            'key'      => $appKey,
-            'timezone' => $arrayConfig['timezone'],
-            'appname'  => $arrayConfig['appName'],
+        \define('APP', [
+            'env'       => $appEnv,
+            'key'       => $appKey,
+            'timezone'  => $arrayConfig['timezone'],
+            'appname'   => $arrayConfig['appName'],
+            'requestId' => (string) new ObjectId(),
         ]);
         ApplicationConst::appendRuntimeEnv(ApplicationConst::RUNTIME_ENV_CLI);
         $this->di->setShared('config', new Config($arrayConfig));
         date_default_timezone_set(APP['timezone']);
         $this->application = $this->di->getShared(Application::class, [ApplicationConst::APP_NAME, ApplicationConst::APP_VERSION]);
-        $this->application->setDispatcher($this->di->get('eventDispatcher'));
+        /* @var EventDispatcherInterface $eventDispatcher */
+        $eventDispatcher = $this->di->get('eventDispatcher');
+        $eventDispatcher->addListener(ConsoleEvents::COMMAND, function (ConsoleCommandEvent $event): void {
+            ApplicationConst::setRequestAction($event->getCommand()->getName());
+        });
+        $this->application->setDispatcher($eventDispatcher);
     }
 
     public function handle()
     {
+        /* @var \Monolog\Logger $logger */
+        $logger = $this->di->getShared('errorLogger');
+        \Monolog\ErrorHandler::register($logger);
         // register system commands
         $this->registerBaseCommands([
             FlushCacheCommand::class,

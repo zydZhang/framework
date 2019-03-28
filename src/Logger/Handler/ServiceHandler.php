@@ -52,7 +52,7 @@ class ServiceHandler extends AbstractProcessingHandler implements InjectionAware
     protected function write(array $record): void
     {
         $content['error'] = 'server error';
-        $content['returnType'] = $record['context']['class'];
+        $content['returnType'] = $record['context']['class'] ?? 'ErrorException';
         switch (APP['env']) {
             case ApplicationConst::ENV_TEST:
             case ApplicationConst::ENV_DEVELOPMENT:
@@ -65,6 +65,11 @@ class ServiceHandler extends AbstractProcessingHandler implements InjectionAware
         $response = $response->setStatusCode(500, $record['level_name']);
         $response = $response->setJsonContent($content);
         if (ApplicationConst::hasRuntimeEnv(ApplicationConst::RUNTIME_ENV_FPM)) {
+            $this->getDI()->getShared('eventsManager')->fire(
+                'application:beforeSendResponse',
+                $this->getDI()->getShared('application'),
+                $response
+            );
             $response->send();
         }
     }

@@ -28,11 +28,14 @@ class ServiceRequest extends HttpRequest
      */
     public function getRouteParams(): array
     {
-        if (0 === strpos($this->getHeader('Content-Type'), 'application/json')) {
+        if (0 === strpos($this->getContentType(), 'application/json')) {
             $json = $this->getRawBody();
 
             try {
                 $params = \GuzzleHttp\json_decode($json, true);
+                if (!\is_array($params)) {
+                    throw new InvalidArgumentException('Error json arguments');
+                }
             } catch (InvalidArgumentException $e) {
                 throw new RequestException(400, $e->getMessage(), $this, $this->getDI()->getShared('response'));
             }
@@ -49,7 +52,7 @@ class ServiceRequest extends HttpRequest
 
     private function sortNestedArrayAssoc($arr): bool
     {
-        if (!is_array($arr)) {
+        if (!\is_array($arr)) {
             return false;
         }
         ksort($arr);

@@ -21,32 +21,32 @@ namespace Shadon\Application;
 final class ApplicationConst
 {
     /**
-     * prod 线上.
+     * prod 生产环境.
      *
      * @var string
      */
     public const ENV_PRODUCTION = 'prod';
 
     /**
-     * local 待上线
+     * staging 预发布环境.
      *
      * @var string
      */
-    public const ENV_STAGING = 'local';
+    public const ENV_STAGING = 'staging';
 
     /**
-     * test 测试.
+     * test 测试环境.
      *
      * @var string
      */
     public const ENV_TEST = 'test';
 
     /**
-     * dev本地.
+     * develop 本地开发环境.
      *
      * @var string
      */
-    public const ENV_DEVELOPMENT = 'dev';
+    public const ENV_DEVELOPMENT = 'develop';
 
     /**
      * app name.
@@ -60,7 +60,7 @@ final class ApplicationConst
      *
      * @var string
      */
-    public const APP_VERSION = '1.0';
+    public const APP_VERSION = '0.2.4';
 
     /**
      * fpm runtime environment.
@@ -112,6 +112,13 @@ final class ApplicationConst
     public static $oauth;
 
     /**
+     * Request Action.
+     *
+     * @var string
+     */
+    public static $requestAction = '';
+
+    /**
      * Append runtime environment.
      *
      * @param int $runtimeEnv
@@ -131,5 +138,21 @@ final class ApplicationConst
     public static function hasRuntimeEnv(int $runtimeEnv): bool
     {
         return $runtimeEnv == (self::$runtimeEnv & $runtimeEnv);
+    }
+
+    /**
+     * @return string
+     */
+    public static function getRequestAction(): string
+    {
+        return self::$requestAction;
+    }
+
+    /**
+     * @param string $requestAction
+     */
+    public static function setRequestAction(string $requestAction): void
+    {
+        self::$requestAction = $requestAction;
     }
 }

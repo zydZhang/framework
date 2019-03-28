@@ -20,6 +20,7 @@ use Shadon\Dispatcher\EventDispatcher;
 use Shadon\Dispatcher\ServiceDispatcher;
 use Shadon\Http\PhalconServiceResponse;
 use Shadon\Http\SwoolePhalconRequest;
+use Shadon\Logger\Handler\EellyapiHandler;
 use Shadon\Mvc\Collection\Manager as CollectionManager;
 use Shadon\Mvc\Model\Manager as ModelsManager;
 use Shadon\Mvc\Model\Transaction\Manager as TransactionManager;
@@ -41,8 +42,6 @@ class ConsoleDi extends FactoryDefault
         $this->_services['eventDispatcher'] = new Service('eventDispatcher', EventDispatcher::class, true);
         $this->_services['logger'] = new Service('logger', function () {
             $channel = APP['appname'].'.'.APP['env'];
-            $moduleName = $this->getShared('dispatcher')->getModuleName();
-            $channel .= '.'.($moduleName ? $moduleName : 'api');
             $logger = new Logger($channel);
             $config = $this->getShared('config');
             $stream = realpath($config['logPath']).'/app.'.date('Ymd').'.txt';
@@ -50,6 +49,13 @@ class ConsoleDi extends FactoryDefault
 
             return $logger;
         });
+        $this->_services['errorLogger'] = new Service('errorLogger', function () {
+            $logger = clone $this->get('logger');
+            $logger->pushHandler(new EellyapiHandler());
+            $logger->pushHandler(new StreamHandler('php://stderr', Logger::DEBUG));
+
+            return $logger;
+        }, true);
         $this->_services['modelsManager'] = new Service('modelsManager', ModelsManager::class, true);
         $this->_services['request'] = new Service('request', SwoolePhalconRequest::class, true);
         $this->_services['response'] = new Service('response', PhalconServiceResponse::class, true);

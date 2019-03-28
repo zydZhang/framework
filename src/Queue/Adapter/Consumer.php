@@ -57,7 +57,7 @@ class Consumer extends \Thumper\Consumer
 
         $this->setUpConsumer();
 
-        while (count($this->channel->callbacks)) {
+        while (\count($this->channel->callbacks)) {
             $this->channel->wait(null, false, 30);
         }
     }

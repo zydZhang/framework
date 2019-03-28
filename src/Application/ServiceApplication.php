@@ -16,6 +16,7 @@ namespace Shadon\Application;
 use Composer\Autoload\ClassLoader;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use LogicException;
+use MongoDB\BSON\ObjectId;
 use Phalcon\Config;
 use Phalcon\Dispatcher;
 use Phalcon\Events\Event;
@@ -67,11 +68,12 @@ class ServiceApplication
         } else {
             $arrayConfig['requestTime'] = microtime(true);
         }
-        define('APP', [
-            'env'      => $appEnv,
-            'key'      => $appKey,
-            'timezone' => $arrayConfig['timezone'],
-            'appname'  => $arrayConfig['appName'],
+        \define('APP', [
+            'env'       => $appEnv,
+            'key'       => $appKey,
+            'timezone'  => $arrayConfig['timezone'],
+            'appname'   => $arrayConfig['appName'],
+            'requestId' => (string) new ObjectId(),
         ]);
         ApplicationConst::appendRuntimeEnv(ApplicationConst::RUNTIME_ENV_FPM | ApplicationConst::RUNTIME_ENV_SERVICE);
         $this->di->setShared('config', new Config($arrayConfig));
@@ -95,9 +97,10 @@ class ServiceApplication
             $this->di->getShared($bundle)->register();
         }
         $modules = [];
+        $router = $this->di->getShared('router');
         foreach ($this->di->getShared('config')->moduleList as $moduleName) {
             $namespace = ucfirst($moduleName);
-            $this->di->getShared('router')->addPost('/'.$moduleName.'/:controller/:action', [
+            $router->addPost('/'.$moduleName.'/:controller/:action', [
                 'namespace'  => $namespace.'\\Logic',
                 'module'     => $moduleName,
                 'controller' => 1,
@@ -114,8 +117,8 @@ class ServiceApplication
         try {
             $this->application->handle($uri);
         } catch (LogicException $e) {
-            $response->setHeader('returnType', get_class($e));
-            $content = ['error' => $e->getMessage(), 'returnType' => get_class($e)];
+            $response->setHeader('returnType', \get_class($e));
+            $content = ['error' => $e->getMessage(), 'returnType' => \get_class($e)];
             if (method_exists($e, 'getContext')) {
                 $content['context'] = $e->getContext();
             }
@@ -130,6 +133,9 @@ class ServiceApplication
                 'message' => $e->getMessage(),
                 'hint'    => $e->getHint(),
             ]);
+        }
+        if (isset($e)) {
+            $this->di->getShared('eventsManager')->fire('application:beforeSendResponse', $this->application, $response);
         }
 
         return $response;
@@ -150,22 +156,30 @@ class ServiceApplication
         $eventsManager->attach('dispatch:afterDispatchLoop', function (Event $event, Dispatcher $dispatcher): void {
             $returnedValue = $dispatcher->getReturnedValue();
             $response = $this->di->getShared('response');
-            if (is_object($returnedValue)) {
-                $response->setHeader('returnType', get_class($returnedValue));
+            if (\is_object($returnedValue)) {
+                $response->setHeader('returnType', \get_class($returnedValue));
                 if ($returnedValue instanceof \JsonSerializable) {
-                    $response->setJsonContent(['data' => $returnedValue, 'returnType' => get_class($returnedValue)]);
+                    $response->setJsonContent(['data' => $returnedValue, 'returnType' => \get_class($returnedValue)]);
                 }
-            } elseif (is_array($returnedValue)) {
+            } elseif (\is_array($returnedValue)) {
                 $response->setHeader('returnType', 'array');
                 $response->setJsonContent(['data' => $returnedValue, 'returnType' => 'array']);
             } elseif (is_scalar($returnedValue)) {
-                $response->setHeader('returnType', gettype($returnedValue));
+                /* @var \ReflectionMethod $classMethod */
+                $classMethod = $dispatcher->getDispatchMethod();
+                $returnType = $classMethod->getReturnType();
+                $returnTypeName = null === $returnType ? \gettype($returnedValue) : $returnType->getName();
+                $returnTypeName = 'void' == $returnTypeName ? 'null' : $returnTypeName;
+                \settype($returnedValue, $returnTypeName);
+                $response->setHeader('returnType', $returnTypeName);
                 $response->setJsonContent(
-                    ['data' => $returnedValue, 'returnType' => gettype($returnedValue)]
+                    ['data' => $returnedValue, 'returnType' => $returnTypeName]
                 );
-                if (is_string($returnedValue)) {
-                    $dispatcher->setReturnedValue($response->getContent());
-                }
+                $dispatcher->setReturnedValue($response->getContent());
+            } elseif (null === $returnedValue && empty($response->getContent())) {
+                $response->setJsonContent(
+                    ['data' => null, 'returnType' => 'null']
+                );
             }
         });
         $eventsManager->attach('router:afterCheckRoutes', function (Event $event, Router $router): void {

@@ -28,7 +28,7 @@ class Files extends MetaDataFiles
     public function reset(): void
     {
         $meta = $this->_metaData;
-        if (is_array($meta)) {
+        if (\is_array($meta)) {
             foreach ($meta as $key => $value) {
                 $path = $this->_metaDataDir.'meta-'.str_replace('\\', '_', $key).'.php';
                 if (file_exists($path)) {

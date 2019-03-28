@@ -56,6 +56,25 @@ abstract class Model extends MvcModel
     }
 
     /**
+     * save with transaction.
+     *
+     * @param null $data
+     * @param null $whiteList
+     */
+    public function saveWithTransaction(\Phalcon\Mvc\Model\TransactionInterface $transaction, $data = null, $whiteList = null)
+    {
+        $this->setTransaction($transaction);
+        $success = $this->save($data, $whiteList);
+        if (false == $success) {
+            foreach ($this->getMessages() as $message) {
+                $transaction->rollback($message->getMessage());
+            }
+        }
+
+        return $success;
+    }
+
+    /**
      * create builder.
      *
      * @param mixed  $models
@@ -128,7 +147,7 @@ abstract class Model extends MvcModel
     public function paginationSql(string $sql, int $page = 1, int $limit = 10): array
     {
         $start = ($page - 1) * $limit;
-        $count = count($this->getReadConnection()->fetchAll($sql));
+        $count = \count($this->getReadConnection()->fetchAll($sql));
         $sql .= " limit $start,$limit ";
         $data = $this->getReadConnection()->fetchAll($sql);
         if (empty($data)) {
@@ -162,7 +181,7 @@ abstract class Model extends MvcModel
      */
     public static function getField(string $field = 'base', string $alias = null): string
     {
-        $stringField = get_called_class()::FIELD_SCOPE[$field] ?? $field;
+        $stringField = \get_called_class()::FIELD_SCOPE[$field] ?? $field;
         if ($stringField && $alias) {
             $data = explode(',', $stringField);
             foreach ($data as $key => $val) {
@@ -192,7 +211,7 @@ abstract class Model extends MvcModel
         if (empty($data)) {
             return [];
         }
-        if (is_array($data)) {
+        if (\is_array($data)) {
             foreach ($data as $key => $value) {
                 $key = preg_replace_callback('/(_)([a-z])/i', function ($matches) use (&$data,&$key) {
                     unset($data[$key]);
@@ -200,7 +219,7 @@ abstract class Model extends MvcModel
                     return ucfirst($matches[2]);
                 }, $key);
                 $temp[$key] = $value;
-                if (is_array($value)) {
+                if (\is_array($value)) {
                     $temp[$key] = self::arrayToHump($value);
                 }
             }
@@ -261,7 +280,7 @@ abstract class Model extends MvcModel
      */
     public function iupdate(array $data = null, $whiteList = null)
     {
-        if (count($data) > 0) {
+        if (\count($data) > 0) {
             //获取当前模型驿应的数据表所有字段
             $attributes = $this->getModelsMetaData()->getAttributes($this);
             //取所有字段和需要更新的数据字段的差集，并过滤

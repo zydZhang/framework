@@ -24,7 +24,6 @@ class Predis extends Adapter
 
     public function __construct(array $options = [])
     {
-        $lifetime;
         if ($lifetime = $options['lifetime'] ?? '') {
             $this->_lifetime = $lifetime;
         }
@@ -37,7 +36,6 @@ class Predis extends Adapter
         $this->_redis = new CachePredis(new \Phalcon\Cache\Frontend\Igbinary([
             'lifetime' => $this->_lifetime,
         ]), $cacheOptions);
-
         session_set_save_handler(
             [$this, 'open'],
             [$this, 'close'],
@@ -45,7 +43,7 @@ class Predis extends Adapter
             [$this, 'write'],
             [$this, 'destroy'],
             [$this, 'gc']
-            );
+        );
 
         parent::__construct($options);
     }
@@ -89,9 +87,7 @@ class Predis extends Adapter
      */
     public function write(string $sessionId, string $data): bool
     {
-        $status = $this->_redis->save($sessionId, $data, $this->_lifetime);
-
-        return 'OK' === $status->getPayload() ? true : false;
+        return $this->_redis->save($sessionId, $data, $this->_lifetime);
     }
 
     /**
@@ -99,8 +95,6 @@ class Predis extends Adapter
      */
     public function destroy($sessionId = null): bool
     {
-        $id;
-
         if (null === $sessionId) {
             $id = $this->getId();
         } else {

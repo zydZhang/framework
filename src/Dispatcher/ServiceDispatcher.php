@@ -17,6 +17,7 @@ use InvalidArgumentException;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;
 use Phalcon\Mvc\Dispatcher\Exception as DispatchException;
+use Shadon\Application\ApplicationConst;
 use Shadon\Exception\RequestException;
 
 /**
@@ -24,6 +25,18 @@ use Shadon\Exception\RequestException;
  */
 class ServiceDispatcher extends Dispatcher
 {
+    /**
+     * 表单提交的空数组.
+     *
+     * @var string
+     */
+    public const FORM_EMPTY_ARRAY_STR = '/*_EMPTY_ARRAY_*/';
+
+    /**
+     * @var \ReflectionMethod
+     */
+    private $dispatchMethod;
+
     /**
      * ServiceDispatcher constructor.
      */
@@ -79,10 +92,11 @@ class ServiceDispatcher extends Dispatcher
          */
         $request = $this->getDI()->getShared('request');
         if (!class_exists($class) || !method_exists($class, $method)) {
-            throw new RequestException(404, sprintf('%s::%s not found', $class, $method), $request, $this->getDI()->getShared('response'));
+            throw new RequestException(404, sprintf('Not Found %s', $request->getURI()), $request, $this->getDI()->getShared('response'));
         }
-
+        ApplicationConst::setRequestAction($class.':'.$method);
         $classMethod = new \ReflectionMethod($class, $method);
+        $this->dispatchMethod = $classMethod;
         $parameters = $classMethod->getParameters();
         $parametersNumber = $classMethod->getNumberOfParameters();
         if (0 != $parametersNumber) {
@@ -90,13 +104,21 @@ class ServiceDispatcher extends Dispatcher
         }
         ksort($routeParams);
         $requiredParametersNumber = $classMethod->getNumberOfRequiredParameters();
-        $actualParametersNumber = count($routeParams);
+        $actualParametersNumber = \count($routeParams);
         if ($actualParametersNumber < $requiredParametersNumber) {
             $this->throwInvalidArgumentException(
                 sprintf('Too few arguments, %d passed and at least %d expected', $actualParametersNumber, $requiredParametersNumber)
             );
         }
         parent::setParams($routeParams);
+    }
+
+    /**
+     * @return \ReflectionMethod
+     */
+    public function getDispatchMethod()
+    {
+        return $this->dispatchMethod;
     }
 
     /**
@@ -122,6 +144,22 @@ class ServiceDispatcher extends Dispatcher
     {
         $functionOfThrowInvalidArgumentException = function ($position, $expectedType, $actualType): void {
             $this->throwInvalidArgumentException(sprintf('Argument %d must be of the type %s, %s given', $position, $expectedType, $actualType));
+        };
+        $functionReplaceEmptyArray = function (array $params) use (&$functionReplaceEmptyArray) {
+            $return = [];
+            foreach ($params as $key => $value) {
+                if (\is_array($value) && !empty($value)) {
+                    $return[$key] = $functionReplaceEmptyArray($value);
+                    continue;
+                }
+                if (self::FORM_EMPTY_ARRAY_STR == $value) {
+                    $return[$key] = [];
+                } else {
+                    $return[$key] = $value;
+                }
+            }
+
+            return $return;
         };
         /**
          * @var \ReflectionParameter $parameter
@@ -151,25 +189,33 @@ class ServiceDispatcher extends Dispatcher
                     $functionOfThrowInvalidArgumentException($position, $expectedType, 'null');
                 }
             }
-
             // 校验参数
             if (array_key_exists($position, $routeParams)) {
                 if (!$checkedParameter) {
-                    if (in_array($expectedType, ['bool', 'int', 'float', 'string', 'array'])) {
-                        if (is_array($routeParams[$position]) && 'array' != $expectedType) {
+                    if (\in_array($expectedType, ['bool', 'int', 'float', 'string', 'array'])) {
+                        if (\is_array($routeParams[$position]) && 'array' != $expectedType) {
                             $functionOfThrowInvalidArgumentException($position, $expectedType, 'array');
                         }
-                        if ('/*_EMPTY_ARRAY_*/' == $routeParams[$position]) {
+                        if (self::FORM_EMPTY_ARRAY_STR === $routeParams[$position]) {
                             $routeParams[$position] = [];
                         } else {
-                            settype($routeParams[$position], $expectedType);
+                            \settype($routeParams[$position], $expectedType);
+                            if (\is_array($routeParams[$position]) && !empty($routeParams[$position])) {
+                                $routeParams[$position] = $functionReplaceEmptyArray($routeParams[$position]);
+                            }
                         }
                     } elseif (!empty($expectedType) && !is_a($routeParams[$position], $expectedType)) {
-                        $functionOfThrowInvalidArgumentException($position, $expectedType, gettype($routeParams[$position]));
+                        $functionOfThrowInvalidArgumentException($position, $expectedType, \gettype($routeParams[$position]));
                     }
                 }
             } else {
                 $functionOfThrowInvalidArgumentException($position, $expectedType, 'null');
+            }
+        }
+
+        foreach ($routeParams as $key => $value) {
+            if (!\is_int($key)) {
+                $this->throwInvalidArgumentException("Unidentified argument $key");
             }
         }
     }
